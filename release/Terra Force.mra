@@ -1,0 +1,71 @@
+<misterromdescription>
+    <name>Terra Force</name>
+    <mameversion>0240</mameversion>
+    <setname>terraf</setname>
+    <year>1987</year>
+    <manufacturer>Nichibutsu</manufacturer>
+    <category>Shoot 'em up</category>
+    <rbf>terraforce</rbf>
+
+    <switches default="13,E3">
+        <!-- DSW1 -->
+        <dip name="Lives" bits="0,1" ids="6,5,4,3"/>
+        <dip name="Bonus Life" bits="2,3" ids="50k then every 90k,20k then every 90k,50k then every 60k,20k then every 60k"/>
+        <dip name="Demo Sounds" bits="4" ids="On,Off"/>
+        <dip name="Cabinet" bits="5" ids="Upright,Cocktail"/>
+        <dip name="Difficulty" bits="6,7" ids="Hardest,Hard,Normal,Easy"/>
+        <!-- DSW2 -->
+        <dip name="Coin A" bits="8,9" ids="Free Play,2/1,1/2,1/1"/>
+        <dip name="Coin B" bits="10,11" ids="2/3,2/1,1/2,1/1"/>
+        <dip name="Flip Screen" bits="13" ids="On,Off"/>
+        <dip name="Allow Continue" bits="14,15" ids="Yes,Only 5 Times,Only 3 Times,No"/>
+        <!-- P2 -->
+        <dip name="Service Mode" bits="25" ids="On,Off"/>
+    </switches>
+
+    <buttons names="Cannon Beam,Hyper Missle,-,Start,Coin" default="A,B,X,R,L" count="3"/>
+
+    <rom index="0" zip="terraf.zip" md5="None">
+
+        <!-- maincpu - starts at 0x0 -->
+        <interleave output="16">
+            <part name="8.6e" crc="fd58fa06" map="01"/>
+            <part name="3.6h" crc="54823a7d" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="7.4e" crc="fde8de7e" map="01"/>
+            <part name="2.4h" crc="db987414" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="6.3e" crc="a5bb8c3b" map="01"/>
+            <part name="1.3h" crc="d2de6d28" map="10"/>
+        </interleave>
+
+        <!-- audiocpu - starts at 0x60000 -->
+        <part name="11.17k" crc="4407d475"/>
+
+        <!-- text - starts at 0x70000 -->
+        <part name="9.11e" crc="bc6f7cbc"/>
+
+        <!-- foreground - starts at 0x78000 -->
+        <part name="5.15h" crc="25d23dfd"/>
+        <part name="4.13h" crc="b9b0fe27"/>
+
+        <!-- background - starts at 0x98000 -->
+        <part name="15.8a" crc="2144d8e0"/>
+        <part name="14.6a" crc="744f5c9e"/>
+
+        <!-- sprite - starts at 0xB8000 -->
+        <interleave output="16">
+            <part name="12.7d" crc="2d1f2ceb" map="01"/>
+            <part name="13.9d" crc="1d2f92d6" map="10"/>
+        </interleave>
+
+        <!-- nb1414m4 - starts at 0xD8000 -->
+        <part name="10.11c" crc="ac705812"/>
+
+        <!-- proms - starts at 0xDC000 -->
+        <part name="n82s129an.11j" crc="81244757"/>
+        <!-- Total 0xDC100 bytes - 880 kBytes -->
+    </rom>
+</misterromdescription>
