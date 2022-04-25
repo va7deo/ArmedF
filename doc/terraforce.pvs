@@ -1,18 +1,18 @@
-[0]
+[GND]
 name=GND
 enabled=true
 color=4279638298
 conversion_type=0
 conv_options=0
 
-[1]
-name=ipl1
+[ipl1]
+name=ipl0
 enabled=true
 color=4287582722
 conversion_type=0
 conv_options=0
 
-[2]
+[CSYNC]
 name=CSYNC
 enabled=true
 color=4291559424
@@ -116,15 +116,15 @@ views=1
 meta_objs=0
 
 [view0]
-scale=2.1810250817884406e-5
-v_offset=-148
-splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0S\0\0\a&\x1\0\0\0\x1\x1\0\0\0\x1\0)
+scale=1.6306563391765186e-5
+v_offset=22
+splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0S\0\0\t\xa6\x1\0\0\0\x1\x1\0\0\0\x1\0)
 segment_display_mode=1
 offset=22 serialization::archive 14 0 0 0 0 0 0 0 0 0 0 0 0 0 6
 zero_offset=22 serialization::archive 14 0 0 0 0 0 0 0 0 0 0 0 0 0 6
-0\trace_height=26
-1\trace_height=26
-2\trace_height=26
+GND\trace_height=26
+ipl1\trace_height=26
+CSYNC\trace_height=26
 3\trace_height=26
 4\trace_height=26
 5\trace_height=26
