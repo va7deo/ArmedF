@@ -23,7 +23,7 @@
         <dip name="Service Mode" bits="25" ids="On,Off"/>
     </switches>
 
-    <buttons names="Cannon Beam,Hyper Missle,-,Start,Coin" default="A,B,X,R,L" count="3"/>
+    <buttons names="Cannon Beam,Hyper Missle,Start 1,Start2 ,Coin,Pause,Service" default="A,B,X,R,L" count="3"/>
 
     <rom index="0" zip="terrafjb.zip" md5="None">
 

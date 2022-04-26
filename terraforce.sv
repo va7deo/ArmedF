@@ -299,40 +299,56 @@ reg [15:0] sys ;
 
 always @ (posedge clk_sys) begin
     p1 <= 16'hffff;
-//    p1[5:0] <= ~{ p1_buttons[1:0], p1_right, p1_left ,p1_down, p1_up};
+    p1[5:0] <= ~{ p1_buttons[1:0], p1_right, p1_left ,p1_down, p1_up};
      
     p2 <= 16'hffff;
-//    p2[5:0] <= ~{ p2_buttons[1:0], p2_right, p2_left ,p2_down, p2_up};
+    p2[5:0] <= ~{ p2_buttons[1:0], p2_right, p2_left ,p2_down, p2_up};
     
 //    sys <= 16'hffff;
-//    sys[8] <= ~p1_start ; // coin [5]
-//    sys[9] <= ~p2_start ;
-//    sys[10] <= ~p1_coin ; 
-//    sys[11] <= ~p2_coin ; 
-//    sys[13] <= ~sw[3][5] ;
-
+    p1[8] <= ~p1_start1  ; 
+    p1[9] <= ~p1_start2  ;
+    p1[10] <= ~p1_coin  ; 
+    p1[11] <= ~p2_coin  ; 
+    
+    p1[8] <= ~joy0[10]  ; 
+     
     dsw1 <=  16'hffcf;
     dsw2 <=  16'hff3f;
-//    dsw1 <= { sw[1], sw[0] };
 end
+
+// p1
+//	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_START1 )
+//	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_START2 )
+//	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_COIN1 )
+//	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_COIN2 )
+
+// p2
+//	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_SERVICE1 )
+//	PORT_SERVICE( 0x0200, IP_ACTIVE_LOW )
+//	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_TILT )
+//	PORT_BIT( 0xf800, IP_ACTIVE_LOW, IPT_UNKNOWN )
 
 wire       p1_up      = joy0[3] | key_p1_up;
 wire       p1_down    = joy0[2] | key_p1_down;
 wire       p1_left    = joy0[1] | key_p1_left;
 wire       p1_right   = joy0[0] | key_p1_right;
-wire [2:0] p1_buttons = joy0[6:4] | {key_p1_c, key_p1_b, key_p1_a};
+wire [1:0] p1_buttons = joy0[5:4] | {key_p1_b, key_p1_a};
 
 wire       p2_up      = joy1[3] | key_p2_up;
 wire       p2_down    = joy1[2] | key_p2_down;
 wire       p2_left    = joy1[1] | key_p2_left;
 wire       p2_right   = joy1[0] | key_p2_right;
-wire [2:0] p2_buttons = joy1[6:4] | {key_p2_c, key_p2_b, key_p2_a};
+wire [1:0] p2_buttons = joy1[5:4] | {key_p2_b, key_p2_a};
 
-wire p1_start = joy0[6] | key_p1_start;
-wire p2_start = joy1[6] | key_p2_start;
-wire p1_coin  = joy0[7] | key_p1_coin;
-wire p2_coin  = joy1[7] | key_p2_coin;
-wire b_pause  = joy0[9] | joy1[9];
+wire p1_start1 = joy0[6] | key_p1_start;
+wire p1_start2 = joy0[7] | key_p1_start;
+wire p1_coin   = joy0[8] | key_p1_coin;
+wire b_pause   = joy0[9] | joy1[9];
+
+wire p2_start1 = joy1[6] | key_p2_start;
+wire p2_start2 = joy1[7] | key_p2_start;
+wire p2_coin  =  joy1[8] | key_p2_coin;
+wire p2_start =  joy1[9] | key_p2_start;
 
 // Keyboard handler
 
@@ -559,32 +575,46 @@ always @ (posedge clk_8M) begin
             tx_pal_addr <= { gfx_txt_attr_latch2[7:4] , ( tx_x[0] ? gfx1_dout[3:0] : gfx1_dout[7:4] ) };
             gfx_txt_attr_latch3 <= gfx_txt_attr_latch2;
             
-            tile_pal_addr <= ( sprite_line_buffer[hc] > 0 ) ? 1 :
-                             ( tx_pal_addr[3:0] < 15 && tx_enable == 1 && gfx_txt_attr_latch3[3] == 0) ? tx_pal_addr :
-                             ( fg_pal_addr[3:0] < 15 && fg_enable == 1 ) ? fg_pal_addr :
-                             ( bg_pal_addr[3:0] < 15 && bg_enable == 1 ) ? bg_pal_addr : 
-                             tx_pal_addr ;
+            // lowest priority
+            tile_pal_addr <= tx_pal_addr;
+
+            // background
+            if ( bg_enable == 1 && bg_pal_addr[3:0] < 15 ) begin
+                tile_pal_addr <= bg_pal_addr ;
+            end
+             
+            // sprite priority 2
+            if ( sp_enable == 1 && sprite_line_buffer[hc][1:0] == 2 ) begin  // && sprite_line_buffer[hc][5:2] != 4'hf
+                tile_pal_addr <= ( 11'h200 + sprite_line_buffer[hc][10:2] ) ;
+            end
+            
+            if ( fg_enable == 1 && fg_pal_addr[3:0] < 15 ) begin
+                tile_pal_addr <= fg_pal_addr ;
+            end
+            
+            // sprite priority 1
+            if ( sp_enable == 1 && sprite_line_buffer[hc][1:0] == 1 ) begin // && sprite_line_buffer[hc][5:2] != 4'hf
+                tile_pal_addr <= ( 11'h200 + sprite_line_buffer[hc][10:2] ) ;
+            end
+            
+            // highest priority 
+            if ( tx_enable == 1 && tx_pal_addr[3:0] < 15 && gfx_txt_attr_latch3[3] == 0) begin
+                tile_pal_addr <=  tx_pal_addr;
+            end
+            
+            // sprite priority 0
+            if ( sp_enable == 1 && sprite_line_buffer[hc][1:0] == 0 ) begin // && sprite_line_buffer[hc][5:2] != 4'hf
+                tile_pal_addr <= ( 11'h200 + sprite_line_buffer[hc][10:2] ) ;
+            end
+
+            
+//                             tx_pal_addr ;
             rgb <= 0;
                                
-            if ( {fg_pal_addr,fg_pal_addr,tx_enable} > 0 ) begin
+            if ( {fg_pal_addr,fg_pal_addr,tx_enable} > 0 && tile_pal_addr[3:0] < 15 ) begin
                 rgb <= { tile_pal_dout[11:8], 4'b0, tile_pal_dout[7:4] , 4'b0, tile_pal_dout[3:0], 4'b0} ;
             end 
-// sprites            
-//        end else begin
-//            sprite_rom_addr <= { t2, vc[3:0], hc[3] };
-//            sprite_rom_cs <= 1;
-//
-//            case ( prev_hc[2:0] ) 
-//                3'b000: rgb <= dac[ sprite_rom_data[27:24] ];
-//                3'b001: rgb <= dac[ sprite_rom_data[31:28] ];
-//                3'b010: rgb <= dac[ sprite_rom_data[19:16] ];
-//                3'b011: rgb <= dac[ sprite_rom_data[23:20] ];
-//                3'b100: rgb <= dac[ sprite_rom_data[11:8]  ];
-//                3'b101: rgb <= dac[ sprite_rom_data[15:12] ];
-//                3'b110: rgb <= dac[ sprite_rom_data[3:0]   ];
-//                3'b111: rgb <= dac[ sprite_rom_data[7:4]   ];
-//            endcase
-//        end
+
     end
 end
 
@@ -599,7 +629,7 @@ always @ (posedge clk_sys) begin
         // tell 68k to wait for valid data. 0=ready 1=wait
         // always ack when it's not program rom
         m68k_dtack_n <= m68k_rom_cs ? !m68k_rom_valid : 
-//                        txt_ram_cs ? !txt_ram_valid :
+                        // txt_ram_cs ? !txt_ram_valid : // not needed if in bram
                         0; 
 
         // select cpu data input based on what is active 
@@ -700,6 +730,7 @@ reg [1:0] vbl_sr;
 reg bg_enable;
 reg fg_enable;
 reg tx_enable;
+reg sp_enable;
 
 // vblank handling 
 // process interrupt and sprite buffering
@@ -719,15 +750,14 @@ always @ (posedge clk_8M ) begin
             //    m_extra->set_input_line(0, HOLD_LINE);
             
             //if ( m68k_dout[14] == 1 ) begin 
-            if ( m68k_dout == 16'hcf90 || m68k_dout == 16'hc010 ) begin 
+            if ( m68k_dout == 16'hcf90 || m68k_dout == 16'hc010 || m68k_dout == 16'hc190) begin 
                 z80_b_irq_n <= 0;
             end
             bg_enable <= m68k_dout[11];
             fg_enable <= m68k_dout[10];
+            sp_enable <= m68k_dout[9];
             tx_enable <= m68k_dout[8];
-	//m_bg_tilemap->enable(m_vreg & 0x800);
-	//m_fg_tilemap->enable(m_vreg & 0x400);
-	//m_tx_tilemap->enable(m_vreg & 0x100);            
+
         end
         
         if ( M1_b_n == 0 && IORQ_b_n == 0 && z80_b_irq_n == 0 ) begin
@@ -746,122 +776,176 @@ always @ (posedge clk_8M ) begin
     end
 end
 
-        // demux - pick where we write
-//wire sprite_0_we = ( copy_sprite_state == 2 && sprite_idx[1:0] == 0 );
-//wire sprite_1_we = ( copy_sprite_state == 2 && sprite_idx[1:0] == 1 );
-//wire sprite_2_we = ( copy_sprite_state == 2 && sprite_idx[1:0] == 2 );
-//wire sprite_3_we = ( copy_sprite_state == 2 && sprite_idx[1:0] == 3 );
+always @ (posedge clk_sys) begin
+    //   copy sprite list to dedicated sprite list ram
+    // start state machine for copy
+    if ( copy_sprite_state == 0 && vbl_sr == 2'b01 ) begin
+        copy_sprite_state <= 1;    
+    end else if ( copy_sprite_state == 1 ) begin
+        sprite_shared_addr <= 0;
+        copy_sprite_state <= 2;
+        sprite_buffer_addr <= 0;
+    end else if ( copy_sprite_state == 2 ) begin
+        // address now 0
+        sprite_shared_addr <= sprite_shared_addr + 1 ;
+        copy_sprite_state <= 3; 
+    end else if ( copy_sprite_state == 3 ) begin        
+       // address 0 result
+        sprite_y_pos <= (232+128) - sprite_shared_ram_dout[8:0];
+        sprite_pri    <= sprite_shared_ram_dout[13:12];
+        sprite_shared_addr <= sprite_shared_addr + 1 ;
+        copy_sprite_state <= 4; 
+    end else if ( copy_sprite_state == 4 ) begin    
+    
+        
+        // address 1 result
+        // tile #
+        sprite_tile[11:0] <= sprite_shared_ram_dout[11:0];
 
-// buffer sprite ram @ vblank
-// each sprite uses four 16 bit words.  
-// each offset (0-3) is buffered in separate ram bank
-//always @ (posedge clk_sys) begin
-//    if ( copy_sprite_state == 0 && vbl_sr == 2'b01 ) begin
-//        copy_sprite_state <= 1;
-//    end else if ( copy_sprite_state == 1 ) begin
-//        sprite_shared_addr <= 0;
-//        copy_sprite_state <= 2;
-//
-//    end else if (copy_sprite_state == 2) begin
-//    
-//        sprite_ram_data <= sprite_shared_ram_dout;
-//
-//        sprite_0_we <= ( sprite_shared_addr[1:0] == 0 );
-//        sprite_1_we <= ( sprite_shared_addr[1:0] == 1 );
-//        sprite_2_we <= ( sprite_shared_addr[1:0] == 2 );
-//        sprite_3_we <= ( sprite_shared_addr[1:0] == 3 );
-//
-//        if ( sprite_shared_addr < 511 ) begin
-//            sprite_shared_addr <= sprite_shared_addr + 1;
-//        end else begin
-//            // done
-//            copy_sprite_state <= 0;
-//        end
-//    end
-//    
-//    if ( draw_sprite_state == 0 && hc == 320 ) begin // fix - need one line early
-//        // clear sprite buffer
-//        sprite_x_ofs <= 0;
-//        draw_sprite_state <= 1;
-//        sprite_idx <= 0; // [9:2]
-//    end else if (draw_sprite_state == 1) begin
-//        sprite_line_buffer[sprite_x_ofs] <= 0;
-//        if ( sprite_x_ofs < 255 ) begin
-//            sprite_x_ofs <= sprite_x_ofs + 1;
-//        end else begin
-//            // sprite buffer now blank
-//            draw_sprite_state <= 2;
-//        end
-//    end else if (draw_sprite_state == 2) begin        
-//        // get current sprite attributes
-//        //{sprite_tile,sprite_x_pos,sprite_y_pos,sprite_colour,sprite_flip_x,sprite_flip_y} <= sprite_buffer_dout[33:0];
-//        sprite_y_pos  <= 240 - sprite_ram_0_dout[8:0];
-//        sprite_pri    <= sprite_ram_0_dout[13:12];
-//        sprite_flip_y <= sprite_ram_1_dout[12];
-//        sprite_flip_x <= sprite_ram_1_dout[13];
-//        sprite_tile   <= sprite_ram_1_dout[10:0];
-//        sprite_colour <= sprite_ram_2_dout[12:8];
-//        sprite_x_pos  <= sprite_ram_3_dout[8:0];
-//        
-//        draw_sprite_state <= 3;
-//        sprite_x_ofs <= 0;
-//    end else if (draw_sprite_state == 3) begin    
-//        draw_sprite_state <= 4;
-//    end else if (draw_sprite_state == 4) begin                
-//        draw_sprite_state <= 3; 
-//        if ( vc >= sprite_y_pos && vc < ( sprite_y_pos + 16 ) && sprite_x_pos < 320 ) begin
-//            // fetch bitmap 
-//            //sprite_line_buffer[sprite_x_pos] <= p;
-//            sprite_line_buffer[sprite_x_pos] <= 1; // draw a block: test
-//            
-//            if ( sprite_x_ofs < 15 ) begin
-//                sprite_x_pos <= sprite_x_pos + 1;
-//                sprite_x_ofs <= sprite_x_ofs + 1;
-//            end else begin
-//                draw_sprite_state <= 6;
-//            end
-//        end else begin
-//            draw_sprite_state <= 6;
-//        end
-//    end else if (draw_sprite_state == 6) begin                        
-//        // done. next sprite
-//        if ( sprite_idx[9:2] < 127 ) begin
-//            sprite_idx <= sprite_idx + 3'b100;
-//            draw_sprite_state <= 2;
-//        end else begin
-//            // all sprites done
-//            draw_sprite_state <= 7;
-//        end
-//    end else if (draw_sprite_state == 7) begin                        
-//        // we are done. wait for end of line
-//        if ( hc == 0 ) begin
-//            draw_sprite_state <= 0;
-//        end
-//    end
-//    
-//end
+        // flip y
+        sprite_flip_y <= sprite_shared_ram_dout[12];
+
+        // flip x
+        sprite_flip_x <= sprite_shared_ram_dout[13];
+
+        sprite_shared_addr <= sprite_shared_addr + 1 ;
+        copy_sprite_state <= 5; 
+    end else if ( copy_sprite_state == 5 ) begin        
+        // colour
+        sprite_colour <= sprite_shared_ram_dout[12:8];
+        sprite_spr_lut <= sprite_shared_ram_dout[6:0];
+        
+        sprite_shared_addr <= sprite_shared_addr + 1 ;
+
+        copy_sprite_state <= 6; 
+    end else if ( copy_sprite_state == 6 ) begin        
+        sprite_x_pos <= sprite_shared_ram_dout[8:0] - 92 ;
+        
+        copy_sprite_state <= 7; 
+    end else if ( copy_sprite_state == 7 ) begin                
+        sprite_buffer_w <= 1;
+        sprite_buffer_din <= {sprite_tile,sprite_x_pos,sprite_y_pos,sprite_colour,sprite_spr_lut, sprite_flip_x,sprite_flip_y,sprite_pri};
+        
+        copy_sprite_state <= 8;
+    end else if ( copy_sprite_state == 8 ) begin                
+
+        // write is complete
+        sprite_buffer_w <= 0;
+        // sprite has been buffered.  are we done?
+        if ( sprite_buffer_addr < 8'h7f ) begin
+            // start on next sprite
+            sprite_buffer_addr <= sprite_buffer_addr + 1;
+            copy_sprite_state <= 2;
+        end else begin
+            // we are done, go idle.  
+            copy_sprite_state <= 0; 
+        end
+    end
+
+    if ( draw_sprite_state == 0 && hc >= 320 && vc >= 0 ) begin // off by one
+        // clear sprite buffer
+        sprite_x_ofs <= 0;
+        draw_sprite_state <= 1;
+        sprite_buffer_addr <= 0;
+    end else if (draw_sprite_state == 1) begin
+        sprite_line_buffer[sprite_x_ofs] <= 15;
+        if ( sprite_x_ofs < 320 ) begin
+            sprite_x_ofs <= sprite_x_ofs + 1;
+        end else begin
+            // sprite buffer now blank
+            draw_sprite_state <= 2;
+        end
+    end else if (draw_sprite_state == 2) begin        
+        // get current sprite attributes
+        {sprite_tile,sprite_x_pos,sprite_y_pos,sprite_colour,sprite_spr_lut,sprite_flip_x,sprite_flip_y,sprite_pri} <= sprite_buffer_dout;
+        draw_sprite_state <= 3;
+        sprite_x_ofs <= 0;
+    end else if (draw_sprite_state == 3) begin  
+  
+        if ( sprite_pri != 3 && vc >= sprite_y_pos && vc < ( sprite_y_pos + 16 ) && sprite_x_pos < 320 ) begin
+            if ( sprite_x_ofs[2:0] == 0 ) begin  
+                // fetch sprite bitmap 
+                sprite_rom_addr <= { sprite_tile, flipped_y[3:0], flipped_x[3] };  
+                sprite_rom_cs <= 1;
+                
+                draw_sprite_state <= 4;
+            end else begin
+                draw_sprite_state <= 5;
+            end
+        end else begin
+            draw_sprite_state <= 7;
+        end
+    end else if (draw_sprite_state == 4) begin
+    
+        // wait for bitmap read to complete
+        if ( sprite_rom_valid == 1 ) begin
+            // bitmap is only valid for one clock.  latch it.
+            sprite_data <= sprite_rom_data;
+            sprite_rom_cs <= 0;
+            
+            // read the sprite palette lookup - used for colour cycling effects
+            //spr_pal_addr <= { sprite_spr_lut, spr_pix };  // [10:0]
+
+            draw_sprite_state <= 5;
+        end
+    end else if (draw_sprite_state == 5) begin   
+        // need a clock cycle to read the sprite palette lut
+        draw_sprite_state <= 6;
+    end else if (draw_sprite_state == 6) begin       
+        draw_sprite_state <= 3; 
+        
+        if ( spr_pal_dout[3:0] != 15 ) begin // spr_pix
+            sprite_line_buffer[sprite_x_pos] <= {sprite_colour[4:0],spr_pal_dout[3:0],sprite_pri[1:0]}; //{sprite_colour[4:0],sprite_pri[1:0],spr_pal_dout[3:0]};
+        end
+        
+        if ( sprite_x_ofs < 15 ) begin
+            sprite_x_pos <= sprite_x_pos + 1;
+            sprite_x_ofs <= sprite_x_ofs + 1;
+        end else begin
+            draw_sprite_state <= 7;
+        end
+    end else if (draw_sprite_state == 7) begin                        
+        // done. next sprite
+        if ( sprite_buffer_addr < 127 ) begin
+            sprite_buffer_addr <= sprite_buffer_addr + 1;
+            draw_sprite_state <= 2;
+        end else begin
+            // all sprites done
+            draw_sprite_state <= 8;
+        end
+    end else if (draw_sprite_state == 8) begin                        
+        // we are done. wait for end of line
+        if ( hc == 0 ) begin
+            draw_sprite_state <= 0;
+        end
+    end
+end
+
+wire [10:0] spr_pal_addr = { sprite_spr_lut, spr_pix };  // [10:0]
+
+wire [3:0] spr_pix ;
+always @ (*) begin
+    case ( flipped_x[2:0] ) 
+            3'b000: spr_pix <= sprite_data[27:24]  ;
+            3'b001: spr_pix <= sprite_data[31:28]  ;
+            3'b010: spr_pix <= sprite_data[19:16] ;
+            3'b011: spr_pix <= sprite_data[23:20] ;
+            3'b100: spr_pix <= sprite_data[11:8]  ;
+            3'b101: spr_pix <= sprite_data[15:12] ;
+            3'b110: spr_pix <= sprite_data[3:0]   ;
+            3'b111: spr_pix <= sprite_data[7:4]   ;
+    endcase  
+end        
+        
+reg [5:0] spr_pal_idx;
+reg [31:0] sprite_data;
 
 wire    [3:0] sprite_y_ofs = vc - sprite_y_pos ;
 
 wire    [3:0] flipped_x = ( sprite_flip_x == 0 ) ? sprite_x_ofs : 15 - sprite_x_ofs;
 wire    [3:0] flipped_y = ( sprite_flip_y == 0 ) ? sprite_y_ofs : 15 - sprite_y_ofs;
 
-//wire   [16:0] gfx4_addr = { flipped_x[1], sprite_tile[10:0], flipped_y[3:0], flipped_x[3:2] };
-
-//wire    [3:0] gfx3_pix = (sprite_x_ofs[0] == 1 ) ? gfx3_dout[7:4] : gfx3_dout[3:0];
-
-reg sprite_0_we;
-reg sprite_1_we;
-reg sprite_2_we;
-reg sprite_3_we;
-//
-//reg  [15:0] sprite_ram_data;
-//wire [15:0] sprite_ram_0_dout;
-//wire [15:0] sprite_ram_1_dout;
-//wire [15:0] sprite_ram_2_dout;
-//wire [15:0] sprite_ram_3_dout;
-
-reg    [11:0] sprite_line_buffer [255:0];
+reg    [11:0] sprite_line_buffer [319:0];
 
 reg   [9:0] sprite_shared_addr;
 wire [15:0] sprite_shared_ram_dout;
@@ -872,10 +956,11 @@ reg   [3:0] draw_sprite_state;
 reg   [1:0] sprite_pri;
 reg   [8:0] sprite_x_ofs;
 reg   [9:0] sprite_idx;
-reg   [9:0] sprite_tile ;  
-reg   [7:0] sprite_y_pos;
+reg  [11:0] sprite_tile ;  
+reg   [8:0] sprite_y_pos;
 reg   [8:0] sprite_x_pos;
-reg   [3:0] sprite_colour;
+reg   [4:0] sprite_colour;
+reg   [6:0] sprite_spr_lut;
 
 reg   sprite_x_256;
 reg   sprite_flip_x;
@@ -1190,7 +1275,7 @@ wire z80_a_rom_ioctl_wr  = rom_download & ioctl_wr & (ioctl_addr >= 24'h0d0000) 
 
 wire nb1414m4_ioctl_wr   = rom_download & ioctl_wr & (ioctl_addr >= 24'h0f0000) & (ioctl_addr < 24'h0f4000) ;
 
-wire prom_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h0f4000) & (ioctl_addr < 24'h0f4100) ;
+//wire prom_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h0f4000) & (ioctl_addr < 24'h0f4100) ;
 
 // main 68k ram high    
 ram8kx8dp ram8kx8_H (
@@ -1201,7 +1286,7 @@ ram8kx8dp ram8kx8_H (
     .q_a (  ram68k_dout[15:8] ),
 
     .clock_b ( clk_sys ),
-    .address_b ( sprite_shared_addr ),  // 64 sprites * 4 bytes for each == 256
+    .address_b ( sprite_shared_addr ),  
     .wren_b ( 1'b0 ),
     .data_b ( ),
     .q_b( sprite_shared_ram_dout[15:8] )
@@ -1217,7 +1302,7 @@ ram8kx8dp ram8kx8_L (
     .q_a ( ram68k_dout[7:0] ),
      
     .clock_b ( clk_sys ),
-    .address_b ( sprite_shared_addr ),  // 64 sprites * 4 bytes for each == 256
+    .address_b ( sprite_shared_addr ),  
     .wren_b ( 1'b0 ),
     .data_b ( ),
     .q_b( sprite_shared_ram_dout[7:0] )
@@ -1238,7 +1323,7 @@ ram2kx8dp ram_fg_h (
     .q_a (  ),
 
     .clock_b ( clk_sys ),
-    .address_b ( fg_ram_addr ),  // 64 sprites * 4 bytes for each == 256
+    .address_b ( fg_ram_addr ),  
     .wren_b ( 1'b0 ),
     .data_b ( ),
     .q_b( fg_ram_dout[15:8] )
@@ -1254,7 +1339,7 @@ ram2kx8dp ram_fg_l (
     .q_a ( ),
      
     .clock_b ( clk_sys ),
-    .address_b ( fg_ram_addr ),  // 64 sprites * 4 bytes for each == 256
+    .address_b ( fg_ram_addr ),  
     .wren_b ( 1'b0 ),
     .data_b ( ),
     .q_b( fg_ram_dout[7:0] )
@@ -1269,7 +1354,7 @@ ram2kx8dp ram_bg_h (
     .q_a (  ),
 
     .clock_b ( clk_sys ),
-    .address_b ( bg_ram_addr ),  // 64 sprites * 4 bytes for each == 256
+    .address_b ( bg_ram_addr ),  
     .wren_b ( 1'b0 ),
     .data_b ( ),
     .q_b( bg_ram_dout[15:8] )
@@ -1285,7 +1370,7 @@ ram2kx8dp ram_fg_L (
     .q_a ( ),
      
     .clock_b ( clk_sys ),
-    .address_b ( bg_ram_addr ),  // 64 sprites * 4 bytes for each == 256
+    .address_b ( bg_ram_addr ),  
     .wren_b ( 1'b0 ),
     .data_b ( ),
     .q_b( bg_ram_dout[7:0] )
@@ -1303,7 +1388,7 @@ ram2kx8dp tile_pal_h (
     .q_a (  ),
 
     .clock_b ( clk_sys ),
-    .address_b ( tile_pal_addr ),  // 64 sprites * 4 bytes for each == 256
+    .address_b ( tile_pal_addr ),  
     .wren_b ( 1'b0 ),
     .data_b ( ),
     .q_b( tile_pal_dout[15:8] )
@@ -1319,7 +1404,7 @@ ram2kx8dp tile_pal_l (
     .q_a ( ),
      
     .clock_b ( clk_sys ),
-    .address_b ( tile_pal_addr ),  // 64 sprites * 4 bytes for each == 256
+    .address_b ( tile_pal_addr ),  
     .wren_b ( 1'b0 ),
     .data_b ( ),
     .q_b( tile_pal_dout[7:0] )
@@ -1327,7 +1412,7 @@ ram2kx8dp tile_pal_l (
     
 wire [15:0] spr_pal_dout ;
 wire [15:0] m68k_spr_pal_dout ;
-reg  [11:0] spr_pal_addr ;
+
 
 // sprite pal lut high
 ram2kx8dp spr_pal_h (
@@ -1338,7 +1423,7 @@ ram2kx8dp spr_pal_h (
     .q_a ( m68k_spr_pal_dout[15:8] ),
 
     .clock_b ( clk_sys ),
-    .address_b ( spr_pal_addr ),  // 64 sprites * 4 bytes for each == 256
+    .address_b ( spr_pal_addr ),  
     .wren_b ( 1'b0 ),
     .data_b ( ),
     .q_b( spr_pal_dout[15:8] )
@@ -1354,12 +1439,32 @@ ram2kx8dp spr_pal_L (
     .q_a (m68k_spr_pal_dout[7:0]),
      
     .clock_b ( clk_sys ),
-    .address_b ( spr_pal_addr ),  // 64 sprites * 4 bytes for each == 256
+    .address_b ( spr_pal_addr ),  
     .wren_b ( 1'b0 ),
     .data_b ( ),
     .q_b( spr_pal_dout[7:0] )
     ); 
 
+reg  [6:0]  sprite_buffer_addr;  // 128 sprites
+reg  [63:0] sprite_buffer_din;
+wire [63:0] sprite_buffer_dout;
+reg  sprite_buffer_w;
+
+ram128bx64dp sprite_buffer (
+    .clock_a ( clk_sys ),
+    .address_a ( sprite_buffer_addr ),
+    .wren_a ( 1'b0 ),
+    .data_a ( ),
+    .q_a ( sprite_buffer_dout ),
+    
+    .clock_b ( clk_sys ),
+    .address_b ( sprite_buffer_addr ),
+    .wren_b ( sprite_buffer_w ),
+    .data_b ( sprite_buffer_din  ),
+    .q_b( )
+
+    );
+    
 // m68_ram_2_cs
 
 wire [15:0] m68k_ram_2_dout ;
@@ -1375,7 +1480,7 @@ ram2kx8dp ram_2_h (
     .q_a ( m68k_ram_2_dout[15:8] ),
 
     .clock_b ( clk_sys ),
-    .address_b ( m68k_ram_2_addr ),  // 64 sprites * 4 bytes for each == 256
+    .address_b ( m68k_ram_2_addr ),  
     .wren_b ( 1'b0 ),
     .data_b ( ),
     .q_b( ram_2_dout[15:8] )
@@ -1391,56 +1496,12 @@ ram2kx8dp ram_2_L (
     .q_a ( m68k_ram_2_dout[7:0] ),
      
     .clock_b ( clk_sys ),
-    .address_b ( m68k_ram_2_addr ),  // 64 sprites * 4 bytes for each == 256
+    .address_b ( m68k_ram_2_addr ),  
     .wren_b ( 1'b0 ),
     .data_b ( ),
     .q_b( ram_2_dout[7:0] )
     ); 
 
-//reg sprite_0_we;
-//reg sprite_1_we;
-//reg sprite_2_we;
-//reg sprite_3_we;
-
-reg  [15:0] sprite_ram_data;
-wire [15:0] sprite_ram_0_dout;
-wire [15:0] sprite_ram_1_dout;
-wire [15:0] sprite_ram_2_dout;
-wire [15:0] sprite_ram_3_dout;
-
-// sprite buffer
-ram256bx16dp ram_sprite_0 (
-    .clock_a ( clk_sys ),
-    .address_a ( sprite_idx[9:2] ),
-    .wren_a ( sprite_0_we ),
-    .data_a ( sprite_ram_data  ),
-    .q_a ( sprite_ram_0_dout[15:0] ),
-    );
-
-ram256bx16dp ram_sprite_1 (
-    .clock_a ( clk_sys ),
-    .address_a ( sprite_idx[9:2] ),
-    .wren_a ( sprite_1_we ),
-    .data_a ( sprite_ram_data  ),
-    .q_a ( sprite_ram_1_dout[15:0] ),
-    );
-
-ram256bx16dp ram_sprite_2 (
-    .clock_a ( clk_sys ),
-    .address_a ( sprite_idx[9:2] ),
-    .wren_a ( sprite_2_we ),
-    .data_a ( sprite_ram_data ),
-    .q_a ( sprite_ram_2_dout[15:0] ),
-    );
-
-ram256bx16dp ram_sprite_3 (
-    .clock_a ( clk_sys ),
-    .address_a ( sprite_idx[9:2] ),
-    .wren_a ( sprite_3_we ),
-    .data_a ( sprite_ram_data ),
-    .q_a ( sprite_ram_3_dout[15:0] ),
-    );
-    
     
 wire [7:0] txt_ram_dout ;
 wire [15:0] m68k_txt_ram_dout ;
@@ -1506,7 +1567,7 @@ ram4kx8dp txt_ram_0 (
     
     // tile render read txt tile #
     .clock_b ( clk_sys ),
-    .address_b ( gfx_txt_addr ),  // 64 sprites * 4 bytes for each == 256
+    .address_b ( gfx_txt_addr ),  
     .wren_b ( 1'b0 ),
     .data_b ( ),
     .q_b( gfx_txt_dout[7:0] )
