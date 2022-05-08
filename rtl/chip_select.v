@@ -153,6 +153,7 @@ always @ (*) begin
     endcase
 end
 
+//	Armed F - Memory Map
 //	map(0x000000, 0x05ffff).rom();
 //	map(0x060000, 0x060fff).ram().share("spriteram");
 //	map(0x061000, 0x065fff).ram();
@@ -174,5 +175,32 @@ end
 //	map(0x06d00b, 0x06d00b).w(FUNC(armedf_state::sound_command_w));
 //	map(0x06d00c, 0x06d00d).nopw(); //watchdog?
 //	map(0x06d00e, 0x06d00f).w(FUNC(armedf_state::irq_lv1_ack_w));
-    
+
+//	Legion - Memory Map
+//	map(0x000000, 0x03ffff).rom();
+//	map(0x000000, 0x00003f).w(FUNC(armedf_state::legionjb_fg_scroll_w)).umask16(0x00ff);
+//	map(0x040000, 0x04003f).w(FUNC(armedf_state::legionjb_fg_scroll_w)).umask16(0x00ff);
+//	map(0x060000, 0x060fff).ram().share("spriteram");
+//	map(0x061000, 0x063fff).ram();
+//	map(0x064000, 0x064fff).ram().w(m_palette, FUNC(palette_device::write16)).share("palette");
+//	map(0x068000, 0x069fff).rw(FUNC(armedf_state::text_videoram_r), FUNC(armedf_state::text_videoram_w)).umask16(0x00ff);
+//	map(0x068000, 0x069fff).rw(FUNC(armedf_state::text_videoram_r), FUNC(armedf_state::text_videoram_w)).umask16(0x00ff);
+//	map(0x068000, 0x069fff).rw(FUNC(armedf_state::text_videoram_r), FUNC(armedf_state::text_videoram_w)).umask16(0x00ff);
+//	map(0x06a000, 0x06a9ff).ram();
+//	map(0x06c000, 0x06cfff).ram().share("spr_pal_clut");
+//	map(0x070000, 0x070fff).ram().w(FUNC(armedf_state::fg_videoram_w)).share("fg_videoram");
+//	map(0x074000, 0x074fff).ram().w(FUNC(armedf_state::bg_videoram_w)).share("bg_videoram");
+//	map(0x078000, 0x078001).portr("P1");
+//	map(0x078002, 0x078003).portr("P2");
+//	map(0x078004, 0x078005).portr("DSW1");
+//	map(0x078006, 0x078007).portr("DSW2");
+//	map(0x07c000, 0x07c001).w(FUNC(armedf_state::terraf_io_w));
+//	map(0x07c000, 0x07c001).w(FUNC(armedf_state::armedf_io_w));
+//	map(0x07c000, 0x07c001).w(FUNC(armedf_state::armedf_io_w));
+//	map(0x07c002, 0x07c003).w(FUNC(armedf_state::bg_scrollx_w));
+//	map(0x07c004, 0x07c005).w(FUNC(armedf_state::bg_scrolly_w));
+//	map(0x07c00b, 0x07c00b).w(FUNC(armedf_state::sound_command_w));
+//	map(0x07c00c, 0x07c00d).nopw();        /* Watchdog ? cycle 0000 -> 0100 -> 0200 back to 0000 */
+//	map(0x07c00e, 0x07c00f).w(FUNC(armedf_state::irq_lv2_ack_w));
+
 endmodule

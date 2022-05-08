@@ -325,45 +325,44 @@ reg [15:0] dsw2;
 
 always @ (posedge clk_sys) begin
     p1 <= 16'hffff;
-    p1[5:0] <= ~{ p1_buttons[1:0], p1_right, p1_left ,p1_down, p1_up};
+    p1[7:0] <= ~{ 1'b0, p1_buttons[2:0], p1_right, p1_left ,p1_down, p1_up};
 
     p2 <= 16'hffff;
-    p2[5:0] <= ~{ p2_buttons[1:0], p2_right, p2_left ,p2_down, p2_up};
+    p2[7:0] <= ~{ 1'b0, p1_buttons[2:0], p1_right, p1_left ,p1_down, p1_up};
 
     p1[8]  <= ~(p1_start1 | p2_start1);
     p1[9]  <= ~(p1_start2 | p2_start2);
     p1[10] <= ~p1_coin;
     p1[11] <= ~p2_coin;
 
-    p2[8]  <= ~joy0[10];
+    p2[8]  <= ~key_service;
     p2[9]  <= ~(service | key_test);
 
-    dsw1 <=  { 8'b0, ~ { ~sw[0][7:6],sw[0][5],sw[0][4],~sw[0][3:2],~sw[0][1:0] } };
-    dsw2 <=  { 8'b0, ~ { ~sw[0][7:6],sw[0][5],sw[0][4],~sw[0][3:2],~sw[0][1:0] } };
+    dsw1 <=  { 8'b0, ~ { ~sw[0][7:6],~sw[0][5],~sw[0][4],~sw[0][3:2],~sw[0][1:0] } };
+    dsw2 <=  { 8'b0, ~ { ~sw[0][7:6],~sw[0][5],~sw[0][4],~sw[0][3:2],~sw[0][1:0] } };
 end
 
 wire       p1_right   = joy0[0]   | key_p1_right;
 wire       p1_left    = joy0[1]   | key_p1_left;
 wire       p1_down    = joy0[2]   | key_p1_down;
 wire       p1_up      = joy0[3]   | key_p1_up;
-wire [1:0] p1_buttons = joy0[6:4] | {key_p1_c, key_p1_b, key_p1_a};
+wire [2:0] p1_buttons = joy0[6:4] | {key_p1_c, key_p1_b, key_p1_a};
 
 wire       p1_start1  = joy0[7]   | key_p1_start;
 wire       p1_start2  = joy0[8]   | key_p1_start;
 wire       p1_coin    = joy0[9]   | key_p1_coin;
-wire       b_pause    = joy0[10]  | joy1[9] | key_pause;
+wire       b_pause    = joy0[10]  | joy1[10] | key_pause;
 wire       service    = joy0[11]  | key_test | status [35];
 
 wire       p2_right   = joy1[0]   | key_p2_right;
 wire       p2_left    = joy1[1]   | key_p2_left;
 wire       p2_down    = joy1[2]   | key_p2_down;
 wire       p2_up      = joy1[3]   | key_p2_up;
-wire [1:0] p2_buttons = joy1[6:4] | {key_p1_c, key_p2_b, key_p2_a};
+wire [2:0] p2_buttons = joy1[6:4] | {key_p1_c, key_p2_b, key_p2_a};
 
-wire p2_start1        = joy1[7]   | key_p2_start;
-wire p2_start2        = joy1[8]   | key_p2_start;
-wire p2_coin          = joy1[9]   | key_p2_coin;
-wire p2_start         = joy1[10]  | key_p2_start;
+wire       p2_start1  = joy1[7]   | key_p2_start;
+wire       p2_start2  = joy1[8]   | key_p2_start;
+wire       p2_coin    = joy1[9]   | key_p2_coin;
 
 // Keyboard handler
 
@@ -490,7 +489,7 @@ always @ (posedge clk_sys) begin
 end
 
 wire    reset;
-assign  reset = RESET | status[0] | ioctl_download | buttons[1];
+assign  reset = RESET | status[0] | key_reset;
 
 //////////////////////////////////////////////////////////////////
 wire rotate_ccw = 1;
