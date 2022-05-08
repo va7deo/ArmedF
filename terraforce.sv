@@ -1128,10 +1128,10 @@ fx68k fx68k (
     .oHALTEDn(m68k_halted_n),
 
     // input
-    .VPAn( m68k_vpa_n ),  
-    .DTACKn( m68k_dtack_n | pause_cpu ),     
-    .BERRn(1'b1), 
-    .BRn(1'b1),  
+    .VPAn( m68k_vpa_n ),
+    .DTACKn( m68k_dtack_n | pause_cpu ),
+    .BERRn(1'b1),
+    .BRn(1'b1),
     .BGACKn(1'b1),
     
     .IPL0n(m68k_ipl0_n),

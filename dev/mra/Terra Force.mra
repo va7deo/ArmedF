@@ -17,13 +17,12 @@
         <!-- DSW2 -->
         <dip name="Coin A" bits="8,9" ids="Free Play,2/1,1/2,1/1"/>
         <dip name="Coin B" bits="10,11" ids="2/3,2/1,1/2,1/1"/>
+        <dip name="Unused" bits="12" ids="On,Off"/>
         <dip name="Flip Screen" bits="13" ids="On,Off"/>
         <dip name="Allow Continue" bits="14,15" ids="Yes,Only 5 Times,Only 3 Times,No"/>
-        <!-- P2 -->
-        <dip name="Service Mode" bits="25" ids="On,Off"/>
     </switches>
 
-    <buttons names="Cannon Beam,Hyper Missle,Start (1p),Start (2p),Coin,Pause,Service" default="A,B,X,Y,R,L,Start"/>
+    <buttons names="Cannon Beam,Hyper Missle,B3,Start (1p),Start (2p),Coin,Pause" default="A,B,X,R,L,Start,Select"/>
 
     <rom index="0" zip="terraf.zip" md5="None">
 
