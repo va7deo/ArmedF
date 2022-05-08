@@ -25,7 +25,7 @@ Currently in an alpha state, this core is in active development with assistance 
 | [**fx68k**](https://github.com/ijor/fx68k)                                                   | [**Motorola 68000 CPU**](https://en.wikipedia.org/wiki/Motorola_68000) | Jorge Cwik                    |
 | [**t80**](https://opencores.org/projects/t80)                                                | [**Zilog Z80 CPU**](https://en.wikipedia.org/wiki/Zilog_Z80)           | Daniel Wallner                |
 | [**jtopl**](https://github.com/jotego/jtopl)                                                 | [**Yamaha OPL**](https://en.wikipedia.org/wiki/Yamaha_OPL#OPL)         | Jose Tejada                   |
-| [**8051 IP Core**](https://github.com/jotego/jtframe/blob/master/hdl/cpu/jtframe_8751mcu.v)  | [**Intel 8051**](https://en.wikipedia.org/wiki/Intel_8051)             | Oregano Systems / Jose Tejada |
+| [**jt8751**](https://github.com/jotego/jtframe/blob/master/hdl/cpu/jtframe_8751mcu.v)        | [**Intel 8751**](https://en.wikipedia.org/wiki/Intel_8051)             | Oregano Systems / Jose Tejada |
 
 # Known Issues / Tasks
 
@@ -43,9 +43,9 @@ Reverse engineering of an authentic Terra Force PCB will be done by [**Darren Ol
 
 ### Clock Information
 
-H-Sync      | V-Sync      | Source           |
-------------|-------------|------------------|
-15.625kHz   | 59.092993Hz | [DSLogic +]()    |
+H-Sync      | V-Sync      | Source                                   |
+------------|-------------|------------------------------------------|
+15.625kHz   | 59.092993Hz | [DSLogic +](https://www.is.gd/AFLNoI)    |
 
 ### Crystal Oscillators
 
