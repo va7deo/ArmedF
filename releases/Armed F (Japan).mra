@@ -22,7 +22,7 @@
         <dip name="Unused" bits="15" ids="On,Off"/>
     </switches>
 
-    <buttons names="Beam,Formation,B3,Start (1p),Start (2p),Coin,Pause" default="A,B,X,R,L,Start,Select"/>
+    <buttons names="Beam,Formation,Start (1p),Start (2p),Coin,Pause" default="A,B,X,R,L,Start"/>
 
     <rom index="0" zip="armedf.zip" md5="None">
 
