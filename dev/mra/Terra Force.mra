@@ -7,10 +7,10 @@
     <category>Shoot 'em up</category>
     <rbf>terraforce</rbf>
 
-    <switches default="13,E3">
+    <switches default="00,00">
         <!-- DSW1 -->
         <dip name="Lives" bits="0,1" ids="6,5,4,3"/>
-        <dip name="Bonus Life" bits="2,3" ids="50k then every 90k,20k then every 90k,50k then every 60k,20k then every 60k"/>
+        <dip name="Bonus Life" bits="2,3" ids="50k/90k(E),20k/90k(E),50k/60k(E),20k/60k(E)"/>
         <dip name="Demo Sounds" bits="4" ids="On,Off"/>
         <dip name="Cabinet" bits="5" ids="Upright,Cocktail"/>
         <dip name="Difficulty" bits="6,7" ids="Hardest,Hard,Normal,Easy"/>
@@ -23,7 +23,7 @@
         <dip name="Service Mode" bits="25" ids="On,Off"/>
     </switches>
 
-    <buttons names="Cannon Beam,Hyper Missle,-,Start,Coin" default="A,B,X,R,L" count="3"/>
+    <buttons names="Cannon Beam,Hyper Missle,Start (1p),Start (2p),Coin,Pause,Service" default="A,B,X,Y,R,L,Start"/>
 
     <rom index="0" zip="terraf.zip" md5="None">
 
@@ -41,31 +41,41 @@
             <part name="1.3h" crc="d2de6d28" map="10"/>
         </interleave>
 
-        <!-- audiocpu - starts at 0x60000 -->
-        <part name="11.17k" crc="4407d475"/>
-
-        <!-- text - starts at 0x70000 -->
-        <part name="9.11e" crc="bc6f7cbc"/>
-
-        <!-- foreground - starts at 0x78000 -->
+        <!-- foreground - starts at 0x60000 -->
         <part name="5.15h" crc="25d23dfd"/>
         <part name="4.13h" crc="b9b0fe27"/>
 
-        <!-- background - starts at 0x98000 -->
+        <!-- background - starts at 0x80000 -->
         <part name="15.8a" crc="2144d8e0"/>
         <part name="14.6a" crc="744f5c9e"/>
+        <part repeat="0x20000"> FF</part>
 
-        <!-- sprite - starts at 0xB8000 -->
+        <!-- sprite - starts at 0xC0000 -->
         <interleave output="16">
             <part name="12.7d" crc="2d1f2ceb" map="01"/>
             <part name="13.9d" crc="1d2f92d6" map="10"/>
         </interleave>
+        <part repeat="0x20000"> FF</part>
 
-        <!-- nb1414m4 - starts at 0xD8000 -->
+        <!-- text - starts at 0x100000 -->
+        <part name="9.11e" crc="bc6f7cbc"/>
+        <part repeat="0x8000"> FF</part>
+
+        <!-- audiocpu - starts at 0x110000 -->
+        <part name="11.17k" crc="4407d475"/>
+        <part repeat="0x8000"> FF</part>
+
+        <!-- nb1414m4 - starts at 0x128000 -->
         <part name="10.11c" crc="ac705812"/>
 
-        <!-- proms - starts at 0xDC000 -->
+        <!-- proms - starts at 0x12C000 -->
         <part name="n82s129an.11j" crc="81244757"/>
-        <!-- Total 0xDC100 bytes - 880 kBytes -->
+        <part repeat="0x3F00"> FF</part>
+
+        <!-- Total 0x130000 bytes - 1216 kBytes -->
+    </rom>
+
+    <rom index="1">
+        <part>00</part>
     </rom>
 </misterromdescription>
