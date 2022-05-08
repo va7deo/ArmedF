@@ -32,7 +32,7 @@ Currently in an alpha state, this core is in active development with assistance 
 - Clock domains need to be verified  
 - H/V clock timings for CRT need to be verified  
 - Reverse engineer Terra Force and provide schematics  
-- Protection MCU i8571  
+- Protection MCU i8571 implementation    
 - Protection Chip `nb1414m4` implementation  
 
 # PCB Check List

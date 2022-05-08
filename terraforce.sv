@@ -209,8 +209,8 @@ wire [3:0] vs_offset = status[31:28];
 wire [1:0] select = status[12:11];
 wire [1:0] offset = status[14:13];
 
-assign VIDEO_ARX = (!aspect_ratio) ? (orientation  ? 8'd176 : 8'd135) : (aspect_ratio - 1'd1);
-assign VIDEO_ARY = (!aspect_ratio) ? (orientation  ? 8'd135 : 8'd176) : 12'd0;
+assign VIDEO_ARX = (!aspect_ratio) ? (orientation  ? 8'd1280 : 8'd939) : (aspect_ratio - 1'd1);
+assign VIDEO_ARY = (!aspect_ratio) ? (orientation  ? 8'd240 : 8'd313) : 12'd0;
 
 `include "build_id.v" 
 localparam CONF_STR = {
