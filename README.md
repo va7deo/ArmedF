@@ -10,7 +10,7 @@ Currently in an alpha state, this core is in active development with assistance 
 ## Supported Games
 
 | Title | Status | Released | Protection |
-|------|---------|----------|            |
+|------|---------|----------|------------|
 [**Terra Force**](https://en.wikipedia.org/wiki/Nihon_Bussan)           | Pending | N | NB1414M4 |
 [**Kozure Ōkami**](https://en.wikipedia.org/wiki/Nihon_Bussan)          | Pending | N | NB1414M4 |
 [**Chouji Meikyuu Legion**](https://en.wikipedia.org/wiki/Nihon_Bussan) | Pending | N | NB1414M4 |
@@ -45,7 +45,7 @@ Reverse engineering of an authentic Terra Force PCB will be done by [**Darren Ol
 
 H-Sync      | V-Sync      | Source           |
 ------------|-------------|------------------|
-15.625kHz   | 59.071211Hz  | [DSLogic +]()   |
+15.625kHz   | 59.092993Hz | [DSLogic +]()    |
 
 ### Crystal Oscillators
 
@@ -66,11 +66,11 @@ F1 (Bottom Board)  | 24.000     | Z80 / YM3526 |
 
 Location | Chip | Use |
 ---------|------|-----|
-D1  (Top Board)      | [**Motorola 68000 CPU**](https://en.wikipedia.org/wiki/Motorola_68000) | Main CPU                                  |
-H17 (Bottom Board)   | [**Zilog Z80 CPU**](https://en.wikipedia.org/wiki/Zilog_Z80)           | Sound CPU                                 |
-K15 (Bottom Board)   | [**Yamaha YM3812**](https://en.wikipedia.org/wiki/Yamaha_OPL#OPL2)     | OPL                                       |
-A9  (Top Board)      | [**Nichibutsu NB1414M4**]()                                            | NB1414M4 Protection MCU                   |
-D1  (Daughter Board) | [**Intel 8051**](https://en.wikipedia.org/wiki/Intel_8051)             | Protection MCU **(Tatakae! Big Fighter)** |
+D1  (Top Board)      | [**Motorola 68000 CPU**](https://en.wikipedia.org/wiki/Motorola_68000)                                                                                                                           | Main CPU                                  |
+H17 (Bottom Board)   | [**Zilog Z80 CPU**](https://en.wikipedia.org/wiki/Zilog_Z80)                                                                                                                                     | Sound CPU                                 |
+K15 (Bottom Board)   | [**Yamaha YM3812**](https://en.wikipedia.org/wiki/Yamaha_OPL#OPL2)                                                                                                                               | OPL                                       |
+A9  (Top Board)      | [**Nichibutsu NB1414M4**](https://raw.githubusercontent.com/va7deo/TerraForce/main/doc/Terra%20Force%2026494/Terra%20Force%2026494%20Front.jpg?token=GHSAT0AAAAAABKJR6W6CVBT5FROK2UKF75KYTXT2BA) | NB1414M4 Protection MCU                   |
+D1  (Daughter Board) | [**Intel 8051**](https://en.wikipedia.org/wiki/Intel_8051)                                                                                                                                       | Protection MCU **(Tatakae! Big Fighter)** |
 
 # Support
 
