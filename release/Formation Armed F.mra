@@ -1,8 +1,8 @@
 <misterromdescription>
-    <name>Terra Force Bootleg (J)</name>
+    <name>Formation Armed F</name>
     <mameversion>0240</mameversion>
-    <setname>terrafjb</setname>
-    <year>1987</year>
+    <setname>armedf</setname>
+    <year>1988</year>
     <manufacturer>Nichibutsu</manufacturer>
     <category>Shoot 'em up</category>
     <rbf>terraforce</rbf>
@@ -25,60 +25,49 @@
 
     <buttons names="Cannon Beam,Hyper Missle,Start 1,Start2 ,Coin,Pause,Service" default="A,B,X,R,L" count="3"/>
 
-    <rom index="0" zip="terrafjb.zip" md5="None">
+    <rom index="0" zip="armedf.zip" md5="None">
 
         <!-- maincpu - starts at 0x0 -->
         <interleave output="16">
-            <part name="tfj-8.bin" crc="b11a6fa7" map="01"/>
-            <part name="tfj-3.bin" crc="6c6aa7ed" map="10"/>
+            <part name="06.3d" crc="0f9015e2" map="01"/>
+            <part name="01.3f" crc="816ff7c5" map="10"/>
         </interleave>
         <interleave output="16">
-            <part name="tfj-7.bin" crc="fde8de7e" map="01"/>
-            <part name="tfj-2.bin" crc="db987414" map="10"/>
+            <part name="07.5d" crc="5b3144a5" map="01"/>
+            <part name="02.4f" crc="fa10c29d" map="10"/>
         </interleave>
         <interleave output="16">
-            <part name="tfb-6.bin" crc="552c3c63" map="01"/>
-            <part name="tfb-1.bin" crc="6a0b94c7" map="10"/>
+            <part name="af_08.rom" crc="d1d43600" map="01"/>
+            <part name="af_03.rom" crc="bbe1fe2d" map="10"/>
         </interleave>
 
-        <!-- starts at 0x58000 last two program roms are half size -->
-        <part repeat="0x10000"> FF</part>
-        
         <!-- foreground - starts at 0x60000 -->
-        <part name="5.15h" crc="25d23dfd"/>
-        <part name="4.13h" crc="b9b0fe27"/>
+        <part name="af_04.rom" crc="44d3af4f"/>
+        <part name="af_05.rom" crc="92076cab"/>
 
         <!-- background - starts at 0x80000 -->
-        <part name="15.8a" crc="2144d8e0"/>
-        <part name="14.6a" crc="744f5c9e"/>
-
+        <part name="af_14.rom" crc="8c5dc5a7"/>
+        <part name="af_13.rom" crc="136a58a3"/>
+        
         <!-- fill to line up sprite boundary -->
         <part repeat="0x20000"> FF</part>
-        
-        <!-- sprite - starts at 0xc0000 -->
+
+        <!-- sprite - starts at 0xc0000 len 0x40000 -->
         <interleave output="16">
-            <part name="tfj-12.7d" crc="d74085a1" map="01"/>
-            <part name="tfj-13.9d" crc="148aa0c5" map="10"/>
+            <part name="af_11.rom" crc="b46c473c" map="01"/>
+            <part name="af_12.rom" crc="23cb6bfe" map="10"/>
         </interleave>
 
-        <!-- fill to line up sprite boundary -->
-        <part repeat="0x20000"> FF</part>
-        
         <!-- text - starts at 0x100000 -->
-        <part name="9.11e" crc="bc6f7cbc"/>
+        <part name="09.11c" crc="5c6993d5"/>
         <part repeat="0x8000"> FF</part>
 
         <!-- audiocpu - starts at 0x110000 -->
-        <part name="tf-001.17k" crc="eb6b4138"/>
-
-        <!-- extracpu - starts at 0x120000 -->
-        <part name="tfb-10.bin" crc="3f9aa367"/>
-        <part repeat="0x4000"> FF</part>
-
-        <!-- nb1414m4 missing - starts at 0x128000 -->
-        <part repeat="0x4000"> FF</part>
-
-        <!-- proms - starts at 0x128000 -->
-        <part name="n82s129an.11j" crc="81244757"/>
+        <part name="af_10.rom" crc="c5eacb87"/>
+        
     </rom>
+    
+    <rom index="1">
+        <part>01</part>
+    </rom>    
 </misterromdescription>

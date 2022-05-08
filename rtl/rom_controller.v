@@ -19,9 +19,16 @@ module rom_controller
     // sprite ROM #1 interface
     input sprite_rom_cs,
     input sprite_rom_oe,
-    input  [16:0] sprite_rom_addr,
+    input  [17:0] sprite_rom_addr,
     output [31:0] sprite_rom_data,
     output sprite_rom_data_valid,    
+    
+    // sound ROM #1 interface
+    input sound_rom_cs,
+    input sound_rom_oe,
+    input  [15:0] sound_rom_addr,
+    output [7:0] sound_rom_data,
+    output sound_rom_data_valid,        
 
     // IOCTL interface
     input [24:0] ioctl_addr,
@@ -43,6 +50,7 @@ module rom_controller
 localparam NONE         = 0; 
 localparam PROG_ROM     = 1;
 localparam SPRITE_ROM   = 2;
+localparam SOUND_ROM    = 3;
   
 // ROM wires
 reg [2:0] rom;
@@ -52,21 +60,26 @@ reg [2:0] pending_rom;
 // ROM request wires
 reg prog_rom_ctrl_req;
 reg sprite_rom_ctrl_req;
+reg sound_rom_ctrl_req;
 
 // ROM acknowledge wires
 reg prog_rom_ctrl_ack;
 reg sprite_rom_ctrl_ack;
+reg sound_rom_ctrl_ack;
 
 reg prog_rom_ctrl_hit;
 reg sprite_rom_ctrl_hit;
+reg sound_rom_ctrl_hit;
 
 // ROM valid wires
 reg prog_rom_ctrl_valid;
 reg sprite_rom_ctrl_valid;
+reg sound_rom_ctrl_valid;
 
 // address mux wires
 reg [22:0] prog_rom_ctrl_addr;
 reg [22:0] sprite_rom_ctrl_addr;
+reg [22:0] sound_rom_ctrl_addr;
 
 // download wires
 reg [22:0] download_addr;
@@ -90,7 +103,7 @@ download_buffer #(.SIZE(4) ) download_buffer
 
 segment 
 #(
-    .ROM_ADDR_WIDTH(18), // 256 k
+    .ROM_ADDR_WIDTH(19), // 512 k - armedf is 384k
     .ROM_DATA_WIDTH(16),
     .ROM_OFFSET(24'h000000)
 ) prog_rom_segment 
@@ -111,9 +124,9 @@ segment
 
 segment 
 #(
-    .ROM_ADDR_WIDTH(17), // 128 k
+    .ROM_ADDR_WIDTH(18), // 256 k
     .ROM_DATA_WIDTH(32),
-    .ROM_OFFSET(24'h0a0000)
+    .ROM_OFFSET(24'h0c0000)
 ) sprite_rom_segment
 (
     .reset(reset),
@@ -128,6 +141,27 @@ segment
     .ctrl_data(sdram_q),
     .rom_addr(sprite_rom_addr),
     .rom_data(sprite_rom_data)
+);
+
+segment 
+#(
+    .ROM_ADDR_WIDTH(16),
+    .ROM_DATA_WIDTH(8),
+    .ROM_OFFSET(24'h110000)
+) sound_rom_segment
+(
+    .reset(reset),
+    .clk(clk),
+    .cs(sound_rom_cs & !ioctl_download),
+    .oe(sound_rom_oe),
+    .ctrl_addr(sound_rom_ctrl_addr),
+    .ctrl_req(sound_rom_ctrl_req),
+    .ctrl_ack(sound_rom_ctrl_ack),
+    .ctrl_valid(sound_rom_ctrl_valid),
+    .ctrl_hit(sound_rom_ctrl_hit),
+    .ctrl_data(sdram_q),
+    .rom_addr(sound_rom_addr),
+    .rom_data(sound_rom_data)
 );
 
 // latch the next ROM
@@ -159,6 +193,7 @@ reg sdram_valid_reg;
 // select cpu data input based on what is active
 assign prog_rom_data_valid    = prog_rom_cs   &  ( prog_rom_ctrl_hit    | (pending_rom == PROG_ROM    ?  sdram_valid  : 0) ) & ~reset;
 assign sprite_rom_data_valid  = sprite_rom_cs &  ( sprite_rom_ctrl_hit  | (pending_rom == SPRITE_ROM  ?  sdram_valid  : 0) ) & ~reset;
+assign sound_rom_data_valid   = sound_rom_cs  &  ( sound_rom_ctrl_hit   | (pending_rom == SOUND_ROM   ?  sdram_valid  : 0) ) & ~reset;
 
 always @ (*) begin
 
@@ -168,39 +203,44 @@ always @ (*) begin
     case (1)
         prog_rom_ctrl_req:      next_rom <= PROG_ROM;
         sprite_rom_ctrl_req:    next_rom <= SPRITE_ROM;
+        sound_rom_ctrl_req:     next_rom <= SOUND_ROM;
     endcase
 
     // route SDRAM acknowledge wire to the current ROM
     prog_rom_ctrl_ack <= 0;
     sprite_rom_ctrl_ack <= 0;
+    sound_rom_ctrl_ack <= 0;
 
     case (rom)
         PROG_ROM:       prog_rom_ctrl_ack <= sdram_ack;
         SPRITE_ROM:     sprite_rom_ctrl_ack <= sdram_ack;
+        SOUND_ROM:      sound_rom_ctrl_ack <= sdram_ack;
     endcase
 
     
     // route SDRAM valid wire to the pending ROM
     prog_rom_ctrl_valid  <= 0;
     sprite_rom_ctrl_valid  <= 0;
+    sound_rom_ctrl_valid  <= 0;
 
     case (pending_rom)
         PROG_ROM:       prog_rom_ctrl_valid  <= sdram_valid;
         SPRITE_ROM:     sprite_rom_ctrl_valid  <= sdram_valid;
+        SOUND_ROM:      sound_rom_ctrl_valid  <= sdram_valid;
     endcase
 
 
     // mux ROM request
-    ctrl_req <= prog_rom_ctrl_req |
-                sprite_rom_ctrl_req ;
-
-     // mux SDRAM address in priority order
-     sdram_addr <= 0;
-     case (1)
+    ctrl_req <= prog_rom_ctrl_req | sprite_rom_ctrl_req | sound_rom_ctrl_req ;
+    
+    // mux SDRAM address in priority order
+    sdram_addr <= 0;
+    case (1)
         ioctl_download:       sdram_addr <= download_addr;
         prog_rom_ctrl_req:    sdram_addr <= prog_rom_ctrl_addr;
         sprite_rom_ctrl_req:  sdram_addr <= sprite_rom_ctrl_addr;
-     endcase 
+        sound_rom_ctrl_req:   sdram_addr <= sound_rom_ctrl_addr;
+    endcase 
      
 
     // set SDRAM data input
