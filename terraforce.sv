@@ -349,7 +349,7 @@ wire       p1_up      = joy0[3]   | key_p1_up;
 wire [2:0] p1_buttons = joy0[6:4] | {key_p1_c, key_p1_b, key_p1_a};
 
 wire       p1_start1  = joy0[7]   | key_p1_start;
-wire       p1_start2  = joy0[8]   | key_p1_start;
+wire       p1_start2  = joy0[8]   | key_p2_start;
 wire       p1_coin    = joy0[9]   | key_p1_coin;
 wire       b_pause    = joy0[10]  | joy1[10] | key_pause;
 wire       service    = joy0[11]  | key_test | status [35];
@@ -360,7 +360,7 @@ wire       p2_down    = joy1[2]   | key_p2_down;
 wire       p2_up      = joy1[3]   | key_p2_up;
 wire [2:0] p2_buttons = joy1[6:4] | {key_p1_c, key_p2_b, key_p2_a};
 
-wire       p2_start1  = joy1[7]   | key_p2_start;
+wire       p2_start1  = joy1[7]   | key_p1_start;
 wire       p2_start2  = joy1[8]   | key_p2_start;
 wire       p2_coin    = joy1[9]   | key_p2_coin;
 
@@ -1129,7 +1129,7 @@ fx68k fx68k (
 
     // input
     .VPAn( m68k_vpa_n ),  
-    .DTACKn( m68k_dtack_n),     
+    .DTACKn( m68k_dtack_n | pause_cpu ),     
     .BERRn(1'b1), 
     .BRn(1'b1),  
     .BGACKn(1'b1),

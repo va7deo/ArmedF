@@ -7,21 +7,22 @@
     <category>Shoot 'em up</category>
     <rbf>terraforce</rbf>
 
-    <switches default="60,30">
+    <switches default="D7,CF">
         <!-- DSW1 -->
-        <dip name="Lives" bits="0,1" ids="3,4,5,6"/>
-        <dip name="Bonus Life" bits="2,3" ids="20k/60k(E),40k/60k(E),20k/80k(E),40k/80k(E)"/>
-        <dip name="Demo Sounds" bits="4" ids="On,Off"/>
-        <dip name="Cabinet" bits="5" ids="Cocktail,Upright"/>
-        <dip name="Difficulty" bits="6,7" ids="Easy,Normal,Hard,Hardest"/>
+        <dip name="Lives" bits="0,1" ids="6,5,4,3"/>
+        <dip name="Bonus Life" bits="2,3" ids="40k/80k(E),20k/80k(E),40k/60k(E),20k/60k(E)"/>
+        <dip name="Demo Sounds" bits="4" ids="Off,On"/>
+        <dip name="Cabinet" bits="5" ids="Upright,Cocktail"/>
+        <dip name="Difficulty" bits="6,7" ids="Hardest,Hard,Normal,Easy"/>
         <!-- DSW2 -->
-        <dip name="Coin A" bits="8,9" ids="1/1,1/2,2/1,Free Play"/>
-        <dip name="Coin B" bits="10,11" ids="1/1,1/2,2/1,2/3"/>
-        <dip name="Allow Continue" bits="12,13" ids="No,3x,5x,Yes"/>
-        <dip name="Flip Screen" bits="14" ids="Off,On"/>
+        <dip name="Coin A" bits="8,9" ids="Free Play,2/1,1/2,1/1"/>
+        <dip name="Coin B" bits="10,11" ids="2/3,2/1,1/2,1/1"/>
+        <dip name="Allow Continue" bits="12,13" ids="Yes,5,3,No"/>
+        <dip name="Flip Screen" bits="14" ids="On,Off"/>
+        <dip name="Unused" bits="15" ids="On,Off"/>
     </switches>
 
-    <buttons names="Beam,Formation,Start (1p),Start (2p),Coin,Pause" default="A,B,X,Y,R,Start"/>
+    <buttons names="Beam,Formation,B3,Start (1p),Start (2p),Coin,Pause" default="A,B,X,R,L,Start,Select"/>
 
     <rom index="0" zip="armedff.zip|armedf.zip" md5="None">
 
