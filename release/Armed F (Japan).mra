@@ -24,7 +24,7 @@
         <dip name="Service Mode" bits="25" ids="On,Off"/>
     </switches>
 
-    <buttons names="1,2,Start (1p),Start (2p),Coin,Pause" default="A,B,X,Y,R,Start"/>
+    <buttons names="Beam,Formation,Start (1p),Start (2p),Coin,Pause" default="A,B,X,Y,R,Start"/>
 
     <rom index="0" zip="armedf.zip" md5="None">
 

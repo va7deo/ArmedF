@@ -11,12 +11,12 @@ Currently in an alpha state, this core is in active development with assistance 
 
 | Title | Status | Released | Protection |
 |------|---------|----------|------------|
-[**Terra Force**](https://en.wikipedia.org/wiki/Nihon_Bussan)           | Pending | N | NB1414M4 |
-[**Kozure Ōkami**](https://en.wikipedia.org/wiki/Nihon_Bussan)          | Pending | N | NB1414M4 |
-[**Chouji Meikyuu Legion**](https://en.wikipedia.org/wiki/Nihon_Bussan) | Pending | N | NB1414M4 |
-[**Crazy Climber 2**](https://en.wikipedia.org/wiki/Nihon_Bussan)       | Pending | N | NB1414M4 |
-[**Armed F**](https://en.wikipedia.org/wiki/Formation_Armed_F)          | Pending | N | None     |
-[**Tatakae! Big Fighter**](https://en.wikipedia.org/wiki/Nihon_Bussan)  | Pending | N | i8751    |
+[**Terra Force**](https://en.wikipedia.org/wiki/Nihon_Bussan)           | Pending     | N | NB1414M4 |
+[**Kozure Ōkami**](https://en.wikipedia.org/wiki/Nihon_Bussan)          | Pending     | N | NB1414M4 |
+[**Chouji Meikyuu Legion**](https://en.wikipedia.org/wiki/Nihon_Bussan) | Pending     | N | NB1414M4 |
+[**Crazy Climber 2**](https://en.wikipedia.org/wiki/Nihon_Bussan)       | Pending     | N | NB1414M4 |
+[**Armed F**](https://en.wikipedia.org/wiki/Formation_Armed_F)          | Implemented | N | None     |
+[**Tatakae! Big Fighter**](https://en.wikipedia.org/wiki/Nihon_Bussan)  | Pending     | N | i8751    |
 
 ## External Modules
 
