@@ -2,7 +2,7 @@
     <name>Armed F (Japan)</name>
     <mameversion>0240</mameversion>
     <setname>armedf</setname>
-    <year>1987</year>
+    <year>1988</year>
     <manufacturer>Nichibutsu</manufacturer>
     <category>Shoot 'em up</category>
     <rbf>terraforce</rbf>
@@ -72,7 +72,6 @@
         <!-- Total 0x130000 bytes - 1216 kBytes -->
     </rom>
 
-    <!-- Vertical game -->
     <rom index="1">
         <part>01</part>
     </rom>
