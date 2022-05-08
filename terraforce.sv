@@ -413,18 +413,18 @@ end
 wire    pause_cpu;
 wire    hs_pause;
 
-pause #(4,4,4,48) pause (
-    .clk_sys(clk_sys),
-    .reset(reset),
-    .user_button(b_pause),
-    .pause_request(hs_pause),
-    .options(~status[26:25]),
-    .pause_cpu(pause_cpu),
-    .OSD_STATUS(0),
-    .r(rgb[11:8]),
-    .g(rgb[7:4]),
-    .b(rgb[3:0]),
-);
+//pause #(4,4,4,48) pause (
+//    .clk_sys(clk_sys),
+//    .reset(reset),
+//    .user_button(b_pause),
+//    .pause_request(hs_pause),
+//    .options(~status[26:25]),
+//    .pause_cpu(pause_cpu),
+////    .OSD_STATUS(0),
+//    .r(rgb[11:8]),
+//    .g(rgb[7:4]),
+//    .b(rgb[3:0]),
+//);
 
 
 reg user_flip;
@@ -1129,7 +1129,8 @@ fx68k fx68k (
 
     // input
     .VPAn( m68k_vpa_n ),
-    .DTACKn( m68k_dtack_n | pause_cpu ),
+    .DTACKn( m68k_dtack_n ),
+//    .DTACKn( m68k_dtack_n | pause_cpu ),
     .BERRn(1'b1),
     .BRn(1'b1),
     .BGACKn(1'b1),
