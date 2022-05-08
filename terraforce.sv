@@ -336,10 +336,10 @@ always @ (posedge clk_sys) begin
     p1[11] <= ~p2_coin;
 
     p2[8]  <= ~joy0[10];
-    p2[9]  <= ~(service | key_test)
+    p2[9]  <= ~(service | key_test);
 
-    dsw1 <=  { 8'b0, ~(~sw[0][7:6],sw[0][5],sw[0][4],~sw[0][3:2],~sw[0][1:0]) };
-    dsw2 <=  { 8'b0, ~(~sw[0][7:6],sw[0][5],sw[0][4],~sw[0][3:2],~sw[0][1:0]) };
+    dsw1 <=  { 8'b0, ~ { ~sw[0][7:6],sw[0][5],sw[0][4],~sw[0][3:2],~sw[0][1:0] } };
+    dsw2 <=  { 8'b0, ~ { ~sw[0][7:6],sw[0][5],sw[0][4],~sw[0][3:2],~sw[0][1:0] } };
 end
 
 wire       p1_right   = joy0[0]   | key_p1_right;
