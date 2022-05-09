@@ -33,10 +33,10 @@ Currently in an alpha state, this core is in active development with assistance 
 - H/V clock timings for CRT need to be verified  
 - Sprite Handling for 6MHz pxl clk and sdram memory controller  
 - Screen Flip implementation  
+- Player 2 tied to screen flip/coctail mode  
 - Y/C video output  
 - ~~Implement keyboard handler / service menu~~  
 - Reverse engineer Terra Force and provide schematics  
-- Separate controls for player 2  
 - Protection MCU i8571 implementation (**Tatakae! Big Fighter**)    
 - Protection Chip **NB1414M4** implementation  
 
@@ -98,7 +98,7 @@ A9  (Top Board)  | [**NB1414M4**](https://raw.githubusercontent.com/va7deo/Terra
 
 | Cabinet Style      | Game    | Joystick | Push Button | Start Button | Shared Controls | Dip Default  |
 |-|-|-|-|-|-|-|
-| Cocktail / Upright | Armed F | 8-way    | 3           | 2            | Yes             | **Cocktail** |
+| Table / Upright    | Armed F | 8-way    | 3           | 2            | Upright         | **Table** |
 
 ### Keyboard Handler
 
