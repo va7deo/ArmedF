@@ -15,7 +15,7 @@ Currently in an alpha state, this core is in active development with assistance 
 [**Kozure Ōkami**](https://en.wikipedia.org/wiki/Nihon_Bussan)          | Pending     | N         | NB1414M4 |
 [**Chouji Meikyuu Legion**](https://en.wikipedia.org/wiki/Nihon_Bussan) | Pending     | N         | NB1414M4 |
 [**Crazy Climber 2**](https://en.wikipedia.org/wiki/Nihon_Bussan)       | Pending     | N         | NB1414M4 |
-[**Armed F**](https://en.wikipedia.org/wiki/Formation_Armed_F)          | Implemented | **Y** | None     |
+[**Armed F**](https://en.wikipedia.org/wiki/Formation_Armed_F)          | Implemented | **Y**     | None     |
 [**Tatakae! Big Fighter**](https://en.wikipedia.org/wiki/Nihon_Bussan)  | Pending     | N         | i8751    |
 
 ## External Modules
@@ -24,12 +24,12 @@ Currently in an alpha state, this core is in active development with assistance 
 |----|---------|--------|
 | [**fx68k**](https://github.com/ijor/fx68k)                                                   | [**Motorola 68000 CPU**](https://en.wikipedia.org/wiki/Motorola_68000) | Jorge Cwik                    |
 | [**t80**](https://opencores.org/projects/t80)                                                | [**Zilog Z80 CPU**](https://en.wikipedia.org/wiki/Zilog_Z80)           | Daniel Wallner                |
-| [**jtopl2**](https://github.com/jotego/jtopl)                                                 | [**Yamaha OPL 2**](https://en.wikipedia.org/wiki/Yamaha_OPL#OPL2)         | Jose Tejada                   |
+| [**jtopl2**](https://github.com/jotego/jtopl)                                                | [**Yamaha OPL 2**](https://en.wikipedia.org/wiki/Yamaha_OPL#OPL2)      | Jose Tejada                   |
 | [**jt8751**](https://github.com/jotego/jtframe/blob/master/hdl/cpu/jtframe_8751mcu.v)        | [**Intel 8751**](https://en.wikipedia.org/wiki/Intel_8051)             | Oregano Systems / Jose Tejada |
 
 # Known Issues / Tasks
 
-- Clock domains need to be verified  
+- ~~Clock domains need to be verified~~  
 - H/V clock timings for CRT need to be verified  
 - Sprite Handling for 6MHz pxl clk and sdram memory controller  
 - Screen Flip implementation  
@@ -42,7 +42,7 @@ Currently in an alpha state, this core is in active development with assistance 
 
 # PCB Check List
 
-FPGA implementation is based on Terra Force and will be verified against an authentic Nichibutsu U.S.A Terra Force PCB and bootleg PCB. 
+FPGA implementation is based on Terra Force and will be verified against an authentic Nichibutsu U.S.A Terra Force PCB and bootleg PCB.
 
 The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra Force based) 68000 hardware.
 
@@ -73,10 +73,10 @@ F1 (Bottom Board)  | 24.000     | Z80 / YM3526 |
 
 Location | Chip | Use |
 ---------|------|-----|
-D1  (Top Board)      | [**Motorola 68000 CPU**](https://en.wikipedia.org/wiki/Motorola_68000)                                                                                                                           | Main CPU                                  |
-H17 (Bottom Board)   | [**Zilog Z80 CPU**](https://en.wikipedia.org/wiki/Zilog_Z80)                                                                                                                                     | Sound CPU                                 |
-K15 (Bottom Board)   | [**Yamaha YM3812**](https://en.wikipedia.org/wiki/Yamaha_OPL#OPL2)                                                                                                                               | OPL                                       |
-D1  (Daughter Board) | [**Intel 8051**](https://en.wikipedia.org/wiki/Intel_8051)                                                                                                                                       | Protection MCU **(Tatakae! Big Fighter)** |
+D1  (Top Board)      | [**Motorola 68000 CPU**](https://en.wikipedia.org/wiki/Motorola_68000)   | Main CPU                                  |
+H17 (Bottom Board)   | [**Zilog Z80 CPU**](https://en.wikipedia.org/wiki/Zilog_Z80)             | Sound CPU                                 |
+K15 (Bottom Board)   | [**Yamaha YM3812**](https://en.wikipedia.org/wiki/Yamaha_OPL#OPL2)       | OPL                                       |
+D1  (Daughter Board) | [**Intel 8751**](https://en.wikipedia.org/wiki/Intel_8051)               | Protection MCU **(Tatakae! Big Fighter)** |
 
 ### Nichibutsu Custom Components
 
@@ -96,9 +96,9 @@ A9  (Top Board)  | [**NB1414M4**](https://raw.githubusercontent.com/va7deo/Terra
 
 ![controls_tf](https://user-images.githubusercontent.com/32810066/167370068-13dadae8-e7f5-478f-90b4-8d5f5f5c7316.png)
 
-| Cabinet Style | Game | Joystick | Push Button | Start Button | Shared Controls | Dip Default |
+| Cabinet Style      | Game    | Joystick | Push Button | Start Button | Shared Controls | Dip Default  |
 |-|-|-|-|-|-|-|
-| Cocktail / Upright | Armed F | 8-way | 3 | 2 | Yes | **Cocktail** |
+| Cocktail / Upright | Armed F | 8-way    | 3           | 2            | Yes             | **Cocktail** |
 
 ### Keyboard Handler
 
