@@ -36,10 +36,11 @@ The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra 
 
 - ~~Clock domains need to be verified~~  
 - H/V clock timings for CRT need to be verified  
-- Sprite Handling for 6MHz pxl clk and sdram memory controller  
+- ~~Sprite Handling for 6MHz pxl clk and sdram memory controller~~  
 - Screen Flip implementation  
-- Player 2 tied to screen flip/table mode  
-- Y/C video output  
+- Player 2 controls tied to screen flip/table mode  
+- ~~Y/C video output~~  
+- Dot Crawl on Y/C video output  
 - ~~Implement keyboard handler / service menu~~  
 - Reverse engineer Terra Force and provide schematics  
 - Protection MCU i8571 implementation (**Tatakae! Big Fighter**)    
@@ -93,7 +94,7 @@ A hidden debug menu can be accessed for **Terra Force, Kozure Ōkami, Chouji Mei
 
 **Follow these steps to access the debug menu:** 
 
-- Turn on  **Service Menu** in the debug OSD options or press **F2**. Then turn on **Debug Menu** or press and hold **R**, **A**, **S** . For **Crazy Climber 2** press and hold  **Up** and **R**.<br>
+- Turn on  **Service Menu** in the debug OSD options or press **F2**. Then turn on **Debug Menu** or press and hold **R**, **A**, **S** . For **Crazy Climber 2** press and hold  **Up** and **R**.<br><br>
 - Toggle the **Debug Menu** to off in the OSD or keep those keys held and press **F2**.
 <br>
 
@@ -118,6 +119,8 @@ Armed F| 8-Way | <p align="center"><img width="120" height="160" src="https://us
 <br>
 
 - Upright cabinets share a **1L3B** control panel layout. Players are required to switch controller. If set the cabinet type is set to table, the screen inverts for cocktail mode per player and has multiple controls. <br><br>Push button 3 may have no function in game, but corresponds to the original hardware and service menu.
+
+<br>
 
 ### Keyboard Handler
 
