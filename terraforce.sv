@@ -212,6 +212,9 @@ wire [1:0] offset = status[14:13];
 assign VIDEO_ARX = (!aspect_ratio) ? (orientation  ? 8'd176 : 8'd135) : (aspect_ratio - 1'd1);
 assign VIDEO_ARY = (!aspect_ratio) ? (orientation  ? 8'd135 : 8'd176) : 12'd0;
 
+//assign VIDEO_ARX = (!aspect_ratio) ? (orientation  ? 8'd1280 : 8'd939) : (aspect_ratio - 1'd1);
+//assign VIDEO_ARY = (!aspect_ratio) ? (orientation  ? 8'd240 : 8'd313) : 12'd0;
+
 `include "build_id.v" 
 localparam CONF_STR = {
     "Terra Force;;",
@@ -220,13 +223,18 @@ localparam CONF_STR = {
     "P1-;",
     "P1O89,Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
     "P1OA,Orientation,Horz,Vert;",
-    "P1OBC,Page   0-3,0,1,2,3;",    
-    "P1ODE,Offset 0-3,0,1,2,3;",   
     "P1-;",
     "P1O46,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
     "P1OOR,H-sync Adjust,0,1,2,3,4,5,6,7,-8,-7,-6,-5,-4,-3,-2,-1;",
     "P1OSV,V-sync Adjust,0,1,2,3,4,5,6,7,-8,-7,-6,-5,-4,-3,-2,-1;",
     "DIP;",
+//    "-;",
+//    "P2,Pause options;",
+//    "P2OP,Pause when OSD is open,On,Off;",
+//    "P2OQ,Dim video after 10s,On,Off;",
+    "P3,Debug;",
+    "P3-;",
+    "P3o3,Service Menu,Off,On;",
     "-;",
     "R0,Reset;",
     "J1,Button 1,Button 2,Button 3,Start,Coin,Pause;",
@@ -288,8 +296,6 @@ wire [24:0] ioctl_addr;
 wire  [7:0] ioctl_dout;
 wire  [7:0] ioctl_din;
 
-reg   [2:0] pcb;
-
 always @(posedge clk_sys) begin
     if (ioctl_wr && (ioctl_index==1)) begin
         pcb <= ioctl_dout;
@@ -298,17 +304,58 @@ end
 
 wire [21:0] gamma_bus;
 
+// p1 (bigfgtr)
+//  PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(1)
+//  PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(1)
+//  PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(1)
+//  PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(1)
+//  PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+//  PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
+//  PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
+//  PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_UNKNOWN )
+//  PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_START1 )
+//  PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_START2 )
+//  PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_COIN1 )
+//  PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_COIN2 )
+//  PORT_BIT( 0xf000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+// p2 (bigfgtr)
+//  PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(2)
+//  PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(2)
+//  PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(2)
+//  PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(2)
+//  PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+//  PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+//  PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
+//  PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_UNKNOWN )
+//  PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_SERVICE1 )
+//  PORT_SERVICE( 0x0200, IP_ACTIVE_LOW )
+//  PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_UNKNOWN )
+//  PORT_BIT( 0xf800, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+// p1
+//  PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_START1 )
+//  PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_START2 )
+//  PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_COIN1 )
+//  PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_COIN2 )
+//  PORT_BIT( 0xf000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+// p2
+//  PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_SERVICE1 )
+//  PORT_SERVICE( 0x0200, IP_ACTIVE_LOW )
+//  PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_TILT )
+//  PORT_BIT( 0xf800, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
 //<buttons names="Fire,Jump,Start,Coin,Pause" default="A,B,R,L,Start" />
-reg [15:0] p1 ;
+reg [15:0] p1;
 reg [15:0] p2;
-reg [15:0] dsw1 ;
-reg [15:0] dsw2 ;
-reg [15:0] sys ;
+reg [15:0] dsw1;
+reg [15:0] dsw2;
 
 always @ (posedge clk_sys) begin
     p1 <= 16'hffff;
-    p1[5:0] <= ~{ p1_buttons[1:0], p1_right, p1_left ,p1_down, p1_up};
-     
+    p1[7:0] <= ~{ 1'b0, p1_buttons[2:0], p1_right, p1_left ,p1_down, p1_up};
+
     p2 <= 16'hffff;
     p2[5:0] <= ~{ p2_buttons[1:0], p2_right, p2_left ,p2_down, p2_up};
     
@@ -318,60 +365,107 @@ always @ (posedge clk_sys) begin
     p1[10] <= ~p1_coin  ; 
     p1[11] <= ~p2_coin  ; 
     
+    p2[7:0] <= ~{ 1'b0, p1_buttons[2:0], p1_right, p1_left ,p1_down, p1_up};
     p2[8] <= ~joy0[10] ; 
     p2[9] <= ~sw[2][0] ;
-     
-    //dsw1 <=  { 8'b0, ~sw[0] };
-    dsw1 <=  { 8'b0, ~ { ~sw[0][7:6],sw[0][5],sw[0][4],~sw[0][3:2],~sw[0][1:0] } };
-    dsw2 <=  { 8'b0, ~sw[1] };
+
+    p1[8]  <= ~(p1_start1 | p2_start1);
+    p1[9]  <= ~(p1_start2 | p2_start2);
+    p1[10] <= ~p1_coin;
+    p1[11] <= ~p2_coin;
+
+    p2[8]  <= ~key_service;
+    p2[9]  <= ~(service | key_test);
+
+    dsw1 <=  { 8'b0, ~ { ~sw[0][7:6],~sw[0][5],~sw[0][4],~sw[0][3:2],~sw[0][1:0] } };
+    dsw2 <=  { 8'b0, ~ { ~sw[0][7:6],~sw[0][5],~sw[0][4],~sw[0][3:2],~sw[0][1:0] } };
+
 end
 
-// p1
-//	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_START1 )
-//	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_START2 )
-//	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_COIN1 )
-//	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_COIN2 )
+wire       p1_right   = joy0[0]   | key_p1_right;
+wire       p1_left    = joy0[1]   | key_p1_left;
+wire       p1_down    = joy0[2]   | key_p1_down;
+wire       p1_up      = joy0[3]   | key_p1_up;
+wire [2:0] p1_buttons = joy0[6:4] | {key_p1_c, key_p1_b, key_p1_a};
 
-// p2
-//	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_SERVICE1 )
-//	PORT_SERVICE( 0x0200, IP_ACTIVE_LOW )
-//	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_TILT )
-//	PORT_BIT( 0xf800, IP_ACTIVE_LOW, IPT_UNKNOWN )
+wire       p1_start1  = joy0[7]   | key_p1_start;
+wire       p1_start2  = joy0[8]   | key_p2_start;
+wire       p1_coin    = joy0[9]   | key_p1_coin;
+wire       b_pause    = joy0[10]  | joy1[10] | key_pause;
+wire       service    = joy0[11]  | key_test | status [35];
 
-wire       p1_right   = joy0[0] | key_p1_right;
-wire       p1_left    = joy0[1] | key_p1_left;
-wire       p1_down    = joy0[2] | key_p1_down;
-wire       p1_up      = joy0[3] | key_p1_up;
-wire [1:0] p1_buttons = joy0[5:4] | {key_p1_b, key_p1_a};
-wire       p1_start1  = joy0[6] | key_p1_start;
-wire       p1_start2  = joy0[7] | key_p1_start;
-wire       p1_coin    = joy0[8] | key_p1_coin;
-wire       b_pause    = joy0[9] | joy1[9];
+wire       p2_right   = joy1[0]   | key_p2_right;
+wire       p2_left    = joy1[1]   | key_p2_left;
+wire       p2_down    = joy1[2]   | key_p2_down;
+wire       p2_up      = joy1[3]   | key_p2_up;
+wire [2:0] p2_buttons = joy1[6:4] | {key_p1_c, key_p2_b, key_p2_a};
 
-wire       p2_right   = joy1[0] | key_p2_right;
-wire       p2_left    = joy1[1] | key_p2_left;
-wire       p2_down    = joy1[2] | key_p2_down;
-wire       p2_up      = joy1[3] | key_p2_up;
-wire [1:0] p2_buttons = joy1[5:4] | {key_p2_b, key_p2_a};
-
-wire p2_start1 = joy1[6] | key_p2_start;
-wire p2_start2 = joy1[7] | key_p2_start;
-wire p2_coin  =  joy1[8] | key_p2_coin;
-wire p2_start =  joy1[9] | key_p2_start;
+wire       p2_start1  = joy1[7]   | key_p1_start;
+wire       p2_start2  = joy1[8]   | key_p2_start;
+wire       p2_coin    = joy1[9]   | key_p2_coin;
 
 // Keyboard handler
 
 wire key_p1_start, key_p2_start, key_p1_coin, key_p2_coin;
-wire key_test, key_reset, key_service;
+wire key_test, key_reset, key_service, key_pause;
 
 wire key_p1_up, key_p1_left, key_p1_down, key_p1_right, key_p1_a, key_p1_b, key_p1_c;
 wire key_p2_up, key_p2_left, key_p2_down, key_p2_right, key_p2_a, key_p2_b, key_p2_c;
 
 wire pressed = ps2_key[9];
 
+always @(posedge clk_sys) begin
+    reg old_state;
+
+    old_state <= ps2_key[10];
+    if(old_state ^ ps2_key[10]) begin
+        casex(ps2_key[8:0])
+            'h016: key_p1_start   <= pressed; // 1
+            'h01e: key_p2_start   <= pressed; // 2
+            'h02E: key_p1_coin    <= pressed; // 5
+            'h036: key_p2_coin    <= pressed; // 6
+            'h006: key_test       <= key_test ^ pressed; // f2
+            'h004: key_reset      <= pressed; // f3
+            'h046: key_service    <= pressed; // 9
+            'h04D: key_pause      <= pressed; // p
+
+            'hX75: key_p1_up      <= pressed; // up
+            'hX72: key_p1_down    <= pressed; // down
+            'hX6b: key_p1_left    <= pressed; // left
+            'hX74: key_p1_right   <= pressed; // right
+            'h014: key_p1_a       <= pressed; // lctrl
+            'h011: key_p1_b       <= pressed; // lalt
+            'h029: key_p1_c       <= pressed; // spacebar
+
+            'h02d: key_p2_up      <= pressed; // r
+            'h02b: key_p2_down    <= pressed; // f
+            'h023: key_p2_left    <= pressed; // d
+            'h034: key_p2_right   <= pressed; // g
+            'h01c: key_p2_a       <= pressed; // a
+            'h01b: key_p2_b       <= pressed; // s
+            'h015: key_p2_c       <= pressed; // q
+
+        endcase
+    end
+end
+
 // PAUSE SYSTEM
 wire    pause_cpu;
 wire    hs_pause;
+
+//pause #(4,4,4,48) pause (
+//    .clk_sys(clk_sys),
+//    .reset(reset),
+//    .user_button(b_pause),
+//    .pause_request(hs_pause),
+//    .options(~status[26:25]),
+//    .pause_cpu(pause_cpu),
+////    .OSD_STATUS(0),
+//    .r(rgb[11:8]),
+//    .g(rgb[7:4]),
+//    .b(rgb[3:0]),
+//);
+
 
 reg user_flip;
 
@@ -435,7 +529,7 @@ always @ (posedge clk_sys) begin
 end
 
 wire    reset;
-assign  reset = RESET | status[0] | ioctl_download | buttons[1];
+assign  reset = RESET | status[0] | key_reset;
 
 //////////////////////////////////////////////////////////////////
 wire rotate_ccw = 1;
@@ -705,6 +799,12 @@ always @ (posedge clk_sys) begin
     end
 end 
 
+// Select PCB Title and set chip select lines
+reg [2:0]  pcb;
+reg [15:0] bg_scroll_x;
+reg [15:0] bg_scroll_y;
+reg [7:0]  sound_latch;
+
 wire    m68k_rom_cs;
 wire    m68k_ram_cs;
 wire    m68k_tile_pal_cs;
@@ -734,7 +834,7 @@ wire z80_a_dac1_cs;
 wire z80_a_dac2_cs;
 wire z80_a_latch_clr_cs;
 wire z80_a_latch_r_cs;
-    
+
 chip_select cs (
     .pcb(pcb),
 
@@ -779,11 +879,6 @@ chip_select cs (
     .z80_latch_clr_cs(z80_a_latch_clr_cs),
     .z80_latch_r_cs(z80_a_latch_r_cs)
 );
-
-reg [15:0] bg_scroll_x;
-reg [15:0] bg_scroll_y;
-
-reg [7:0]  sound_latch;
 
 // CPU outputs
 wire m68k_rw         ;    // Read = 1, Write = 0
@@ -1112,10 +1207,11 @@ fx68k fx68k (
     .oHALTEDn(m68k_halted_n),
 
     // input
-    .VPAn( m68k_vpa_n ),  
-    .DTACKn( m68k_dtack_n),     
-    .BERRn(1'b1), 
-    .BRn(1'b1),  
+    .VPAn( m68k_vpa_n ),
+    .DTACKn( m68k_dtack_n ),
+//    .DTACKn( m68k_dtack_n | pause_cpu ),
+    .BERRn(1'b1),
+    .BRn(1'b1),
     .BGACKn(1'b1),
     
     .IPL0n(m68k_ipl0_n),
@@ -1423,7 +1519,7 @@ reg [7:0] gfx4_dout;
 wire [15:0] ram68k_dout;
 //wire [15:0] prog_rom_data;
 
-// ioctl download addressing    
+// ioctl download addressing
 wire rom_download = ioctl_download && (ioctl_index==0);
 
 wire m68k_rom_h_ioctl_wr = rom_download & ioctl_wr & (ioctl_addr  < 24'h060000) & (ioctl_addr[0] == 1);
@@ -1635,7 +1731,7 @@ reg  [63:0] sprite_buffer_din;
 wire [63:0] sprite_buffer_dout;
 reg  sprite_buffer_w;
 
-ram128bx64dp sprite_buffer (
+ram512bx64dp sprite_buffer (
     .clock_a ( clk_sys ),
     .address_a ( sprite_buffer_addr ),
     .wren_a ( 1'b0 ),

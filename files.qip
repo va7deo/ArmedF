@@ -1,5 +1,6 @@
 set_global_assignment -name SDC_FILE terraforce.sdc
 set_global_assignment -name SYSTEMVERILOG_FILE terraforce.sv
+set_global_assignment -name SYSTEMVERILOG_FILE rtl/pause.sv
 set_global_assignment -name VHDL_FILE rtl/mem/math.vhd
 set_global_assignment -name QIP_FILE rtl/t80/T80.qip
 set_global_assignment -name QIP_FILE rtl/fx86k/fx68k.qip
@@ -11,6 +12,7 @@ set_global_assignment -name QIP_FILE sys/pll_cfg.qip
 set_global_assignment -name QIP_FILE sys/pll_audio.qip
 set_global_assignment -name CDF_FILE jtag.cdf
 set_global_assignment -name QIP_FILE sys/sys.qip
+set_global_assignment -name VERILOG_FILE rtl/pause.v
 set_global_assignment -name VERILOG_FILE rtl/chip_select.v
 set_global_assignment -name VERILOG_FILE rtl/rom_controller.v
 set_global_assignment -name VERILOG_FILE rtl/mem/cache.v
