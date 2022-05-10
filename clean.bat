@@ -1,10 +1,8 @@
-del /s *.bak
 del /s *.orig
 del /s *.rej
 del /s *~
 rmdir /s /q db
 rmdir /s /q incremental_db
-rmdir /s /q output_files
 rmdir /s /q simulation
 rmdir /s /q greybox_tmp
 rmdir /s /q hc_output
@@ -26,7 +24,6 @@ del /s *.spd
 del /s *.bsf
 del /s *.f
 del /s *.sopcinfo
-del /s *.xml
 del *.cdf
 del *.rpt
 del /s new_rtl_netlist

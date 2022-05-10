@@ -321,7 +321,8 @@ always @ (posedge clk_sys) begin
     p2[8] <= ~joy0[10] ; 
     p2[9] <= ~sw[2][0] ;
      
-    dsw1 <=  { 8'b0, ~sw[0] };
+    //dsw1 <=  { 8'b0, ~sw[0] };
+    dsw1 <=  { 8'b0, ~ { ~sw[0][7:6],sw[0][5],sw[0][4],~sw[0][3:2],~sw[0][1:0] } };
     dsw2 <=  { 8'b0, ~sw[1] };
 end
 
@@ -453,7 +454,8 @@ wire [8:0] vc;
 wire hsync;
 wire vsync;
 
-wire hbl_delay, vbl_delay;
+wire hbl_delay ;//= hbl;
+wire vbl_delay ;//= vbl;
 
 delay delay_hbl( .clk(clk_8M), .i( hbl ), .o(hbl_delay) ) ;
 delay delay_vbl( .clk(clk_8M), .i( vbl ), .o(vbl_delay) ) ;
@@ -506,13 +508,13 @@ wire [9:0] fg_y ;//= vc + fg_scroll_y[9:0] + 8;
 always @ (*) begin
     if ( pcb == 0 ) begin
         tx_x <= hc - 32;
-        tx_y <= vc + 8;
+        tx_y <= vc ;
         
         bg_x <= hc + bg_scroll_x[9:0] + 96 ; //ok
-        bg_y <= vc + bg_scroll_y[9:0] + 8;
+        bg_y <= vc + bg_scroll_y[9:0] ;
         
         fg_x <= hc + fg_scroll_x[9:0] + 96 ; //ok
-        fg_y <= vc + fg_scroll_y[9:0] + 8;
+        fg_y <= vc + fg_scroll_y[9:0] ;
     end else begin
         tx_x <= hc + 96 ;
         tx_y <= vc ;
@@ -556,6 +558,8 @@ always @ (posedge clk_8M) begin
         ticks <= 0;
     end else begin
         ticks <= ticks + 1;
+        
+        sprite_fb_addr_r <= {vc[0], hc[8:0]};
         
         // make this a pipline
         fg_x_latch <= fg_x;
@@ -612,7 +616,7 @@ always @ (posedge clk_8M) begin
             tx_pal_addr <= { gfx_txt_attr_latch2[7:4] , ( tx_x[0] ? gfx1_dout[3:0] : gfx1_dout[7:4] ) };
             gfx_txt_attr_latch3 <= gfx_txt_attr_latch2;
             
-            draw_pix <= 0;
+           draw_pix <= 0;
             
             // lowest priority
             if ( tx_enable == 1 && tx_pal_addr[3:0] != 15 ) begin
@@ -627,8 +631,10 @@ always @ (posedge clk_8M) begin
             end
              
             // sprite priority 2
-            if ( sp_enable == 1 && sprite_line_buffer[hc][1:0] == 2 ) begin  
-                tile_pal_addr <= ( 11'h200 + sprite_line_buffer[hc][10:2] ) ;
+//            if ( sp_enable == 1 && sprite_line_buffer[hc][1:0] == 2 ) begin  
+//                tile_pal_addr <= ( 11'h200 + sprite_line_buffer[hc][10:2] ) ;
+            if ( sp_enable == 1 && sprite_fb_out[1:0] == 2 ) begin  
+                tile_pal_addr <= ( 11'h200 + sprite_fb_out[10:2] ) ;
                 draw_pix <= 1;
             end
             
@@ -638,8 +644,10 @@ always @ (posedge clk_8M) begin
             end
             
             // sprite priority 1
-            if ( sp_enable == 1 && sprite_line_buffer[hc][1:0] == 1 ) begin 
-                tile_pal_addr <= ( 11'h200 + sprite_line_buffer[hc][10:2] ) ;
+//            if ( sp_enable == 1 && sprite_line_buffer[hc][1:0] == 1 ) begin 
+//                tile_pal_addr <= ( 11'h200 + sprite_line_buffer[hc][10:2] ) ;
+            if ( sp_enable == 1 && sprite_fb_out[1:0] == 1 ) begin 
+                tile_pal_addr <= ( 11'h200 + sprite_fb_out[10:2] ) ;
                 draw_pix <= 1;
             end
             
@@ -650,8 +658,10 @@ always @ (posedge clk_8M) begin
             end
             
             // sprite priority 0
-            if ( sp_enable == 1 && sprite_line_buffer[hc][1:0] == 0 ) begin 
-                tile_pal_addr <= ( 11'h200 + sprite_line_buffer[hc][10:2] ) ;
+//            if ( sp_enable == 1 && sprite_line_buffer[hc][1:0] == 0 ) begin 
+//                tile_pal_addr <= ( 11'h200 + sprite_line_buffer[hc][10:2] ) ;
+            if ( sp_enable == 1 && sprite_fb_out[1:0] == 0 ) begin 
+                tile_pal_addr <= ( 11'h200 + sprite_fb_out[10:2] ) ;
                 draw_pix <= 1;
             end
 
@@ -663,6 +673,7 @@ always @ (posedge clk_8M) begin
 
     end
 end
+
 
 reg draw_pix ;
 
@@ -915,17 +926,28 @@ always @ (posedge clk_sys) begin
         end
     end
 
-    if ( draw_sprite_state == 0 && hc >= 320 && vc >= 0 ) begin // off by one
+ if ( draw_sprite_state == 0 && hc >= 320 ) begin // off by one
         // clear sprite buffer
-        sprite_x_ofs <= 0;
         draw_sprite_state <= 1;
         sprite_buffer_addr <= 0;
+        sprite_line_buffer[0] <= 15; //{~vc[0],hc}
+
+        // enable writing
+        sprite_fb_w <= 1;
+        sprite_fb_addr_w <= 0;//{ vc[0], 9'b0 };
+        // set default to transparent value
+        sprite_fb_din <= 15;
+
+        sprite_x_ofs <= 1;        
     end else if (draw_sprite_state == 1) begin
-        sprite_line_buffer[sprite_x_ofs] <= 15;
+        sprite_line_buffer[sprite_x_ofs] <= 15; //{~vc[0],hc}
+        sprite_fb_addr_w <= { vc[0], sprite_x_ofs }; //sprite_x_ofs;//;
+
         if ( sprite_x_ofs < 320 ) begin
             sprite_x_ofs <= sprite_x_ofs + 1;
         end else begin
             // sprite buffer now blank
+            sprite_fb_w <= 0;
             draw_sprite_state <= 2;
         end
     end else if (draw_sprite_state == 2) begin        
@@ -934,7 +956,7 @@ always @ (posedge clk_sys) begin
         draw_sprite_state <= 3;
         sprite_x_ofs <= 0;
     end else if (draw_sprite_state == 3) begin  
-  
+        sprite_fb_w <= 0;
         if ( sprite_pri != 3 && vc >= sprite_y_pos && vc < ( sprite_y_pos + 16 ) && sprite_x_pos < 320 ) begin
             if ( sprite_x_ofs[2:0] == 0 ) begin  
                 // fetch sprite bitmap 
@@ -966,9 +988,15 @@ always @ (posedge clk_sys) begin
         draw_sprite_state <= 6;
     end else if (draw_sprite_state == 6) begin       
         draw_sprite_state <= 3; 
+        sprite_fb_w <= 0;
         
         if ( spr_pal_dout[3:0] != 15 ) begin // spr_pix
-            sprite_line_buffer[sprite_x_pos] <= {sprite_colour[4:0],spr_pal_dout[3:0],sprite_pri[1:0]}; //{sprite_colour[4:0],sprite_pri[1:0],spr_pal_dout[3:0]};
+            sprite_line_buffer[sprite_x_pos] <= {sprite_colour[4:0],spr_pal_dout[3:0],sprite_pri[1:0]}; 
+
+            sprite_fb_w <= 1;
+            // 0-511 = even line / 512-1023 = odd line
+            sprite_fb_addr_w <= { vc[0], sprite_x_pos[8:0] };//sprite_x_pos[8:0];//;
+            sprite_fb_din    <= {sprite_colour[4:0],spr_pal_dout[3:0],sprite_pri[1:0]}; 
         end
         
         if ( sprite_x_ofs < 15 ) begin
@@ -977,7 +1005,9 @@ always @ (posedge clk_sys) begin
         end else begin
             draw_sprite_state <= 7;
         end
-    end else if (draw_sprite_state == 7) begin                        
+    end else if (draw_sprite_state == 7) begin    
+        sprite_fb_w <= 0;
+        
         // done. next sprite
         if ( sprite_buffer_addr < 127 ) begin
             sprite_buffer_addr <= sprite_buffer_addr + 1;
@@ -988,12 +1018,22 @@ always @ (posedge clk_sys) begin
         end
     end else if (draw_sprite_state == 8) begin                        
         // we are done. wait for end of line
-        if ( hc == 0 ) begin
+        if ( hc < 320 ) begin
             draw_sprite_state <= 0;
         end
     end
 end
 
+reg          sprite_fb_w;
+reg   [9:0]  sprite_fb_addr_w;
+reg  [15:0]  sprite_fb_din;
+wire [15:0]  sprite_fb_out;
+reg   [9:0]  sprite_fb_addr_r ;// { ~vc[0], hc[8:0]} ;
+
+//    .address_a ( sprite_fb_addr_w ),
+//    .wren_a ( sprite_fb_w ),
+//    .data_a ( sprite_fb_din ),
+    
 wire [10:0] spr_pal_addr = { sprite_spr_lut, spr_pix };  // [10:0]
 
 wire [3:0] spr_pix ;
@@ -1018,7 +1058,7 @@ wire  [3:0] sprite_y_ofs = vc - sprite_y_pos ;
 wire  [3:0] flipped_x = ( sprite_flip_x == 0 ) ? sprite_x_ofs : 15 - sprite_x_ofs;
 wire  [3:0] flipped_y = ( sprite_flip_y == 0 ) ? sprite_y_ofs : 15 - sprite_y_ofs;
 
-reg  [11:0] sprite_line_buffer [319:0];
+reg  [11:0] sprite_line_buffer[319:0];
 
 reg   [9:0] sprite_shared_addr;
 wire [15:0] sprite_shared_ram_dout;
@@ -1160,35 +1200,6 @@ reg  z80_b_irq_n;
 wire IORQ_b_n;
 wire MREQ_b_n;
 wire M1_b_n;
-
-//IORQ gets together with M1-pin active/low. 
-always @ (posedge clk_8M) begin
-    
-//    if ( reset == 1 ) begin
-//    end else begin
-//        if ( pcb == 0 ) begin
-//            // bootleg z80 controls foreground scrolling
-//            if ( z80_b_fg_scroll_x_cs == 1 && z80_b_wr_n == 0 ) begin
-//                fg_scroll_x[7:0] <= z80_b_dout;
-//            end else if ( z80_b_fg_scroll_y_cs == 1 && z80_b_wr_n == 0 ) begin
-//                fg_scroll_y[7:0] <= z80_b_dout;
-//            end else if ( z80_b_fg_scroll_msb_cs == 1 && z80_b_wr_n == 0 ) begin
-//                fg_scroll_x[9:8] <= z80_b_dout[3:2];
-//                fg_scroll_y[9:8] <= z80_b_dout[1:0];
-//            end
-//         end else if ( pcb == 1 ) begin
-//            if ( fg_scroll_x_cs == 1 ) begin  // && m68k_rw == 0
-//                fg_scroll_x[9:0] <= m68k_dout[9:0];
-//            end else if ( fg_scroll_y_cs == 1 ) begin // && m68k_rw == 0 
-//                fg_scroll_y[9:0] <= m68k_dout[9:0];
-//            end         
-//         end
-//    end
-//    
-//   	if (data & 0x4000 && ((m_vreg & 0x4000) == 0)) //0 -> 1 transition
-//		m_extra->set_input_line(0, HOLD_LINE);
-
-end
 
 reg [9:0] fg_scroll_x;
 reg [9:0] fg_scroll_y;
@@ -1572,6 +1583,21 @@ ram2kx8dp tile_pal_l (
 wire [15:0] spr_pal_dout ;
 wire [15:0] m68k_spr_pal_dout ;
 
+// two line buffer for sprite rendering
+ram1kx16dp sprite_line_buffer_ram (
+    .clock_a ( clk_sys ),
+    .address_a ( sprite_fb_addr_w ),
+    .wren_a ( sprite_fb_w ),
+    .data_a ( sprite_fb_din ),
+    .q_a ( ),
+
+    .clock_b ( clk_8M ),
+    .address_b ( sprite_fb_addr_r ),  
+    .wren_b ( 0 ),
+//    .data_b ( ),
+    .q_b ( sprite_fb_out )
+    );
+    
 
 // sprite pal lut high
 ram2kx8dp spr_pal_h (

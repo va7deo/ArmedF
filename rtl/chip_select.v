@@ -149,27 +149,5 @@ always @ (*) begin
         default:;
     endcase
 end
-
-//	map(0x000000, 0x05ffff).rom();
-//	map(0x060000, 0x060fff).ram().share("spriteram");
-//	map(0x061000, 0x065fff).ram();
-//	map(0x066000, 0x066fff).ram().w(FUNC(armedf_state::bg_videoram_w)).share("bg_videoram");
-//	map(0x067000, 0x067fff).ram().w(FUNC(armedf_state::fg_videoram_w)).share("fg_videoram");
-//	map(0x068000, 0x069fff).rw(FUNC(armedf_state::text_videoram_r), FUNC(armedf_state::text_videoram_w)).umask16(0x00ff);
-//	map(0x06a000, 0x06afff).ram().w(m_palette, FUNC(palette_device::write16)).share("palette");
-//	map(0x06b000, 0x06bfff).ram().share("spr_pal_clut");
-//	map(0x06c000, 0x06c7ff).ram();
-//	map(0x06c000, 0x06c001).portr("P1");
-//	map(0x06c002, 0x06c003).portr("P2");
-//	map(0x06c004, 0x06c005).portr("DSW1");
-//	map(0x06c006, 0x06c007).portr("DSW2");
-//	map(0x06d000, 0x06d001).w(FUNC(armedf_state::armedf_io_w));
-//	map(0x06d002, 0x06d003).w(FUNC(armedf_state::bg_scrollx_w));
-//	map(0x06d004, 0x06d005).w(FUNC(armedf_state::bg_scrolly_w));
-//	map(0x06d006, 0x06d007).w(FUNC(armedf_state::fg_scrollx_w));
-//	map(0x06d008, 0x06d009).w(FUNC(armedf_state::fg_scrolly_w));
-//	map(0x06d00b, 0x06d00b).w(FUNC(armedf_state::sound_command_w));
-//	map(0x06d00c, 0x06d00d).nopw(); //watchdog?
-//	map(0x06d00e, 0x06d00f).w(FUNC(armedf_state::irq_lv1_ack_w));
     
 endmodule
