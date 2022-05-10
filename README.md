@@ -3,9 +3,15 @@
 
 FPGA compatible core of Nichibutsu M68000 (Terra Force Based) arcade hardware for [**MiSTerFPGA**](https://github.com/MiSTer-devel/Main_MiSTer/wiki) written by [**Darren Olafson**](https://twitter.com/Darren__O). Terra Force PCB (different board revisions) donated by [**@atrac17**](https://twitter.com/_atrac17) / [**@djhardrich**](https://twitter.com/djhardrich).
 
-Currently in an alpha state, this core is in active development with assistance from [**atrac17**](https://github.com/atrac17).
 
-![Logo](https://user-images.githubusercontent.com/32810066/160257413-889da2d8-f968-4bd1-9adc-fb22552f0455.png)
+The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra Force based) 68000 hardware. Currently in an alpha state, this core is in active development with assistance from [**atrac17**](https://github.com/atrac17).
+
+<br>
+<br>
+<p align="center">
+  <img width="739" height="163" src="https://user-images.githubusercontent.com/32810066/167605126-bead271f-2c0b-4b52-9283-6dbe15140c8a.png">
+</p>
+<br>
 
 ## Supported Games
 
@@ -33,7 +39,7 @@ Currently in an alpha state, this core is in active development with assistance 
 - H/V clock timings for CRT need to be verified  
 - Sprite Handling for 6MHz pxl clk and sdram memory controller  
 - Screen Flip implementation  
-- Player 2 tied to screen flip/coctail mode  
+- Player 2 tied to screen flip/table mode  
 - Y/C video output  
 - ~~Implement keyboard handler / service menu~~  
 - Reverse engineer Terra Force and provide schematics  
@@ -43,8 +49,6 @@ Currently in an alpha state, this core is in active development with assistance 
 # PCB Check List
 
 FPGA implementation is based on Terra Force and will be verified against an authentic Nichibutsu U.S.A Terra Force PCB and bootleg PCB.
-
-The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra Force based) 68000 hardware.
 
 Reverse engineering of an authentic Terra Force PCB will be done by [**Darren Olafson**](https://twitter.com/Darren__O) and schematics will be included in the repository.
 
@@ -86,19 +90,35 @@ A9  (Top Board)  | [**NB1414M4**](https://raw.githubusercontent.com/va7deo/Terra
 
 # Debugging Features
 
--   **W.I.P**
+A hidden debug menu can be accessed for **Terra Force, Kozure Ōkami, Chouji Meikyuu Legion, Crazy Climber 2 and Armed F**.  For more information on each debugging menu per game visit "[**The Cutting Room Floor**](https://tcrf.net/Category:Games_published_by_Nichibutsu)".<br><br>**Tatakae! Big Fighter** has debug options set via dipswitches.
+
+**Follow these steps to access the debug menu:** 
+
+- Turn on  **Service Menu** in the debug OSD options or press **F2**. Then turn on **Debug Menu** or press and hold **R**, **A**, **S** . For **Crazy Climber 2** press and hold  **Up** and **R**.<br>
+- Toggle the **Debug Menu** to off in the OSD or keep those keys held and press **F2**.
+<br>
+
+|Armed F Debugging Menu Example|
+|:--:|
+|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th></tr><tr><td>![1](https://tcrf.net/images/4/46/FormationArmedFArcDebug1.png)</td><td> ![2](https://tcrf.net/images/9/9d/FormationArmedFArcDebug2.png)</td><td>![3](https://tcrf.net/images/a/a8/FormationArmedFArcDebug3.png)</td></tr></table> |
 
 # Control Layout
 
-### 2L6B Control Panel Layout (Common Layout)
+<h3 align="left">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2L6B Control Panel Layout (Common Layout)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h3>
 
-- Upright cabinet shares a 1L2B control panel layout (**players are required to switch**).
+<p align="left"><img width="580" height="124" src="https://user-images.githubusercontent.com/32810066/167370068-13dadae8-e7f5-478f-90b4-8d5f5f5c7316.png"></p> 
 
-![controls_tf](https://user-images.githubusercontent.com/32810066/167370068-13dadae8-e7f5-478f-90b4-8d5f5f5c7316.png)
+<h3 align="left">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1L3B Control Panel Layout (Nichibutsu Layout)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h3>
 
-| Cabinet Style      | Game    | Joystick | Push Button | Start Button | Shared Controls | Dip Default  |
-|-|-|-|-|-|-|-|
-| Table / Upright    | Armed F | 8-way    | 3           | 2            | Upright         | **Table** |
+<p align="left"><img width="580" height="124" src="https://user-images.githubusercontent.com/32810066/167615931-feb562eb-8d16-4fdd-a7af-99cb51968784.png"></p>
+
+Game | Joystick | Service Menu | Shared Controls | Dip Default |
+:---: | :---: | :---: | :---: | :---: |
+Armed F| 8-Way | <p align="center"><img width="120" height="160" src="https://user-images.githubusercontent.com/32810066/167590090-c05b317e-4d39-40b8-9f4b-bc64cc11cac4.png"></p> | Upright | **Upright**
+
+<br>
+
+- Upright cabinets share a **1L3B** control panel layout. Players are required to switch controller. If set the cabinet type is set to table, the screen inverts for cocktail mode per player and has multiple controls.
 
 ### Keyboard Handler
 
