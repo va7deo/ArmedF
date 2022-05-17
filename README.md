@@ -6,10 +6,9 @@ FPGA compatible core of Nichibutsu M68000 (Terra Force Based) arcade hardware fo
 The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra Force based) 68000 hardware. Currently in an alpha state, this core is in active development with assistance from [**atrac17**](https://github.com/atrac17).
 
 <br>
-<br>
-<p align="center">
+<h3 align="center">
   <img width="739" height="163" src="https://user-images.githubusercontent.com/32810066/167605126-bead271f-2c0b-4b52-9283-6dbe15140c8a.png">
-</p>
+</h>
 <br>
 
 ## Supported Games
@@ -103,14 +102,6 @@ A hidden debug menu can be accessed for **Terra Force, Kozure Ōkami, Chouji Mei
 |<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th></tr><tr><td>![1](https://tcrf.net/images/4/46/FormationArmedFArcDebug1.png)</td><td> ![2](https://tcrf.net/images/9/9d/FormationArmedFArcDebug2.png)</td><td>![3](https://tcrf.net/images/a/a8/FormationArmedFArcDebug3.png)</td></tr></table> |
 
 # Control Layout
-
-<h3 align="left">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2L6B Control Panel Layout (Common Layout)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h3>
-
-<p align="left"><img width="580" height="124" src="https://user-images.githubusercontent.com/32810066/167370068-13dadae8-e7f5-478f-90b4-8d5f5f5c7316.png"></p> 
-
-<h3 align="left">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1L3B Control Panel Layout (Nichibutsu Layout)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h3>
-
-<p align="left"><img width="580" height="124" src="https://user-images.githubusercontent.com/32810066/167615931-feb562eb-8d16-4fdd-a7af-99cb51968784.png"></p>
 
 Game | Joystick | Service Menu | Shared Controls | Dip Default |
 :---: | :---: | :---: | :---: | :---: |
