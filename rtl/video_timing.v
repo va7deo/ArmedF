@@ -1,8 +1,4 @@
 
-
-
-
-
 module video_timing
 (
     input       clk,
@@ -26,16 +22,16 @@ module video_timing
 wire [8:0] h_ofs = 32;
 wire [8:0] HBL_START  = 352 -1;
 wire [8:0] HBL_END    = 32  -1;
-wire [8:0] HS_START   = 368 -1;
-wire [8:0] HS_END     = 416 -1;
-wire [8:0] HTOTAL     = 511   ;
+wire [8:0] HS_START   = 364 -1;
+wire [8:0] HS_END     = 380 -1;
+wire [8:0] HTOTAL     = 387 -1;
 
-wire [8:0] v_ofs = 8;
-wire [8:0] VBL_START  = 256 -1;
-wire [8:0] VBL_END    = 16  -1;
-wire [8:0] VS_START   = 8   -1;
-wire [8:0] VS_END     = 12  -1;
-wire [8:0] VTOTAL     = 256 -1;
+wire [8:0] v_ofs = 0;
+wire [8:0] VBL_START  = 248 -1;
+wire [8:0] VBL_END    = 8   -1;
+wire [8:0] VS_START   = 252 -1;
+wire [8:0] VS_END     = 256 -1;
+wire [8:0] VTOTAL     = 262 -1;
 
 reg [8:0] v;
 reg [8:0] h;
@@ -96,6 +92,5 @@ always @ (posedge clk) begin
 end
 
 endmodule
-
 
 
