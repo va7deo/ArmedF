@@ -37,7 +37,7 @@ The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra 
 - H/V clock timings for CRT need to be verified  
 - ~~Sprite Handling for 6MHz pxl clk and sdram memory controller~~  
 - Screen Flip implementation  
-- Player 2 controls tied to screen flip/table mode  
+- ~~Player 2 controls tied to screen flip/table mode~~  
 - ~~Y/C video output~~  
 - Dot Crawl on Y/C video output  
 - ~~Implement keyboard handler / service menu~~  
@@ -89,12 +89,13 @@ A9  (Top Board)  | [**NB1414M4**](https://raw.githubusercontent.com/va7deo/Terra
 
 # Debugging Features
 
-A hidden debug menu can be accessed for **Terra Force, Kozure Ōkami, Chouji Meikyuu Legion, Crazy Climber 2 and Armed F**.  For more information on each debugging menu per game visit "[**The Cutting Room Floor**](https://tcrf.net/Category:Games_published_by_Nichibutsu)".<br><br>**Tatakae! Big Fighter** has debug options set via dipswitches.
+A hidden debug menu can be accessed for **Terra Force, Kozure Ōkami, Chouji Meikyuu Legion, Crazy Climber 2 and Armed F**.  For more information on each debugging menu per game visit "[**The Cutting Room Floor**](https://tcrf.net/Category:Games_developed_by_Nichibutsu)".<br><br>**Tatakae! Big Fighter** has debug options set via dipswitches.
 
 **Follow these steps to access the debug menu:** 
 
-- Turn on  **Service Menu** in the debug OSD options or press **F2**. Then turn on **Debug Menu** or press and hold **R**, **A**, **S** . For **Crazy Climber 2** press and hold  **Up** and **R**.<br><br>
-- Toggle the **Debug Menu** to off in the OSD or keep those keys held and press **F2**.
+- Turn on **Service Menu** in the debug OSD options or press **F2**. Then turn on **Debug Menu** or press and hold **R**, **A**, **S** . For **Crazy Climber 2** press and hold  **Up** and **R**.<br><br>
+- Toggle the **Service Menu** option off; then toggle **Debug Menu** off in the OSD or keep those corresponding keys held and press **F2**.<br><br>
+- To utilize the OSD method for accessing the Debug Method do the following, **Pause when OSD is open: Off**.
 <br>
 
 |Armed F Debugging Menu Example|
