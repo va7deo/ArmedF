@@ -1,5 +1,5 @@
-set_global_assignment -name SDC_FILE terraforce.sdc
-set_global_assignment -name SYSTEMVERILOG_FILE terraforce.sv
+set_global_assignment -name SDC_FILE armedf.sdc
+set_global_assignment -name SYSTEMVERILOG_FILE armedf.sv
 set_global_assignment -name VHDL_FILE rtl/mem/math.vhd
 set_global_assignment -name QIP_FILE rtl/t80/T80.qip
 set_global_assignment -name QIP_FILE rtl/fx86k/fx68k.qip
@@ -28,5 +28,5 @@ set_global_assignment -name QIP_FILE rtl/mem/ram32kx8dp.qip
 set_global_assignment -name QIP_FILE rtl/mem/ram1kx16dp.qip
 set_global_assignment -name QIP_FILE rtl/mem/ram256bx16dp.qip
 set_global_assignment -name QIP_FILE rtl/mem/ram512bx64dp.qip
-set_global_assignment -name QIP_FILE rtl/mem/ram_cc_dp.qip
+
 
