@@ -68,9 +68,9 @@ F1 (Bottom Board)  | 24.000     | Z80 / YM3526 |
 
 **Estimated geometry:**
 
-    511 pixels/line
+    387 pixels/line
   
-    255 pixels/line
+    262 pixels/line
 
 ### Main Components
 
