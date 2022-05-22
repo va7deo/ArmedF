@@ -770,13 +770,15 @@ always @ (posedge clk_sys) begin
         // tell 68k to wait for valid data. 0=ready 1=wait
         // always ack when it's not program rom
         m68k_dtack_n <= m68k_rom_cs ? !m68k_rom_valid : 
-                        // txt_ram_cs ? !txt_ram_valid : // not needed if in bram
+                        // m68k_txt_ram_cs ? !txt_ram_valid : // not needed if in bram
                         0; 
 
         // select cpu data input based on what is active 
         m68k_din <=  m68k_rom_cs  ? m68k_rom_data :
                      m68k_ram_cs  ? ram68k_dout :
-                     txt_ram_cs ? { 8'h00, m68k_txt_attr_ram_dout } :
+                     m68k_txt_ram_cs ? { 8'h00, m68k_txt_attr_ram_dout } :
+                     m68k_bg_ram_cs ? m68k_bg_ram_dout :
+                     m68k_fg_ram_cs ? m68k_fg_ram_dout :
                      m68k_ram_2_cs ? m68k_ram_2_dout :
                      m68k_spr_pal_cs ? m68k_spr_pal_dout :
                      input_p1_cs ? p1 :
@@ -979,11 +981,11 @@ always @ (posedge clk_sys) begin
 //        txt_ram_valid <= 0;
         
         // only 68k can read shared. the z80 is write only
-        if ( txt_ram_cs & !m68k_lds_n ) begin
+        if ( m68k_txt_ram_cs & !m68k_lds_n ) begin
             shared_addr <= m68k_a[12:1];
         end
         
-        if ( !m68k_rw && txt_ram_cs & !m68k_lds_n ) begin
+        if ( !m68k_rw && m68k_txt_ram_cs & !m68k_lds_n ) begin
             shared_data <= m68k_dout[7:0];
             shared_w <= 1;
         end else if (z80_b_ram_txt_cs & ~z80_b_wr_n) begin
@@ -997,7 +999,7 @@ end
 wire    m68k_rom_cs;
 wire    m68k_ram_cs;
 wire    m68k_tile_pal_cs;
-wire    txt_ram_cs;
+wire    m68k_txt_ram_cs;
 wire    m68k_ram_2_cs;
 wire    m68k_spr_pal_cs;
 wire    m68k_fg_ram_cs;
@@ -1035,7 +1037,7 @@ chip_select cs (
     .m68k_rom_cs(m68k_rom_cs),
     .m68k_ram_cs(m68k_ram_cs),
     .m68k_tile_pal_cs(m68k_tile_pal_cs),
-    .txt_ram_cs(txt_ram_cs),
+    .m68k_txt_ram_cs(m68k_txt_ram_cs),
     .m68k_ram_2_cs(m68k_ram_2_cs),
     .m68k_spr_pal_cs(m68k_spr_pal_cs),
     .m68k_fg_ram_cs(m68k_fg_ram_cs),
@@ -1588,6 +1590,9 @@ wire [15:0] fg_ram_dout;
 reg  [10:0] bg_ram_addr;
 wire [15:0] bg_ram_dout;
 
+
+wire [15:0] m68k_fg_ram_dout;
+
 // foreground high   
 ram2kx8dp ram_fg_h (
     .clock_a ( clk_16M ),
@@ -1595,7 +1600,7 @@ ram2kx8dp ram_fg_h (
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_fg_ram_cs & !m68k_uds_n ),
     .data_a ( m68k_dout[15:8]  ),
-    .q_a (  ),
+    .q_a ( m68k_fg_ram_dout[15:8] ),
 
     .clock_b ( clk_sys ),
     .address_b ( fg_ram_addr ),  
@@ -1612,7 +1617,7 @@ ram2kx8dp ram_fg_l (
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_fg_ram_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
-    .q_a ( ),
+    .q_a ( m68k_fg_ram_dout[7:0] ),
      
     .clock_b ( clk_sys ),
     .address_b ( fg_ram_addr ),  
@@ -1621,6 +1626,8 @@ ram2kx8dp ram_fg_l (
     .q_b( fg_ram_dout[7:0] )
     );
     
+wire [15:0] m68k_bg_ram_dout;
+    
 // background high
 ram2kx8dp ram_bg_h (
     .clock_a ( clk_16M ),
@@ -1628,7 +1635,7 @@ ram2kx8dp ram_bg_h (
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_bg_ram_cs & !m68k_uds_n ),
     .data_a ( m68k_dout[15:8]  ),
-    .q_a (  ),
+    .q_a ( m68k_bg_ram_dout[15:8] ),
 
     .clock_b ( clk_sys ),
     .address_b ( bg_ram_addr ),  
@@ -1645,7 +1652,7 @@ ram2kx8dp ram_fg_L (
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_bg_ram_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
-    .q_a ( ),
+    .q_a ( m68k_bg_ram_dout[7:0] ),
      
     .clock_b ( clk_sys ),
     .address_b ( bg_ram_addr ),  
