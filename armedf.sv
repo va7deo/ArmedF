@@ -780,6 +780,7 @@ always @ (posedge clk_sys) begin
                      m68k_bg_ram_cs ? m68k_bg_ram_dout :
                      m68k_fg_ram_cs ? m68k_fg_ram_dout :
                      m68k_ram_2_cs ? m68k_ram_2_dout :
+                     m68k_ram_3_cs ? m68k_ram_3_dout :
                      m68k_spr_pal_cs ? m68k_spr_pal_dout :
                      input_p1_cs ? p1 :
                      input_p2_cs ? p2 :
@@ -1001,6 +1002,7 @@ wire    m68k_ram_cs;
 wire    m68k_tile_pal_cs;
 wire    m68k_txt_ram_cs;
 wire    m68k_ram_2_cs;
+wire    m68k_ram_3_cs;
 wire    m68k_spr_pal_cs;
 wire    m68k_fg_ram_cs;
 wire    m68k_bg_ram_cs;
@@ -1039,6 +1041,7 @@ chip_select cs (
     .m68k_tile_pal_cs(m68k_tile_pal_cs),
     .m68k_txt_ram_cs(m68k_txt_ram_cs),
     .m68k_ram_2_cs(m68k_ram_2_cs),
+    .m68k_ram_3_cs(m68k_ram_3_cs),
     .m68k_spr_pal_cs(m68k_spr_pal_cs),
     .m68k_fg_ram_cs(m68k_fg_ram_cs),
     .m68k_bg_ram_cs(m68k_bg_ram_cs),
@@ -1778,43 +1781,48 @@ ram1kx16dp sprite_line_buffer_ram (
 // m68_ram_2_cs
 
 wire [15:0] m68k_ram_2_dout ;
-wire [15:0] ram_2_dout;
-reg  [11:0] m68k_ram_2_addr ;
+wire [15:0] m68k_ram_3_dout ;
 
 // 68k ram 2
 ram4kx8dp ram_2_h (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
     .address_a ( m68k_a[12:1] ),
     .wren_a ( !m68k_rw & m68k_ram_2_cs & !m68k_uds_n ),
     .data_a ( m68k_dout[15:8]  ),
     .q_a ( m68k_ram_2_dout[15:8] )
 
-//    .clock_b ( clk_sys ),
-//    .address_b ( m68k_ram_2_addr ),  
-//    .wren_b ( 1'b0 ),
-//    .data_b ( ),
-//    .q_b( ram_2_dout[15:8] )
-    
     );
 
 // 68k ram 2
 ram4kx8dp ram_2_L (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
     .address_a ( m68k_a[12:1] ),
     .wren_a ( !m68k_rw & m68k_ram_2_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
     .q_a ( m68k_ram_2_dout[7:0] )
      
-//    .clock_b ( clk_sys ),
-//    .address_b ( m68k_ram_2_addr ),  
-//    .wren_b ( 1'b0 ),
-//    .data_b ( ),
-//    .q_b( ram_2_dout[7:0] )
     ); 
 
-    
+// 68k ram 3
+ram4kx8dp ram_3_h (
+    .clock_a ( clk_16M ),
+    .address_a ( m68k_a[12:1] ),
+    .wren_a ( !m68k_rw & m68k_ram_3_cs & !m68k_uds_n ),
+    .data_a ( m68k_dout[15:8]  ),
+    .q_a ( m68k_ram_3_dout[15:8] )
+
+    );
+
+// 68k ram 3
+ram4kx8dp ram_3_L (
+    .clock_a ( clk_16M ),
+    .address_a ( m68k_a[12:1] ),
+    .wren_a ( !m68k_rw & m68k_ram_3_cs & !m68k_lds_n ),
+    .data_a ( m68k_dout[7:0] ),
+    .q_a ( m68k_ram_3_dout[7:0] )
+     
+    );    
+   
 wire [7:0] txt_ram_dout ;
 wire [15:0] m68k_txt_ram_dout ;
 reg  [12:0] txt_ram_addr ;
