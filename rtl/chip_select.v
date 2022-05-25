@@ -48,7 +48,7 @@ module chip_select
 
 localparam pcb_terra_force     = 0;
 localparam pcb_armedf          = 1;
-localparam pcb_legion          = 2;
+localparam pcb_legionjb        = 2;
 localparam pcb_kozure          = 3;
 localparam pcb_bigfghtr        = 4;
 
@@ -160,7 +160,7 @@ always @ (*) begin
             z80_latch_r_cs   = z80_io_cs(8'h06);
         end
 
-        pcb_legion: begin
+        pcb_legionjb: begin
 
             m68k_rom_cs      = m68k_cs( 24'h000000, 24'h03ffff ) ;
             m68k_ram_cs      = m68k_cs( 24'h060000, 24'h060fff ) ; // 16k
@@ -181,11 +181,14 @@ always @ (*) begin
             bg_scroll_x_cs   = m68k_cs( 24'h07c002, 24'h07c003 ) ; // SCROLL X
             bg_scroll_y_cs   = m68k_cs( 24'h07c004, 24'h07c005 ) ; // SCROLL Y
 
+            fg_scroll_x_cs   = 0 ; // SCROLL X
+            fg_scroll_y_cs   = m68k_cs( 24'h040000, 24'h04003f ) ; // SCROLL Y
+
             irq_z80_cs       = m68k_cs( 24'h07c000, 24'h07c001 ) ; // 
             sound_latch_cs   = m68k_cs( 24'h07c00a, 24'h07c00b ) ; // sound latch
             irq_ack_cs       = m68k_cs( 24'h07c00e, 24'h07c00f ) ; // irq ack
             
-            m68k_ram_3_cs    = 0; // unused
+            m68k_ram_3_cs    = m68k_cs( 24'h06a000, 24'h06a9ff ) ; // 4k  *** x2
 
             z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hf800 );
             z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hf800 );
