@@ -181,7 +181,7 @@ always @ (*) begin
             bg_scroll_x_cs   = m68k_cs( 24'h07c002, 24'h07c003 ) ; // SCROLL X
             bg_scroll_y_cs   = m68k_cs( 24'h07c004, 24'h07c005 ) ; // SCROLL Y
 
-            fg_scroll_x_cs   = 0 ; // SCROLL X
+            fg_scroll_x_cs   = m68k_cs( 24'h040000, 24'h04003f ) ; // SCROLL X
             fg_scroll_y_cs   = m68k_cs( 24'h040000, 24'h04003f ) ; // SCROLL Y
 
             irq_z80_cs       = m68k_cs( 24'h07c000, 24'h07c001 ) ; // 
