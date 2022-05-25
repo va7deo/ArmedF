@@ -1028,10 +1028,6 @@ wire z80_a_dac2_cs;
 wire z80_a_latch_clr_cs;
 wire z80_a_latch_r_cs;
 
-wire mcu_rom_cs;
-wire mcu_spr_cs;
-wire mcu_io_cs;
-
 chip_select cs (
     .pcb(pcb),
 
