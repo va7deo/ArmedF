@@ -101,7 +101,7 @@ always @ (*) begin
             bg_scroll_y_cs   = m68k_cs( 24'h07c004, 24'h07c005 ) ; // SCROLL Y
             sound_latch_cs   = m68k_cs( 24'h07c00a, 24'h07c00b ) ; // sound latch
             irq_ack_cs       = m68k_cs( 24'h07c00e, 24'h07c00f ) ; // irq ack
-            
+
             m68k_ram_3_cs    = 0; // unused
 
             z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hf800 );
@@ -116,8 +116,8 @@ always @ (*) begin
         end
 
         pcb_armedf: begin
+
             m68k_rom_cs      = m68k_cs( 24'h000000, 24'h05ffff ) ;
-            
             m68k_ram_cs      = m68k_cs( 24'h060000, 24'h063fff ) ; // 16k
             m68k_ram_2_cs    = m68k_cs( 24'h064000, 24'h065fff ) ; // 8k  
 
@@ -125,16 +125,14 @@ always @ (*) begin
             m68k_fg_ram_cs   = m68k_cs( 24'h067000, 24'h067fff ) ; // 4k
 
             m68k_txt_ram_cs  = m68k_cs( 24'h068000, 24'h069fff ) ; // 8k shared (1k tile attr) low byte
-
             m68k_tile_pal_cs = m68k_cs( 24'h06a000, 24'h06afff ) ; // 4k
-            
             m68k_spr_pal_cs  = m68k_cs( 24'h06b000, 24'h06bfff ) ; // 4k
 
             input_p1_cs      = m68k_cs( 24'h06c000, 24'h06c001 ) ; // P1
             input_p2_cs      = m68k_cs( 24'h06c002, 24'h06c003 ) ; // P2
             input_dsw1_cs    = m68k_cs( 24'h06c004, 24'h06c005 ) ; // DSW1
             input_dsw2_cs    = m68k_cs( 24'h06c006, 24'h06c007 ) ; // DSW2
-            
+
             m68k_ram_3_cs    = m68k_cs( 24'h06c008, 24'h06c7ff ) ; // 4k  *** x2
 
             bg_scroll_x_cs   = m68k_cs( 24'h06d002, 24'h06d003 ) ; // SCROLL X
@@ -226,7 +224,7 @@ always @ (*) begin
             sound_latch_cs   = m68k_cs( 24'h07c00a, 24'h07c00b ) ; // sound latch
 
             irq_ack_cs       = m68k_cs( 24'h07c00e, 24'h07c00f ) ; // irq ack
-            
+
             m68k_ram_3_cs    = 0; // unused
 
             z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hf800 );

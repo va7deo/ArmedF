@@ -7,7 +7,7 @@
     <category>Shoot 'em up</category>
     <rbf>armedf</rbf>
 
-    <switches default="00,00">
+    <switches default="F7,EF">
         <!-- DSW1 -->
         <dip name="Lives" bits="0,1" ids="6,5,4,3"/>
         <dip name="Bonus Life" bits="2" ids="50k,30k/100k(E)"/>
@@ -63,7 +63,10 @@
         <!-- audiocpu - starts at 0x110000 -->
         <part name="legion.1h" crc="2ca4f7f0"/>
         <part name="legion.1i" crc="79f4a827"/>
-        <part repeat="0xC000"> FF</part>
+        <part repeat="0x4000"> FF</part>
+
+        <!-- extra - starts at 0x120000 -->
+        <part repeat="0x8000"> FF</part>
 
         <!-- nb1414m4 - starts at 0x128000 -->
         <part repeat="0x4000"> FF</part>
