@@ -51,6 +51,7 @@ localparam pcb_terra_force     = 0;
 localparam pcb_armedf          = 1;
 localparam pcb_legion          = 2;
 localparam pcb_kozure          = 3;
+localparam pcb_bigfghtr        = 4;
 
 function m68k_cs;
         input [23:0] start_address;
@@ -236,6 +237,62 @@ always @ (*) begin
             z80_latch_clr_cs = z80_io_cs(8'h04);
             z80_latch_r_cs   = z80_io_cs(8'h06);
         end
+
+        pcb_bigfghtr: begin
+
+            m68k_rom_cs      = m68k_cs( 24'h000000, 24'h07ffff ) ;
+            m68k_ram_cs      = m68k_cs( 24'h080000, 24'h0805ff ) ; // 16k
+            m68k_ram_2_cs    = m68k_cs( 24'h080600, 24'h083fff ) ; // 4k  *** x2
+            m68k_ram_3_cs    = m68k_cs( 24'h084000, 24'h085fff ) ; // 
+
+            m68k_bg_ram_cs   = m68k_cs( 24'h086000, 24'h086fff ) ; // 4k
+            m68k_fg_ram_cs   = m68k_cs( 24'h087000, 24'h087fff ) ; // 4k
+
+            m68k_txt_ram_cs  = m68k_cs( 24'h088000, 24'h089fff ) ; // 4k shared (1k tile attr) low byte
+            m68k_tile_pal_cs = m68k_cs( 24'h08a000, 24'h08afff ) ; // 4k
+            m68k_spr_pal_cs  = m68k_cs( 24'h08b000, 24'h08bfff ) ; // 4k
+
+            input_p1_cs      = m68k_cs( 24'h08c000, 24'h08c001 ) ; // P1
+            input_p2_cs      = m68k_cs( 24'h08c002, 24'h08c003 ) ; // P2
+            input_dsw1_cs    = m68k_cs( 24'h08c004, 24'h08c005 ) ; // DSW0
+            input_dsw2_cs    = m68k_cs( 24'h08c006, 24'h08c007 ) ; // DSW1
+
+            bg_scroll_x_cs   = m68k_cs( 24'h08d002, 24'h08d003 ) ; // SCROLL X
+            bg_scroll_y_cs   = m68k_cs( 24'h08d004, 24'h08d005 ) ; // SCROLL Y
+
+            fg_scroll_x_cs   = m68k_cs( 24'h08d006, 24'h08d007 ) ; // SCROLL X
+            fg_scroll_y_cs   = m68k_cs( 24'h08d008, 24'h08d009 ) ; // SCROLL Y
+
+            irq_z80_cs       = m68k_cs( 24'h08d000, 24'h08d001 ) ; // 
+            sound_latch_cs   = m68k_cs( 24'h08d00a, 24'h08d00b ) ; // sound latch
+
+            irq_ack_cs       = m68k_cs( 24'h08d00e, 24'h08d00f ) ; // irq ack
+
+            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hf7ff );
+            z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hffff );
+
+            z80_sound0_cs    = z80_io_cs(8'h00);
+            z80_sound1_cs    = z80_io_cs(8'h01);
+            z80_dac1_cs      = z80_io_cs(8'h02);
+            z80_dac2_cs      = z80_io_cs(8'h03);
+            z80_latch_clr_cs = z80_io_cs(8'h04);
+            z80_latch_r_cs   = z80_io_cs(8'h06);
+        end
+
+//	void bigfghtr_state::bigfghtr_map(address_map &map)
+//	map(0x08d00c, 0x08d00d).nopw(); //watchdog
+//	map(0x400000, 0x400001).r(FUNC(bigfghtr_state::latch_r));
+
+//	void armedf_state::sound_map(address_map &map)
+//	map(0x0000, 0xf7ff).rom();
+//	map(0xf800, 0xffff).ram();
+
+//	void bigfghtr_state::bigfghtr_mcu_map(address_map &map)
+//	map(0x0000, 0x0fff).rom();
+
+//	void bigfghtr_state::bigfghtr_mcu_io_map(address_map &map)
+//	map(0x00000, 0x005ff).w(FUNC(bigfghtr_state::mcu_spritelist_w)); //Sprite RAM, guess shared as well
+//	map(0x00600, 0x03fff).ram().share("sharedram");
 
         default:;
     endcase
