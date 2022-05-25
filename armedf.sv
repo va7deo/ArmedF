@@ -1027,7 +1027,11 @@ wire z80_a_dac1_cs;
 wire z80_a_dac2_cs;
 wire z80_a_latch_clr_cs;
 wire z80_a_latch_r_cs;
-    
+
+wire mcu_rom_cs;
+wire mcu_spr_cs;
+wire mcu_io_cs;
+
 chip_select cs (
     .pcb(pcb),
 
@@ -1056,7 +1060,7 @@ chip_select cs (
     .fg_scroll_y_cs(fg_scroll_y_cs),
     .sound_latch_cs(sound_latch_cs),
     .irq_ack_cs(irq_ack_cs),
-    
+
     // sound z80 bus
     .z80_addr(z80_a_addr),
     .MREQ_n(MREQ_a_n),
@@ -1072,6 +1076,8 @@ chip_select cs (
     .z80_dac2_cs(z80_a_dac2_cs),
     .z80_latch_clr_cs(z80_a_latch_clr_cs),
     .z80_latch_r_cs(z80_a_latch_r_cs)
+
+
 );
  
 reg [15:0] bg_scroll_x;

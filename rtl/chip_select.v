@@ -43,8 +43,12 @@ module chip_select
     output reg   z80_dac1_cs,
     output reg   z80_dac2_cs,
     output reg   z80_latch_clr_cs,
-    output reg   z80_latch_r_cs
+    output reg   z80_latch_r_cs'
 
+    // i8751 selects
+    output reg mcu_rom_cs,
+    output reg mcu_spr_cs,
+    output reg mcu_io_cs
 );
 
 localparam pcb_terra_force     = 0;
@@ -251,6 +255,10 @@ always @ (*) begin
             m68k_txt_ram_cs  = m68k_cs( 24'h088000, 24'h089fff ) ; // 4k shared (1k tile attr) low byte
             m68k_tile_pal_cs = m68k_cs( 24'h08a000, 24'h08afff ) ; // 4k
             m68k_spr_pal_cs  = m68k_cs( 24'h08b000, 24'h08bfff ) ; // 4k
+
+            mcu_rom_cs       = 0; // No connection
+            mcu_spr_cs       = 0; // No connection
+            mcu_io_cs        = 0; // No connection
 
             input_p1_cs      = m68k_cs( 24'h08c000, 24'h08c001 ) ; // P1
             input_p2_cs      = m68k_cs( 24'h08c002, 24'h08c003 ) ; // P2
