@@ -43,12 +43,7 @@ module chip_select
     output reg   z80_dac1_cs,
     output reg   z80_dac2_cs,
     output reg   z80_latch_clr_cs,
-    output reg   z80_latch_r_cs'
-
-    // i8751 selects
-    output reg mcu_rom_cs,
-    output reg mcu_spr_cs,
-    output reg mcu_io_cs
+    output reg   z80_latch_r_cs
 );
 
 localparam pcb_terra_force     = 0;
@@ -256,10 +251,6 @@ always @ (*) begin
             m68k_tile_pal_cs = m68k_cs( 24'h08a000, 24'h08afff ) ; // 4k
             m68k_spr_pal_cs  = m68k_cs( 24'h08b000, 24'h08bfff ) ; // 4k
 
-            mcu_rom_cs       = 0; // No connection
-            mcu_spr_cs       = 0; // No connection
-            mcu_io_cs        = 0; // No connection
-
             input_p1_cs      = m68k_cs( 24'h08c000, 24'h08c001 ) ; // P1
             input_p2_cs      = m68k_cs( 24'h08c002, 24'h08c003 ) ; // P2
             input_dsw1_cs    = m68k_cs( 24'h08c004, 24'h08c005 ) ; // DSW0
@@ -276,8 +267,8 @@ always @ (*) begin
 
             irq_ack_cs       = m68k_cs( 24'h08d00e, 24'h08d00f ) ; // irq ack
 
-            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hf7ff );
-            z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hffff );
+            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hf800 );
+            z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hf800 );
 
             z80_sound0_cs    = z80_io_cs(8'h00);
             z80_sound1_cs    = z80_io_cs(8'h01);
@@ -288,12 +279,7 @@ always @ (*) begin
         end
 
 //	void bigfghtr_state::bigfghtr_map(address_map &map)
-//	map(0x08d00c, 0x08d00d).nopw(); //watchdog
-//	map(0x400000, 0x400001).r(FUNC(bigfghtr_state::latch_r));
-
-//	void armedf_state::sound_map(address_map &map)
-//	map(0x0000, 0xf7ff).rom();
-//	map(0xf800, 0xffff).ram();
+//	map(0x400000, 0x400001).r(FUNC(bigfghtr_state::latch_r)); // i8751 communication between 68k
 
 //	void bigfghtr_state::bigfghtr_mcu_map(address_map &map)
 //	map(0x0000, 0x0fff).rom();
