@@ -674,7 +674,7 @@ always @ (posedge clk_6M) begin
         fg_ram_addr <=  { fg_x[9:4], fg_y[8:4] };
         
         gfx_fg_latch <= fg_ram_dout;
-        gfx2_addr    <= { fg_ram_dout[9:0], fg_y[3:0], fg_x_latch[3:1] };
+        gfx2_addr    <= { fg_ram_dout[10:0], fg_y[3:0], fg_x_latch[3:1] };
         
         gfx_fg_latch2 <= gfx_fg_latch;
         
@@ -776,6 +776,7 @@ always @ (posedge clk_sys) begin
         // select cpu data input based on what is active 
         m68k_din <=  m68k_rom_cs  ? m68k_rom_data :
                      m68k_ram_cs  ? ram68k_dout :
+                     m68k_spr_cs  ? ram68k_sprite_dout :
                      m68k_txt_ram_cs ? { 8'h00, m68k_txt_attr_ram_dout } :
                      m68k_bg_ram_cs ? m68k_bg_ram_dout :
                      m68k_fg_ram_cs ? m68k_fg_ram_dout :
@@ -788,6 +789,7 @@ always @ (posedge clk_sys) begin
                      input_dsw1_cs ? dsw1 :
                      input_dsw2_cs ? dsw2 :
                      16'd0;
+                     
     end
 end 
 
@@ -1001,6 +1003,7 @@ wire    m68k_rom_cs;
 wire    m68k_ram_cs;
 wire    m68k_tile_pal_cs;
 wire    m68k_txt_ram_cs;
+wire    m68k_spr_cs;
 wire    m68k_ram_2_cs;
 wire    m68k_ram_3_cs;
 wire    m68k_spr_pal_cs;
@@ -1012,6 +1015,7 @@ wire    input_dsw1_cs;
 wire    input_dsw2_cs;
 wire    irq_z80_cs;
 wire    bg_scroll_x_cs;
+wire    irq_i8751_cs;
 wire    bg_scroll_y_cs;
 wire    fg_scroll_x_cs;
 wire    fg_scroll_y_cs;
@@ -1027,7 +1031,7 @@ wire z80_a_dac1_cs;
 wire z80_a_dac2_cs;
 wire z80_a_latch_clr_cs;
 wire z80_a_latch_r_cs;
-
+    
 chip_select cs (
     .pcb(pcb),
 
@@ -1040,6 +1044,7 @@ chip_select cs (
     .m68k_ram_cs(m68k_ram_cs),
     .m68k_tile_pal_cs(m68k_tile_pal_cs),
     .m68k_txt_ram_cs(m68k_txt_ram_cs),
+    .m68k_spr_cs(m68k_spr_cs),
     .m68k_ram_2_cs(m68k_ram_2_cs),
     .m68k_ram_3_cs(m68k_ram_3_cs),
     .m68k_spr_pal_cs(m68k_spr_pal_cs),
@@ -1056,7 +1061,9 @@ chip_select cs (
     .fg_scroll_y_cs(fg_scroll_y_cs),
     .sound_latch_cs(sound_latch_cs),
     .irq_ack_cs(irq_ack_cs),
+    .irq_i8751_cs(irq_i8751_cs),
 
+    
     // sound z80 bus
     .z80_addr(z80_a_addr),
     .MREQ_n(MREQ_a_n),
@@ -1072,8 +1079,6 @@ chip_select cs (
     .z80_dac2_cs(z80_a_dac2_cs),
     .z80_latch_clr_cs(z80_a_latch_clr_cs),
     .z80_latch_r_cs(z80_a_latch_r_cs)
-
-
 );
  
 reg [15:0] bg_scroll_x;
@@ -1134,8 +1139,6 @@ always @ (posedge clk_sys) begin
         sprite_shared_addr <= sprite_shared_addr + 1 ;
         copy_sprite_state <= 4; 
     end else if ( copy_sprite_state == 4 ) begin    
-    
-        
         // address 1 result
         // tile #
         sprite_tile[11:0] <= sprite_shared_ram_dout[11:0];
@@ -1476,6 +1479,64 @@ wire z80_b_fg_scroll_x_cs   = ( IORQ_b_n == 0 && z80_b_addr[7:0] == 8'h00 );
 wire z80_b_fg_scroll_y_cs   = ( IORQ_b_n == 0 && z80_b_addr[7:0] == 8'h01 );
 wire z80_b_fg_scroll_msb_cs = ( IORQ_b_n == 0 && z80_b_addr[7:0] == 8'h02 );
 
+reg p0_o,p1_o,p2_o,p3_o;
+
+wire [15:0] i8751_addr;
+wire        i8751_rd; // read req
+wire [15:0] i8751_ram_addr;
+wire        i8751_ram_wr;
+wire [7:0]  i8751_ram_dout;
+wire [7:0]  i8751_rom_data;
+wire [7:0]  i8751_shared_ram_data ;
+
+assign i8751_shared_ram_data = i8751_ram_addr[0] ? i8751_shared_ram_data_h : i8751_shared_ram_data_l ;
+
+wire [7:0]  i8751_shared_ram_data_l;
+wire [7:0]  i8751_shared_ram_data_h;
+
+wire i8751_int0_n = ~irq_i8751_cs;
+
+jtframe_8751mcu #(.SYNC_INT(1)) i8751 (
+    .rst( reset ),
+    .clk( clk_sys ),
+    .cen( clk_8M ),
+
+    .int0n( i8751_int0_n ),
+    .int1n( 1'b1 ),
+
+    .p0_i( 0 ),
+    .p0_o( p0_o ),
+
+    .p1_i( 0 ),
+    .p1_o( p1_o ),
+
+    .p2_i( 0 ),
+    .p2_o( p2_o ),
+
+    .p3_i( 0 ),
+    .p3_o( p3_o ),
+
+//    input      [ 7:0] x_din,
+//    output reg [ 7:0] x_dout,
+//    output reg [15:0] x_addr,
+//    output reg        x_wr,
+//    output reg        x_acc,
+
+    // shared ram
+    .x_din( i8751_shared_ram_data ),
+    .x_dout( i8751_ram_dout ),
+    .x_addr( i8751_ram_addr ),
+    .x_wr( i8751_ram_wr ),
+    .x_acc( i8751_rd ),
+
+    // ROM programming
+    .clk_rom( clk_sys ),
+    .prog_addr( ioctl_addr[13:0] ),
+    .prom_din( ioctl_dout ),
+    .prom_we( i8751_ioctl_wr )
+);
+
+   
 reg sound_addr ;
 reg  [7:0] sound_data ;
 
@@ -1520,7 +1581,7 @@ wire [7:0] z80_b_ram_1_dout;
 wire [7:0] z80_b_ram_2_dout;
 
 reg [16:0] gfx1_addr;
-reg [16:0] gfx2_addr;
+reg [17:0] gfx2_addr;
 reg [16:0] gfx3_addr;
 reg [16:0] gfx4_addr;
 
@@ -1530,40 +1591,69 @@ reg [7:0] gfx3_dout;
 reg [7:0] gfx4_dout;
 
 wire [15:0] ram68k_dout;
+wire [15:0] ram68k_sprite_dout;
+
 //wire [15:0] prog_rom_data;
 
 // ioctl download addressing    
 wire rom_download = ioctl_download && (ioctl_index==0);
 
-wire m68k_rom_h_ioctl_wr = rom_download & ioctl_wr & (ioctl_addr  < 24'h060000) & (ioctl_addr[0] == 1);
-wire m68k_rom_l_ioctl_wr = rom_download & ioctl_wr & (ioctl_addr  < 24'h060000) & (ioctl_addr[0] == 0);
+// fg len 0x30000 192k
+wire gfx2_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h080000) & (ioctl_addr < 24'h0b0000) ;
 
-// fg
-wire gfx2_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h060000) & (ioctl_addr < 24'h080000) ;
-
-// bg
-wire gfx3_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h080000) & (ioctl_addr < 24'h0a0000) ;
+// bg len 0x20000 128k
+wire gfx3_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h0c0000) & (ioctl_addr < 24'h0e0000) ;
 
 // sprites
-wire gfx4_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h0c0000) & (ioctl_addr < 24'h100000) ;
+//wire gfx4_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h100000) & (ioctl_addr < 24'h140000) ;
 
 // text
-wire gfx1_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h100000) & (ioctl_addr < 24'h108000) ;
+wire gfx1_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h140000) & (ioctl_addr < 24'h148000) ;
 
-wire z80_a_rom_ioctl_wr  = rom_download & ioctl_wr & (ioctl_addr >= 24'h110000) & (ioctl_addr < 24'h120000) ;
-wire z80_b_rom_ioctl_wr  = rom_download & ioctl_wr & (ioctl_addr >= 24'h120000) & (ioctl_addr < 24'h124000) ;
+//wire z80_a_rom_ioctl_wr  = rom_download & ioctl_wr & (ioctl_addr >= 24'h150000) & (ioctl_addr < 24'h160000) ;
+wire z80_b_rom_ioctl_wr  = rom_download & ioctl_wr & (ioctl_addr >= 24'h160000) & (ioctl_addr < 24'h164000) ;
 
 //wire nb1414m4_ioctl_wr   = rom_download & ioctl_wr & (ioctl_addr >= 24'h120000) & (ioctl_addr < 24'h124000) ;
 //wire prom_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h104000) & (ioctl_addr < 24'h0f4100) ;
+wire i8751_ioctl_wr        = rom_download & ioctl_wr & (ioctl_addr >= 24'h170000) & (ioctl_addr < 24'h171000) ;
 
 // main 68k ram high    
-ram8kx8dp ram8kx8_H (
+dual_port_ram #(.LEN(16384)) ram8kx8_H (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
     .address_a ( m68k_a[13:1] ),
     .wren_a ( !m68k_rw & m68k_ram_cs & !m68k_uds_n ),
     .data_a ( m68k_dout[15:8]  ),
     .q_a (  ram68k_dout[15:8] ),
+    
+    .clock_b ( clk_8M ),
+    .address_b ( { i8751_ram_addr[13:1], 1'b1 } ),
+    .wren_b ( i8751_ram_wr & i8751_ram_addr[0] ),
+    .data_b ( i8751_ram_dout ),
+    .q_b ( i8751_shared_ram_data_h )
+    );
+
+// main 68k ram low     
+dual_port_ram #(.LEN(16384)) ram8kx8_L (
+    .clock_a ( clk_16M ),
+    .address_a ( m68k_a[13:1] ),
+    .wren_a ( !m68k_rw & m68k_ram_cs & !m68k_lds_n ),
+    .data_a ( m68k_dout[7:0]  ),
+    .q_a ( ram68k_dout[7:0] ),
+    
+    .clock_b ( clk_8M ),
+    .address_b ( { i8751_ram_addr[13:1], 1'b0 } ),
+    .wren_b ( i8751_ram_wr & ~i8751_ram_addr[0]),
+    .data_b ( i8751_ram_dout ),
+    .q_b ( i8751_shared_ram_data_l )
+    );
+    
+// main 68k sprite ram high    
+dual_port_ram #(.LEN(4096)) sprite_ram_H (
+    .clock_a ( clk_16M ),
+    .address_a ( m68k_a[13:1] ),
+    .wren_a ( !m68k_rw & m68k_spr_cs & !m68k_uds_n ),
+    .data_a ( m68k_dout[15:8]  ),
+    .q_a (  ram68k_sprite_dout[15:8] ),
 
     .clock_b ( clk_sys ),
     .address_b ( sprite_shared_addr ),  
@@ -1573,14 +1663,13 @@ ram8kx8dp ram8kx8_H (
     
     );
 
-// main 68k ram low     
-ram8kx8dp ram8kx8_L (
+// main 68k sprite ram low     
+dual_port_ram #(.LEN(4096)) sprite_ram_L (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
     .address_a ( m68k_a[13:1] ),
-    .wren_a ( !m68k_rw & m68k_ram_cs & !m68k_lds_n ),
+    .wren_a ( !m68k_rw & m68k_spr_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
-    .q_a ( ram68k_dout[7:0] ),
+    .q_a ( ram68k_sprite_dout[7:0] ),
      
     .clock_b ( clk_sys ),
     .address_b ( sprite_shared_addr ),  
@@ -1588,6 +1677,12 @@ ram8kx8dp ram8kx8_L (
     .data_b ( ),
     .q_b( sprite_shared_ram_dout[7:0] )
     );
+
+//    .clock_a ( clk_8M ),
+//    .address_a ( i8751_ram_addr[13:0] ),
+//    .wren_a ( i8751_ram_wr ),
+//    .data_a ( i8751_ram_dout ),
+//    .q_a ( i8751_shared_ram_data ),
     
 reg  [10:0] fg_ram_addr;
 wire [15:0] fg_ram_dout;
@@ -1599,9 +1694,8 @@ wire [15:0] bg_ram_dout;
 wire [15:0] m68k_fg_ram_dout;
 
 // foreground high   
-ram2kx8dp ram_fg_h (
+dual_port_ram #(.LEN(2048)) ram_fg_h (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_fg_ram_cs & !m68k_uds_n ),
     .data_a ( m68k_dout[15:8]  ),
@@ -1616,9 +1710,8 @@ ram2kx8dp ram_fg_h (
     );
 
 // foreground low
-ram2kx8dp ram_fg_l (
+dual_port_ram #(.LEN(2048)) ram_fg_l (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_fg_ram_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
@@ -1634,9 +1727,8 @@ ram2kx8dp ram_fg_l (
 wire [15:0] m68k_bg_ram_dout;
     
 // background high
-ram2kx8dp ram_bg_h (
+dual_port_ram #(.LEN(2048)) ram_bg_h (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_bg_ram_cs & !m68k_uds_n ),
     .data_a ( m68k_dout[15:8]  ),
@@ -1651,9 +1743,8 @@ ram2kx8dp ram_bg_h (
     );
 
 // background low    
-ram2kx8dp ram_fg_L (
+dual_port_ram #(.LEN(2048)) ram_fg_L (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_bg_ram_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
@@ -1670,9 +1761,8 @@ reg [15:0] tile_pal_dout;
 reg [10:0] tile_pal_addr;
     
 // tile palette high   
-ram2kx8dp tile_pal_h (
+dual_port_ram #(.LEN(2048)) tile_pal_h (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_tile_pal_cs & !m68k_uds_n ),
     .data_a ( m68k_dout[15:8]  ),
@@ -1683,13 +1773,11 @@ ram2kx8dp tile_pal_h (
     .wren_b ( 1'b0 ),
     .data_b ( ),
     .q_b( tile_pal_dout[15:8] )
-    
     );
 
 //  tile palette low
-ram2kx8dp tile_pal_l (
+dual_port_ram #(.LEN(2048)) tile_pal_l (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_tile_pal_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
@@ -1707,9 +1795,8 @@ wire [15:0] m68k_spr_pal_dout ;
 
 
 // sprite pal lut high
-ram2kx8dp spr_pal_h (
+dual_port_ram #(.LEN(2048)) spr_pal_h (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_spr_pal_cs & !m68k_uds_n ),
     .data_a ( m68k_dout[15:8]  ),
@@ -1724,9 +1811,8 @@ ram2kx8dp spr_pal_h (
     );
 
 // sprite pal lut high
-ram2kx8dp spr_pal_L (
+dual_port_ram #(.LEN(2048)) spr_pal_L (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_spr_pal_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
@@ -1744,7 +1830,7 @@ reg  [63:0] sprite_buffer_din;
 wire [63:0] sprite_buffer_dout;
 reg  sprite_buffer_w;
 
-ram512bx64dp sprite_buffer (
+dual_port_ram #(.LEN(512), .DATA_WIDTH(64)) sprite_buffer (
     .clock_a ( clk_sys ),
     .address_a ( sprite_buffer_addr ),
     .wren_a ( 1'b0 ),
@@ -1766,7 +1852,7 @@ wire [15:0]  sprite_fb_out;
 reg   [9:0]  sprite_fb_addr_r ; 
     
 // two line buffer for sprite rendering
-ram1kx16dp sprite_line_buffer_ram (
+dual_port_ram #(.LEN(1024), .DATA_WIDTH(16)) sprite_line_buffer_ram (
     .clock_a ( clk_sys ),
     .address_a ( sprite_fb_addr_w ),
     .wren_a ( sprite_fb_w ),
@@ -1786,7 +1872,7 @@ wire [15:0] m68k_ram_2_dout ;
 wire [15:0] m68k_ram_3_dout ;
 
 // 68k ram 2
-ram4kx8dp ram_2_h (
+dual_port_ram #(.LEN(4096)) ram_2_h (
     .clock_a ( clk_16M ),
     .address_a ( m68k_a[12:1] ),
     .wren_a ( !m68k_rw & m68k_ram_2_cs & !m68k_uds_n ),
@@ -1796,7 +1882,7 @@ ram4kx8dp ram_2_h (
     );
 
 // 68k ram 2
-ram4kx8dp ram_2_L (
+dual_port_ram #(.LEN(4096)) ram_2_L (
     .clock_a ( clk_16M ),
     .address_a ( m68k_a[12:1] ),
     .wren_a ( !m68k_rw & m68k_ram_2_cs & !m68k_lds_n ),
@@ -1806,7 +1892,7 @@ ram4kx8dp ram_2_L (
     ); 
 
 // 68k ram 3
-ram4kx8dp ram_3_h (
+dual_port_ram #(.LEN(4096)) ram_3_h (
     .clock_a ( clk_16M ),
     .address_a ( m68k_a[12:1] ),
     .wren_a ( !m68k_rw & m68k_ram_3_cs & !m68k_uds_n ),
@@ -1816,7 +1902,7 @@ ram4kx8dp ram_3_h (
     );
 
 // 68k ram 3
-ram4kx8dp ram_3_L (
+dual_port_ram #(.LEN(4096)) ram_3_L (
     .clock_a ( clk_16M ),
     .address_a ( m68k_a[12:1] ),
     .wren_a ( !m68k_rw & m68k_ram_3_cs & !m68k_lds_n ),
@@ -1829,21 +1915,16 @@ wire [7:0] txt_ram_dout ;
 wire [15:0] m68k_txt_ram_dout ;
 reg  [12:0] txt_ram_addr ;
 
-ram2kx8dp z80_a_ram (
+dual_port_ram #(.LEN(2048)) z80_a_ram (
     .clock_a ( clk_4M ),
     .address_a ( z80_a_addr[13:0] ),
     .wren_a ( z80_a_ram_cs & ~z80_a_wr_n ),
     .data_a ( z80_a_dout ),
     .q_a ( z80_a_ram_data ),
 
-//    .clock_b ( clk_sys ),
-//    .address_b ( ioctl_addr[13:0] ),
-//    .wren_b ( z80_b_rom_ioctl_wr ),
-//    .data_b ( ioctl_dout ),
-//    .q_b(  )
     );
     
-ram16kx8dp z80_b_rom (
+dual_port_ram #(.LEN(16384)) z80_b_rom (
     .clock_a ( clk_4M ),
     .address_a ( z80_b_addr[13:0] ),
     .wren_a ( z80_b_rom_cs & ~z80_b_wr_n ),
@@ -1867,7 +1948,7 @@ wire [15:0] m68k_txt_attr_ram_dout;
 
 
 // 4 port ram - should figure out real abritration method
-ram4kx8dp txt_ram_0 (
+dual_port_ram #(.LEN(4096)) txt_ram_0 (
     // 68k read and write txt ram
     .clock_a ( clk_sys ),
     .address_a ( shared_addr ),
@@ -1884,7 +1965,7 @@ ram4kx8dp txt_ram_0 (
     );
     
 // shadow to allow z80 to read
-ram4kx8dp txt_ram_1 (
+dual_port_ram #(.LEN(4096)) txt_ram_1 (
     .clock_a ( clk_sys ),
     .address_a ( shared_addr ),
     .wren_a ( shared_w ),
@@ -1900,7 +1981,7 @@ ram4kx8dp txt_ram_1 (
     );
     
 // shadow for text attribute    
-ram4kx8dp txt_ram_2 (
+dual_port_ram #(.LEN(4096)) txt_ram_2 (
     .clock_a ( clk_sys ),
     .address_a ( shared_addr ),
     .wren_a ( shared_w ),
@@ -1916,7 +1997,7 @@ ram4kx8dp txt_ram_2 (
     );
     
 // z80 protection ram 1  
-ram4kx8dp z80_b_ram_1 (
+dual_port_ram #(.LEN(4096)) z80_b_ram_1 (
     .clock_b ( clk_4M ), 
     .address_b ( z80_b_addr[11:0] ),
     .wren_b ( z80_b_ram_1_cs & ~z80_b_wr_n ),
@@ -1925,7 +2006,7 @@ ram4kx8dp z80_b_ram_1 (
     );
 
 // z80 protection ram 1  
-ram2kx8dp z80_b_ram_2 (
+dual_port_ram #(.LEN(2048)) z80_b_ram_2 (
     .clock_b ( clk_4M ), 
     .address_b ( z80_b_addr[11:0] ),
     .wren_b ( z80_b_ram_2_cs & ~z80_b_wr_n ),
@@ -1935,35 +2016,35 @@ ram2kx8dp z80_b_ram_2 (
 
     
 //  <!-- gfx1       0x020000-0x021fff 8K -->
-ram32kx8dp gfx1 (
+dual_port_ram #(.LEN(32768)) gfx1 (
     .clock_a ( clk_6M ),
-    .address_a ( gfx1_addr[16:0] ),
+    .address_a ( gfx1_addr[14:0] ),
     .wren_a ( 1'b0 ),
     .data_a ( ),
     .q_a ( gfx1_dout[7:0] ),
     
     .clock_b ( clk_sys ),
-    .address_b ( ioctl_addr[16:0] ),
+    .address_b ( ioctl_addr[14:0] ),
     .wren_b ( gfx1_ioctl_wr ),
-    .data_b ( ioctl_dout  ),
+    .data_b ( ioctl_dout ),
     .q_b( )
     );
 
-ram128kx8dp gfx2 (
+dual_port_ram #(.LEN(196608)) gfx2 (
     .clock_a ( clk_6M ),
-    .address_a ( gfx2_addr[16:0] ),
+    .address_a ( gfx2_addr[17:0] ),
     .wren_a ( 1'b0 ),
     .data_a ( ),
     .q_a ( gfx2_dout[7:0] ),
     
     .clock_b ( clk_sys ),
-    .address_b ( ioctl_addr[16:0] ),
+    .address_b ( ioctl_addr[17:0] ),
     .wren_b ( gfx2_ioctl_wr ),
-    .data_b ( ioctl_dout  ),
+    .data_b ( ioctl_dout ),
     .q_b( )
     );
 
-ram128kx8dp gfx3 (
+dual_port_ram #(.LEN(131072)) gfx3 (
     .clock_a ( clk_6M ),
     .address_a ( gfx3_addr[16:0] ),
     .wren_a ( 1'b0 ),
@@ -1973,7 +2054,7 @@ ram128kx8dp gfx3 (
     .clock_b ( clk_sys ),
     .address_b ( ioctl_addr[16:0] ),
     .wren_b ( gfx3_ioctl_wr ),
-    .data_b ( ioctl_dout  ),
+    .data_b ( ioctl_dout ),
     .q_b( )
     );
    

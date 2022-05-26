@@ -19,6 +19,7 @@ module chip_select
     output reg m68k_txt_ram_cs,
     output reg m68k_ram_2_cs,
     output reg m68k_ram_3_cs,
+    output reg m68k_spr_cs,
     output reg m68k_spr_pal_cs,
     output reg m68k_fg_ram_cs,
     output reg m68k_bg_ram_cs,
@@ -33,6 +34,7 @@ module chip_select
     output reg fg_scroll_y_cs,
     output reg sound_latch_cs,
     output reg irq_ack_cs,
+    output reg irq_i8751_cs,
 
     // Z80 selects
     output reg   z80_rom_cs,
@@ -44,13 +46,15 @@ module chip_select
     output reg   z80_dac2_cs,
     output reg   z80_latch_clr_cs,
     output reg   z80_latch_r_cs
+
 );
 
-localparam pcb_terra_force     = 0;
-localparam pcb_armedf          = 1;
-localparam pcb_legionjb        = 2;
-localparam pcb_kozure          = 3;
-localparam pcb_bigfghtr        = 4;
+localparam pcb_terra_force      = 0;
+localparam pcb_armedf           = 1;
+localparam pcb_legion           = 2;
+localparam pcb_kozure           = 3;
+localparam pcb_bigfghtr         = 4;
+
 
 function m68k_cs;
         input [23:0] start_address;
@@ -80,9 +84,9 @@ always @ (*) begin
     // Memory mapping based on PCB type
     case (pcb)
         pcb_terra_force: begin
-
             m68k_rom_cs      = m68k_cs( 24'h000000, 24'h05ffff ) ;
-            m68k_ram_cs      = m68k_cs( 24'h060000, 24'h063fff ) ; // 16k
+            m68k_spr_cs      = m68k_cs( 24'h060000, 24'h0603ff ) ; // 1k
+            m68k_ram_cs      = m68k_cs( 24'h060400, 24'h063fff ) ; // 15k
 
             m68k_tile_pal_cs = m68k_cs( 24'h064000, 24'h064fff ) ; // 4k
             m68k_txt_ram_cs  = m68k_cs( 24'h068000, 24'h069fff ) ; // 4k shared (1k tile attr) low byte
@@ -101,7 +105,8 @@ always @ (*) begin
             bg_scroll_y_cs   = m68k_cs( 24'h07c004, 24'h07c005 ) ; // SCROLL Y
             sound_latch_cs   = m68k_cs( 24'h07c00a, 24'h07c00b ) ; // sound latch
             irq_ack_cs       = m68k_cs( 24'h07c00e, 24'h07c00f ) ; // irq ack
-
+            
+            irq_i8751_cs     = 0;
             m68k_ram_3_cs    = 0; // unused
 
             z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hf800 );
@@ -116,23 +121,27 @@ always @ (*) begin
         end
 
         pcb_armedf: begin
-
             m68k_rom_cs      = m68k_cs( 24'h000000, 24'h05ffff ) ;
-            m68k_ram_cs      = m68k_cs( 24'h060000, 24'h063fff ) ; // 16k
+            
+            m68k_spr_cs      = m68k_cs( 24'h060000, 24'h0603ff ) ; // 1k
+            m68k_ram_cs      = m68k_cs( 24'h060400, 24'h063fff ) ; // 15k
+            
             m68k_ram_2_cs    = m68k_cs( 24'h064000, 24'h065fff ) ; // 8k  
 
             m68k_bg_ram_cs   = m68k_cs( 24'h066000, 24'h066fff ) ; // 4k
             m68k_fg_ram_cs   = m68k_cs( 24'h067000, 24'h067fff ) ; // 4k
 
             m68k_txt_ram_cs  = m68k_cs( 24'h068000, 24'h069fff ) ; // 8k shared (1k tile attr) low byte
+
             m68k_tile_pal_cs = m68k_cs( 24'h06a000, 24'h06afff ) ; // 4k
+            
             m68k_spr_pal_cs  = m68k_cs( 24'h06b000, 24'h06bfff ) ; // 4k
 
             input_p1_cs      = m68k_cs( 24'h06c000, 24'h06c001 ) ; // P1
             input_p2_cs      = m68k_cs( 24'h06c002, 24'h06c003 ) ; // P2
             input_dsw1_cs    = m68k_cs( 24'h06c004, 24'h06c005 ) ; // DSW1
             input_dsw2_cs    = m68k_cs( 24'h06c006, 24'h06c007 ) ; // DSW2
-
+            
             m68k_ram_3_cs    = m68k_cs( 24'h06c008, 24'h06c7ff ) ; // 4k  *** x2
 
             bg_scroll_x_cs   = m68k_cs( 24'h06d002, 24'h06d003 ) ; // SCROLL X
@@ -142,7 +151,8 @@ always @ (*) begin
             fg_scroll_y_cs   = m68k_cs( 24'h06d008, 24'h06d009 ) ; // SCROLL Y
 
             irq_z80_cs       = m68k_cs( 24'h06d000, 24'h06d001 ) ; // 
-
+            irq_i8751_cs     = 0;
+            
             sound_latch_cs   = m68k_cs( 24'h06d00a, 24'h06d00b ) ; // sound latch
 
             irq_ack_cs       = m68k_cs( 24'h06d00e, 24'h06d00f ) ; // irq ack
@@ -158,11 +168,12 @@ always @ (*) begin
             z80_latch_r_cs   = z80_io_cs(8'h06);
         end
 
-        pcb_legionjb: begin
+        pcb_legion: begin
 
             m68k_rom_cs      = m68k_cs( 24'h000000, 24'h03ffff ) ;
-            m68k_ram_cs      = m68k_cs( 24'h060000, 24'h060fff ) ; // 16k
-            m68k_ram_2_cs    = m68k_cs( 24'h061000, 24'h063fff ) ; // 4k  *** x2
+
+            m68k_spr_cs      = m68k_cs( 24'h060000, 24'h060fff ) ; // 4k
+            m68k_ram_cs      = m68k_cs( 24'h061000, 24'h063fff ) ; // 12k  
 
             m68k_bg_ram_cs   = m68k_cs( 24'h074000, 24'h074fff ) ; // 4k
             m68k_fg_ram_cs   = m68k_cs( 24'h070000, 24'h070fff ) ; // 4k
@@ -179,14 +190,12 @@ always @ (*) begin
             bg_scroll_x_cs   = m68k_cs( 24'h07c002, 24'h07c003 ) ; // SCROLL X
             bg_scroll_y_cs   = m68k_cs( 24'h07c004, 24'h07c005 ) ; // SCROLL Y
 
-            fg_scroll_x_cs   = m68k_cs( 24'h040000, 24'h04003f ) ; // SCROLL X
-            fg_scroll_y_cs   = m68k_cs( 24'h040000, 24'h04003f ) ; // SCROLL Y
-
             irq_z80_cs       = m68k_cs( 24'h07c000, 24'h07c001 ) ; // 
             sound_latch_cs   = m68k_cs( 24'h07c00a, 24'h07c00b ) ; // sound latch
             irq_ack_cs       = m68k_cs( 24'h07c00e, 24'h07c00f ) ; // irq ack
             
-            m68k_ram_3_cs    = m68k_cs( 24'h06a000, 24'h06a9ff ) ; // 4k  *** x2
+            irq_i8751_cs     = 0;            
+            m68k_ram_3_cs    = 0; // unused
 
             z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hf800 );
             z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hf800 );
@@ -202,8 +211,9 @@ always @ (*) begin
         pcb_kozure: begin
 
             m68k_rom_cs      = m68k_cs( 24'h000000, 24'h05ffff ) ;
-            m68k_ram_cs      = m68k_cs( 24'h060000, 24'h060fff ) ; // 16k
-            m68k_ram_2_cs    = m68k_cs( 24'h061000, 24'h063fff ) ; // 4k  *** x2
+
+            m68k_spr_cs      = m68k_cs( 24'h060000, 24'h060fff ) ; // 4k
+            m68k_ram_cs      = m68k_cs( 24'h061000, 24'h063fff ) ; // 12k  
 
             m68k_bg_ram_cs   = m68k_cs( 24'h074000, 24'h074fff ) ; // 4k
             m68k_fg_ram_cs   = m68k_cs( 24'h070000, 24'h070fff ) ; // 4k
@@ -224,7 +234,8 @@ always @ (*) begin
             sound_latch_cs   = m68k_cs( 24'h07c00a, 24'h07c00b ) ; // sound latch
 
             irq_ack_cs       = m68k_cs( 24'h07c00e, 24'h07c00f ) ; // irq ack
-
+            
+            irq_i8751_cs     = 0;            
             m68k_ram_3_cs    = 0; // unused
 
             z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hf800 );
@@ -241,9 +252,11 @@ always @ (*) begin
         pcb_bigfghtr: begin
 
             m68k_rom_cs      = m68k_cs( 24'h000000, 24'h07ffff ) ;
-            m68k_ram_cs      = m68k_cs( 24'h080000, 24'h0805ff ) ; // 16k
-            m68k_ram_2_cs    = m68k_cs( 24'h080600, 24'h083fff ) ; // 4k  *** x2
-            m68k_ram_3_cs    = m68k_cs( 24'h084000, 24'h085fff ) ; // 
+
+            m68k_spr_cs      = m68k_cs( 24'h080000, 24'h0805ff ) ; // 4k
+            m68k_ram_cs      = m68k_cs( 24'h080600, 24'h083fff ) ; // 12k  
+            
+            m68k_ram_2_cs    = m68k_cs( 24'h084000, 24'h085fff ) ; // 
 
             m68k_bg_ram_cs   = m68k_cs( 24'h086000, 24'h086fff ) ; // 4k
             m68k_fg_ram_cs   = m68k_cs( 24'h087000, 24'h087fff ) ; // 4k
@@ -264,9 +277,12 @@ always @ (*) begin
             fg_scroll_y_cs   = m68k_cs( 24'h08d008, 24'h08d009 ) ; // SCROLL Y
 
             irq_z80_cs       = m68k_cs( 24'h08d000, 24'h08d001 ) ; // 
+
             sound_latch_cs   = m68k_cs( 24'h08d00a, 24'h08d00b ) ; // sound latch
 
             irq_ack_cs       = m68k_cs( 24'h08d00e, 24'h08d00f ) ; // irq ack
+
+            irq_i8751_cs     = m68k_cs( 24'h400000, 24'h400001 ) ; // i8751 interrupt  
 
             z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hf800 );
             z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hf800 );
@@ -279,15 +295,6 @@ always @ (*) begin
             z80_latch_r_cs   = z80_io_cs(8'h06);
         end
 
-//	void bigfghtr_state::bigfghtr_map(address_map &map)
-//	map(0x400000, 0x400001).r(FUNC(bigfghtr_state::latch_r)); // i8751 communication between 68k
-
-//	void bigfghtr_state::bigfghtr_mcu_map(address_map &map)
-//	map(0x0000, 0x0fff).rom();
-
-//	void bigfghtr_state::bigfghtr_mcu_io_map(address_map &map)
-//	map(0x00000, 0x005ff).w(FUNC(bigfghtr_state::mcu_spritelist_w)); //Sprite RAM, guess shared as well
-//	map(0x00600, 0x03fff).ram().share("sharedram");
 
         default:;
     endcase
