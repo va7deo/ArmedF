@@ -221,8 +221,8 @@ always @ (*) begin
 
             m68k_rom_cs      = m68k_cs( 24'h000000, 24'h03ffff ) ;
 
-            fg_scroll_x_cs   = m68k_cs( 24'h040020, 24'h04003f ) ; // SCROLL X
-            fg_scroll_y_cs   = m68k_cs( 24'h040000, 24'h04001f ) ; // SCROLL Y
+            fg_scroll_y_cs   = m68k_cs( 24'h040016, 24'h040019 ) ; // SCROLL Y
+            fg_scroll_x_cs   = m68k_cs( 24'h04001a, 24'h04001d ) ; // SCROLL X
 
             m68k_spr_cs      = m68k_cs( 24'h060000, 24'h060fff ) ; // 4k
             m68k_ram_cs      = m68k_cs( 24'h061000, 24'h063fff ) ; // 12k
@@ -265,8 +265,8 @@ always @ (*) begin
 
             m68k_rom_cs      = m68k_cs( 24'h000000, 24'h03ffff ) ;
 
-            fg_scroll_x_cs   = m68k_cs( 24'h000020, 24'h00003f ) ; // SCROLL X
-            fg_scroll_y_cs   = m68k_cs( 24'h000000, 24'h00001f ) ; // SCROLL Y
+            fg_scroll_y_cs   = m68k_cs( 24'h000016, 24'h000019 ) ; // SCROLL Y
+            fg_scroll_x_cs   = m68k_cs( 24'h00001a, 24'h00001d ) ; // SCROLL X
 
             m68k_spr_cs      = m68k_cs( 24'h060000, 24'h060fff ) ; // 4k
             m68k_ram_cs      = m68k_cs( 24'h061000, 24'h063fff ) ; // 12k

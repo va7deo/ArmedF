@@ -516,6 +516,7 @@ delay delay_vbl( .clk(clk_6M), .i( vbl ), .o(vbl_delay) ) ;
 video_timing video_timing (
     .clk(clk_6M),
     .clk_pix(1'b1),
+    .pcb(pcb),
     .hc(hc),
     .vc(vc),
     .hs_offset(hs_offset),
@@ -597,8 +598,11 @@ always @ (*) begin
     if ( pcb == 0 ) begin
         tx_x <= hc - 32;
         tx_y <= vc ;
-    end else begin
+    end else if ( pcb == 1 ) begin
         tx_x <= hc + 96 ;
+        tx_y <= vc ;
+    end else begin
+        tx_x <= hc - 32;
         tx_y <= vc ;
     end
     
@@ -685,12 +689,15 @@ always @ (posedge clk_6M) begin
 // text layer
     
         // read from two addresses at once
-        if ( pcb == 0 ) begin
+        if ( pcb == 0 || pcb == 6) begin
             gfx_txt_addr      <= { tx_x[8], 1'b0, ~tx_y[7:3], tx_x[7:3] } ;//{ 1'b0, t1[9:0] };
             gfx_txt_attr_addr <= { tx_x[8], 1'b1, ~tx_y[7:3], tx_x[7:3] } ; //{ 1'b1, t1[9:0] } ;
         end else if ( pcb == 1 ) begin
             gfx_txt_addr      <= { 1'b0, tx_x[8:3], tx_y[7:3] } ; 
             gfx_txt_attr_addr <= { 1'b1, tx_x[8:3], tx_y[7:3] } ;
+        end else if ( pcb == 2 || pcb == 3 || pcb == 4  ) begin              
+            gfx_txt_addr      <= { tx_x[8], 1'b0, tx_x[7:3], tx_y[7:3] } ;
+            gfx_txt_attr_addr <= { tx_x[8], 1'b1, tx_x[7:3], tx_y[7:3] } ;
         end
         
         gfx1_addr     <= { gfx_txt_attr_dout[1:0], gfx_txt_dout[7:0], tx_y[2:0], tx_x_latch[2:1] } ;  //gfx_txt_attr_dout[1:0]
@@ -798,6 +805,7 @@ end
 always @ (posedge clk_sys ) begin
     if ( reset == 1 ) begin
         m68k_ipl0_n  <= 1 ;
+        m68k_ipl1_n  <= 1 ;
         int_ack <= 0;
         z80_b_irq_n <= 1;
 //    end else if ( clk_8M == 1 ) begin
@@ -808,6 +816,7 @@ always @ (posedge clk_sys ) begin
         // only a write to 0x07c00e clears to interrupt line
         if ( irq_ack_cs == 1 ) begin
             m68k_ipl0_n <= 1 ;
+            m68k_ipl1_n <= 1 ;
         end else if ( irq_z80_cs == 1 ) begin
             //if (data & 0x4000 && ((m_vreg & 0x4000) == 0)) //0 -> 1 transition
             //    m_extra->set_input_line(0, HOLD_LINE);
@@ -848,7 +857,11 @@ always @ (posedge clk_sys ) begin
 //        end
         if ( vbl_sr == 2'b01 ) begin // rising edge
             //  68k vbl interrupt
-            m68k_ipl0_n <= 0;
+            if ( pcb == 2 || pcb == 3 || pcb == 4 || pcb == 6 ) begin
+                m68k_ipl1_n <= 0;
+            end else begin
+                m68k_ipl0_n <= 0;
+            end
         end 
     end
 end
@@ -933,26 +946,38 @@ always @ (posedge clk_sys) begin
     // both the 68k and the bootleg z80 write to the scroll registers
 //    if ( clk_8M == 1 ) begin
     if ( clk_16M == 1 ) begin
-
-         if (!m68k_rw & bg_scroll_x_cs ) begin
+        // 68k writes
+        if ( !m68k_rw ) begin
+            if ( bg_scroll_x_cs == 1) begin
               bg_scroll_x <= m68k_dout[15:0];
-         end
-
-         if (!m68k_rw & bg_scroll_y_cs ) begin
+            end else if ( bg_scroll_y_cs == 1) begin
               bg_scroll_y <= m68k_dout[15:0];
-         end
-
-         if (!m68k_rw & sound_latch_cs ) begin
+            end else if ( fg_scroll_y_cs == 1 ) begin 
+                if ( pcb != 3 && pcb != 4 ) begin
+                    fg_scroll_y[9:0] <= m68k_dout[9:0];
+                end else begin
+                    // legion bootlegs
+                    if ( m68k_a[1] == 1 ) begin
+                        fg_scroll_y[7:0] <= m68k_dout[7:0];
+                    end else begin
+                        fg_scroll_y[9:8] <= m68k_dout[1:0];
+                    end
+                end
+            end else if ( fg_scroll_x_cs == 1 ) begin  // && m68k_rw == 0
+                if ( pcb != 3 && pcb != 4 ) begin
+                    fg_scroll_x[9:0] <= m68k_dout[9:0];
+                end else begin
+                    // legion bootlegs
+                    if ( m68k_a[1] == 1 ) begin
+                        fg_scroll_x[7:0] <= m68k_dout[7:0];
+                    end else begin
+                        fg_scroll_x[9:8] <= m68k_dout[1:0];
+                    end
+                end
+            end else if ( sound_latch_cs == 1) begin
               sound_latch <= {m68k_dout[6:0],1'b1};
-         end
-         
-         if ( pcb == 1 ) begin
-            if ( fg_scroll_x_cs == 1 ) begin  // && m68k_rw == 0
-                fg_scroll_x[9:0] <= m68k_dout[9:0];
-            end else if ( fg_scroll_y_cs == 1 ) begin // && m68k_rw == 0 
-                fg_scroll_y[9:0] <= m68k_dout[9:0];
-            end         
-         end
+            end
+        end
     end
 
     if ( reset == 1 ) begin
@@ -1105,6 +1130,7 @@ reg  [15:0] m68k_din        ;
 // CPU inputs
 reg  m68k_dtack_n ;         // Data transfer ack (always ready)
 reg  m68k_ipl0_n ;
+reg  m68k_ipl1_n ;
 
 wire reset_n;
 wire m68k_vpa_n = 1'b0;//( m68k_lds_n == 0 && m68k_fc == 3'b111 ); // int ack
@@ -1118,6 +1144,8 @@ reg tx_enable;
 reg sp_enable;
 
 wire curr_line;
+
+wire [9:0] sprite_y_adj = ( pcb == 2 || pcb == 3 || pcb == 4 || pcb == 6) ? 0 : 128 ;
 
 always @ (posedge clk_sys) begin
     //   copy sprite list to dedicated sprite list ram
@@ -1134,7 +1162,7 @@ always @ (posedge clk_sys) begin
         copy_sprite_state <= 3; 
     end else if ( copy_sprite_state == 3 ) begin        
        // address 0 result
-        sprite_y_pos <= (240+128) - sprite_shared_ram_dout[8:0];
+        sprite_y_pos <= (240+sprite_y_adj) - sprite_shared_ram_dout[8:0];
         sprite_pri   <= sprite_shared_ram_dout[13:12];
         sprite_shared_addr <= sprite_shared_addr + 1 ;
         copy_sprite_state <= 4; 
@@ -1362,7 +1390,7 @@ fx68k fx68k (
     .BGACKn(1'b1),
     
     .IPL0n(m68k_ipl0_n),
-    .IPL1n(1'b1),
+    .IPL1n(m68k_ipl1_n),
     .IPL2n(1'b1),
 
     // busses
