@@ -91,7 +91,7 @@ D1  (Daughter Board) | [**Intel 8751**](https://en.wikipedia.org/wiki/Intel_8051
 
 | Location | Chip | Use | PCB | ROM set |
 |----------|-----|------|-----|---------|
-A9  (Top Board) | [**NB1414M4**](https://raw.githubusercontent.com/va7deo/TerraForce/main/doc/Terra%20Force%2026494/Terra%20Force%2026494%20Front.jpg?token=GHSAT0AAAAAABKJR6W6CVBT5FROK2UKF75KYTXT2BA) | Protection IC | <u>**Chouji Meikyuu Legion**</u> <br> <u>**Terra Force**</u> <br> <u>**Kozure Ōkami**</u> <br> <u>**Crazy Climber 2**</u> | legion, legionj, legionj2 <br> terraf, terrafu, terrafj <br> kozure <br> cclimbr2, cclimbr2a |
+A9  (Top Board) | [**NB1414M4**](https://raw.githubusercontent.com/va7deo/TerraForce/main/doc/Terra%20Force%2026494/Terra%20Force%2026494%20Front.jpg?token=GHSAT0AAAAAABKJR6W6CVBT5FROK2UKF75KYTXT2BA) | Protection IC | <u>**Chouji Meikyuu Legion**</u> <br><br> <u>**Terra Force**</u> <br><br> <u>**Kozure Ōkami**</u> <br><br> <u>**Crazy Climber 2**</u> | **legion, legionj, legionj2** <br><br> **terraf, terrafu, terrafj** <br><br> **kozure** <br><br> **cclimbr2, cclimbr2a** |
 
 # Debugging Features
 
@@ -99,7 +99,7 @@ A hidden debug menu can be accessed for **Terra Force, Kozure Ōkami, Chouji Mei
 
 **Follow these steps to access the debug menu:** 
 
-- Turn on **Service Menu** in the debug OSD options or press **F2**. Then turn on **Debug Menu** or press and hold **R**, **A**, **S** . For **Crazy Climber 2** press and hold  **Up** and **R**.<br><br>
+- Turn on **Service Menu** in the debug OSD options or press **F2**. Then turn on **Debug Menu** or press and hold **R**, **A**, **S** . For **Crazy Climber 2** press and hold  **Up**, **LCtrl**, **Spacebar**.<br><br>
 - Toggle the **Service Menu** option off; then toggle **Debug Menu** off in the OSD or keep those corresponding keys held and press **F2**.<br><br>
 - To utilize the OSD method for accessing the Debug Method do the following, **Pause when OSD is open: Off**.
 <br>
@@ -108,7 +108,7 @@ A hidden debug menu can be accessed for **Terra Force, Kozure Ōkami, Chouji Mei
 |:--:|
 |<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th></tr><tr><td>![1](https://tcrf.net/images/4/46/FormationArmedFArcDebug1.png)</td><td> ![2](https://tcrf.net/images/9/9d/FormationArmedFArcDebug2.png)</td><td>![3](https://tcrf.net/images/a/a8/FormationArmedFArcDebug3.png)</td></tr></table> |
 | **Chouji Meikyuu Legion Debugging Menu** |
-|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th><th>Foreground / Background Bank Test</th></tr><tr><td>![1](https://tcrf.net/images/8/80/LegionSpinner87Debug1.png)</td><td>![2](https://tcrf.net/images/8/81/LegionSpinner87Debug2.png)</td><td>![3](https://tcrf.net/images/2/2b/LegionSpinner87Debug3.png)</td><td>![4](https://tcrf.net/images/2/22/LegionSpinner87Debug4.png)</td></tr></table> |
+|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th><th>Foreground /<br> Background Bank Test</th></tr><tr><td>![1](https://tcrf.net/images/8/80/LegionSpinner87Debug1.png)</td><td>![2](https://tcrf.net/images/8/81/LegionSpinner87Debug2.png)</td><td>![3](https://tcrf.net/images/2/2b/LegionSpinner87Debug3.png)</td><td>![4](https://tcrf.net/images/2/22/LegionSpinner87Debug4.png)</td></tr></table> |
 
 # Control Layout
 
@@ -132,7 +132,7 @@ Armed F| 8-Way | <img width="" height="" src="https://user-images.githubusercont
 
 |Player 1|Player 2|
 |--|--|
-|<table> <tr><th>Functions</th><th>Keymap</th></tr><tr><td>P1 Up</td><td>Up</td></tr><tr><td>P1 Down</td><td>Down</td></tr><tr><td>P1 Left</td><td>Left</td></tr><tr><td>P1 Right</td><td>Right</td></tr><tr><td>P1 Bttn 1</td><td>L-CTRL</td></tr><tr><td>P1 Bttn 2</td><td>L-ALT</td></tr><tr><td>P1 Bttn 3</td><td>Space</td></tr> </table> | <table> <tr><th>Functions</th><th>Keymap</th></tr><tr><td>P2 Up</td><td>R</td></tr><tr><td>P2 Down</td><td>F</td></tr><tr><td>P2 Left</td><td>D</td></tr><tr><td>P2 Right</td><td>G</td></tr><tr><td>P2 Bttn 1</td><td>A</td></tr><tr><td>P2 Bttn 2</td><td>S</td></tr><tr><td>P2 Bttn 3</td><td>Q</td></tr> </table>|
+|<table> <tr><th>Functions</th><th>Keymap</th></tr><tr><td>P1 Up</td><td>Up</td></tr><tr><td>P1 Down</td><td>Down</td></tr><tr><td>P1 Left</td><td>Left</td></tr><tr><td>P1 Right</td><td>Right</td></tr><tr><td>P1 Bttn 1</td><td>L-CTRL</td></tr><tr><td>P1 Bttn 2</td><td>L-ALT</td></tr><tr><td>P1 Bttn 3</td><td>Space</td></tr><tr><td>P1 Bttn 4</td><td>L-Shi21</td></tr> </table> | <table> <tr><th>Functions</th><th>Keymap</th></tr><tr><td>P2 Up</td><td>R</td></tr><tr><td>P2 Down</td><td>F</td></tr><tr><td>P2 Left</td><td>D</td></tr><tr><td>P2 Right</td><td>G</td></tr><tr><td>P2 Bttn 1</td><td>A</td></tr><tr><td>P2 Bttn 2</td><td>S</td></tr><tr><td>P2 Bttn 3</td><td>Q</td><tr></tr><td>P2 Bttn 4</td><td>W</td></tr> </table>|
 
 # Support
 

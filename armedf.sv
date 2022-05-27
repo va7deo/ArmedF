@@ -358,7 +358,7 @@ wire [3:0]  p2_buttons = joy1[7:4] | {key_p2_d, key_p2_c, key_p2_b | status[36],
 
 wire        start1  = joy0[8]  | joy1[8]  | key_start_1p;
 wire        start2  = joy0[9]  | joy1[9]  | key_start_2p;
-wire        coin_a  = joy0[10]  | joy1[10]  | key_coin_a;
+wire        coin_a  = joy0[10] | joy1[10] | key_coin_a;
 wire        coin_b  = joy0[11] | joy1[11] | key_coin_b;
 wire        b_pause = joy0[12] | key_pause ;
 
