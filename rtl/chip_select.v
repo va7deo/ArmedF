@@ -211,7 +211,7 @@ always @ (*) begin
             fg_scroll_y_cs   = 0 ;
 
 
-            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hbfff );
+            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hc000 );
             z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hc000 );
 
             z80_sound0_cs    = z80_io_cs(8'h00);
@@ -255,7 +255,7 @@ always @ (*) begin
 
             irq_i8751_cs     = 0 ; // unused
 
-            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hbfff );
+            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hc000 );
             z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hc000 );
 
             z80_sound0_cs    = z80_io_cs(8'h00);
@@ -299,7 +299,7 @@ always @ (*) begin
 
             irq_i8751_cs     = 0 ; // unused
 
-            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hbfff );
+            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hc000 );
             z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hc000 );
 
             z80_sound0_cs    = z80_io_cs(8'h00);
@@ -383,7 +383,7 @@ always @ (*) begin
             fg_scroll_x_cs   = 0 ;
             fg_scroll_y_cs   = 0 ;
 
-            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hbfff );
+            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hc000 );
             z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hc000 );
 
             z80_sound0_cs    = z80_io_cs(8'h00);
