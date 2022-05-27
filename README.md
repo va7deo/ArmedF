@@ -100,15 +100,17 @@ A hidden debug menu can be accessed for **Terra Force, Kozure Ōkami, Chouji Mei
 - To utilize the OSD method for accessing the Debug Method do the following, **Pause when OSD is open: Off**.
 <br>
 
-| Debugging Menu Example |
+| Armed F Debugging Menu |
 |:--:|
 |<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th></tr><tr><td>![1](https://tcrf.net/images/4/46/FormationArmedFArcDebug1.png)</td><td> ![2](https://tcrf.net/images/9/9d/FormationArmedFArcDebug2.png)</td><td>![3](https://tcrf.net/images/a/a8/FormationArmedFArcDebug3.png)</td></tr></table> |
+| Chouji Meikyuu Legion Debugging Menu |
+|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th><th>Foreground / Background Bank Test</th></tr><tr><td>![1](https://tcrf.net/images/8/80/LegionSpinner87Debug1.png)</td><td>![2](https://tcrf.net/images/8/81/LegionSpinner87Debug2.png)</td><td>![3](https://tcrf.net/images/2/2b/LegionSpinner87Debug3.png)</td><td>![4](https://tcrf.net/images/2/22/LegionSpinner87Debug4.png)</td></tr></table> |
 
 # Control Layout
 
 Game | Joystick | Service Menu | Shared Controls | Dip Default |
 :---: | :---: | :---: | :---: | :---: |
-Armed F| 8-Way | <img width="120" height="160" src="https://user-images.githubusercontent.com/32810066/167619407-71b94a8b-2013-4166-bbc8-0de3c1e442d2.png"> | Upright | **Upright**
+Armed F| 8-Way | <img width="" height="" src="https://user-images.githubusercontent.com/32810066/170657740-f1781b3a-f50b-41eb-aff3-63d8b891ccf6.png"> | Upright | **Upright**
 
 <br>
 
