@@ -115,6 +115,8 @@ always @ (*) begin
 
             m68k_ram_3_cs    = 0 ; // unused
             irq_i8751_cs     = 0 ; // unused
+            fg_scroll_x_cs   = 0 ;
+            fg_scroll_y_cs   = 0 ;
 
             z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hf800 );
             z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hf800 );
@@ -205,9 +207,12 @@ always @ (*) begin
             irq_ack_cs       = m68k_cs( 24'h07c00e, 24'h07c00f ) ; // irq ack
 
             irq_i8751_cs     = 0 ; // unused
+            fg_scroll_x_cs   = 0 ;
+            fg_scroll_y_cs   = 0 ;
 
-            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hf800 );
-            z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hf800 );
+
+            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hbfff );
+            z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hc000 );
 
             z80_sound0_cs    = z80_io_cs(8'h00);
             z80_sound1_cs    = z80_io_cs(8'h01);
@@ -250,8 +255,8 @@ always @ (*) begin
 
             irq_i8751_cs     = 0 ; // unused
 
-            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hf800 );
-            z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hf800 );
+            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hbfff );
+            z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hc000 );
 
             z80_sound0_cs    = z80_io_cs(8'h00);
             z80_sound1_cs    = z80_io_cs(8'h01);
@@ -294,8 +299,8 @@ always @ (*) begin
 
             irq_i8751_cs     = 0 ; // unused
 
-            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hf800 );
-            z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hf800 );
+            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hbfff );
+            z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hc000 );
 
             z80_sound0_cs    = z80_io_cs(8'h00);
             z80_sound1_cs    = z80_io_cs(8'h01);
@@ -375,9 +380,11 @@ always @ (*) begin
             irq_ack_cs       = m68k_cs( 24'h07c00e, 24'h07c00f ) ; // irq ack
 
             irq_i8751_cs     = 0 ; // unused
+            fg_scroll_x_cs   = 0 ;
+            fg_scroll_y_cs   = 0 ;
 
-            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hf800 );
-            z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hf800 );
+            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hbfff );
+            z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hc000 );
 
             z80_sound0_cs    = z80_io_cs(8'h00);
             z80_sound1_cs    = z80_io_cs(8'h01);

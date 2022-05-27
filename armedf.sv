@@ -953,9 +953,9 @@ always @ (posedge clk_sys) begin
             end else if ( bg_scroll_y_cs == 1) begin
               bg_scroll_y <= m68k_dout[15:0];
             end else if ( fg_scroll_y_cs == 1 ) begin 
-                if ( pcb != 3 && pcb != 4 ) begin
+                if ( pcb == 1 ) begin
                     fg_scroll_y[9:0] <= m68k_dout[9:0];
-                end else begin
+                end else if ( pcb == 3 || pcb == 4 ) begin
                     // legion bootlegs
                     if ( m68k_a[1] == 1 ) begin
                         fg_scroll_y[7:0] <= m68k_dout[7:0];
@@ -964,9 +964,9 @@ always @ (posedge clk_sys) begin
                     end
                 end
             end else if ( fg_scroll_x_cs == 1 ) begin  // && m68k_rw == 0
-                if ( pcb != 3 && pcb != 4 ) begin
+                if ( pcb == 1 ) begin
                     fg_scroll_x[9:0] <= m68k_dout[9:0];
-                end else begin
+                end else if ( pcb == 3 || pcb == 4 ) begin
                     // legion bootlegs
                     if ( m68k_a[1] == 1 ) begin
                         fg_scroll_x[7:0] <= m68k_dout[7:0];
