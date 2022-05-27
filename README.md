@@ -15,7 +15,7 @@ The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra 
 |------|---------|----------|------------|------------------|
 [**Terra Force**](https://en.wikipedia.org/wiki/Nihon_Bussan)           | **W.I.P**   | N         | NB1414M4 | **terrafjb**            |
 [**Kozure Ōkami**](https://en.wikipedia.org/wiki/Nihon_Bussan)          | **W.I.P**   | N         | NB1414M4 | N/A                     |
-[**Chouji Meikyuu Legion**](https://en.wikipedia.org/wiki/Nihon_Bussan) | Implemented | N         | NB1414M4 | **legionjb, legionjb2** |
+[**Chouji Meikyuu Legion**](https://en.wikipedia.org/wiki/Nihon_Bussan) | **W.I.P**   | N         | NB1414M4 | **legionjb, legionjb2** |
 [**Crazy Climber 2**](https://en.wikipedia.org/wiki/Nihon_Bussan)       | **W.I.P**   | N         | NB1414M4 | N/A                     |
 [**Armed F**](https://en.wikipedia.org/wiki/Formation_Armed_F)          | **W.I.P**   | **Y**     | None     | No Protection           |
 [**Tatakae! Big Fighter**](https://en.wikipedia.org/wiki/Nihon_Bussan)  | Pending     | N         | i8751    | N/A                     |
