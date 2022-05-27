@@ -6,7 +6,7 @@ FPGA compatible core of Nichibutsu M68000 (Terra Force Based) arcade hardware fo
 The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra Force based) 68000 hardware. Currently in an alpha state, this core is in active development with assistance from [**atrac17**](https://github.com/atrac17).
 
 <br>
-<img width="" height="" src="https://user-images.githubusercontent.com/32810066/170649976-91c5bbe0-776c-4932-a0e1-cfd5b5e506d2.png">
+<img width="" height="" src="https://user-images.githubusercontent.com/32810066/170655863-5b1418f1-1020-46f6-9e72-6ad08ec96b49.png">
 <br>
 
 ## Supported Games
