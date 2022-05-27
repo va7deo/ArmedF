@@ -25,7 +25,7 @@
     <dip name="Debug 1" bits="15" ids="On,Off"/>
   </switches>
 
-  <buttons names="Weapon,Transform,-,Start (1p),Start (2p),Coin (A),Coin (B),Pause,Service Credit" default="A,B,X,Y,R,L,Start,Select"/>
+  <buttons names="Weapon,Transform,-,-,Start (1p),Start (2p),Coin (A),Coin (B),Pause" default="A,B,X,Y,R,L,Start,Select"/>
 
   <rom index="0" zip="skyrobo.zip" md5="none">
 
