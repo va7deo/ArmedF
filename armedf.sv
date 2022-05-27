@@ -326,10 +326,10 @@ reg [15:0] sys ;
 
 always @ (posedge clk_sys ) begin 
     p1 <= 16'hffff;
-    p1[6:0] <= ~{ p1_buttons[3:0], p1_right, p1_left ,p1_down, p1_up};
+    p1[7:0] <= ~{ p1_buttons[3:0], p1_right, p1_left ,p1_down, p1_up};
      
     p2 <= 16'hffff;
-    p2[6:0] <= ~{ p2_buttons[3:0], p2_right, p2_left ,p2_down, p2_up};
+    p2[7:0] <= ~{ p2_buttons[3:0], p2_right, p2_left ,p2_down, p2_up};
     
 //    sys <= 16'hffff;
     p1[8] <= ~start1  ; 
@@ -348,13 +348,13 @@ wire        p1_right   = joy0[0] | key_p1_right;
 wire        p1_left    = joy0[1] | key_p1_left;
 wire        p1_down    = joy0[2] | key_p1_down;
 wire        p1_up      = joy0[3] | key_p1_up;
-wire [3:0]  p1_buttons = joy0[7:4] | {key_p1_d,key_p1_c, key_p1_b, key_p1_a};
+wire [3:0]  p1_buttons = joy0[7:4] | {key_p1_d, key_p1_c, key_p1_b, key_p1_a};
 
 wire        p2_right   = joy1[0] | key_p2_right;
 wire        p2_left    = joy1[1] | key_p2_left;
 wire        p2_down    = joy1[2] | key_p2_down;
 wire        p2_up      = joy1[3] | key_p2_up | status[36];
-wire [3:0]  p2_buttons = joy1[7:4] | {key_p1_d,key_p2_c, key_p2_b | status[36], key_p2_a | status[36]};
+wire [3:0]  p2_buttons = joy1[7:4] | {key_p2_d, key_p2_c, key_p2_b | status[36], key_p2_a | status[36]};
 
 wire        start1  = joy0[8]  | joy1[8]  | key_start_1p;
 wire        start2  = joy0[9]  | joy1[9]  | key_start_2p;
