@@ -66,11 +66,15 @@ F1 (Bottom Board)  | 24.000     | Z80 / YM3526 |
 
 **Estimated geometry:**
 
-    387 pixels/line (Terra Force, Kozure Ōkami, Armed F, Tatakae! Big Fighter)
+_(Terra Force, Kozure Ōkami, Armed F, Tatakae! Big Fighter)_
+
+    387 pixels/line
   
     262 pixels/line
-  
-    352 pixels/line (Chouji Meikyuu Legion, Crazy Climber 2)
+
+_(Chouji Meikyuu Legion, Crazy Climber 2)_
+
+    352 pixels/line
   
     248 pixels/line
 
@@ -100,10 +104,10 @@ A hidden debug menu can be accessed for **Terra Force, Kozure Ōkami, Chouji Mei
 - To utilize the OSD method for accessing the Debug Method do the following, **Pause when OSD is open: Off**.
 <br>
 
-| Armed F Debugging Menu |
+| **Armed F Debugging Menu** |
 |:--:|
 |<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th></tr><tr><td>![1](https://tcrf.net/images/4/46/FormationArmedFArcDebug1.png)</td><td> ![2](https://tcrf.net/images/9/9d/FormationArmedFArcDebug2.png)</td><td>![3](https://tcrf.net/images/a/a8/FormationArmedFArcDebug3.png)</td></tr></table> |
-| Chouji Meikyuu Legion Debugging Menu |
+| **Chouji Meikyuu Legion Debugging Menu** |
 |<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th><th>Foreground / Background Bank Test</th></tr><tr><td>![1](https://tcrf.net/images/8/80/LegionSpinner87Debug1.png)</td><td>![2](https://tcrf.net/images/8/81/LegionSpinner87Debug2.png)</td><td>![3](https://tcrf.net/images/2/2b/LegionSpinner87Debug3.png)</td><td>![4](https://tcrf.net/images/2/22/LegionSpinner87Debug4.png)</td></tr></table> |
 
 # Control Layout
