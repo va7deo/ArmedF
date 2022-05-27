@@ -376,8 +376,8 @@ always @ (*) begin
 
             irq_i8751_cs     = 0 ; // unused
 
-            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hf800 );
-            z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hf800 );
+            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hc000 );
+            z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hc000 );
 
             z80_sound0_cs    = z80_io_cs(8'h00);
             z80_sound1_cs    = z80_io_cs(8'h01);

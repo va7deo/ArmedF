@@ -6,21 +6,19 @@ FPGA compatible core of Nichibutsu M68000 (Terra Force Based) arcade hardware fo
 The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra Force based) 68000 hardware. Currently in an alpha state, this core is in active development with assistance from [**atrac17**](https://github.com/atrac17).
 
 <br>
-<h3 align="center">
-  <img width="739" height="163" src="https://user-images.githubusercontent.com/32810066/167605126-bead271f-2c0b-4b52-9283-6dbe15140c8a.png">
-</h>
+<img width="" height="" src="https://user-images.githubusercontent.com/32810066/170624118-3b70bfcc-ed11-4347-ba6b-09eea312b6ca.png">
 <br>
 
 ## Supported Games
 
-| Title | Status | Released | Protection |
-|------|---------|----------|------------|
-[**Terra Force**](https://en.wikipedia.org/wiki/Nihon_Bussan)           | **W.I.P**   | N         | NB1414M4 |
-[**Kozure Ōkami**](https://en.wikipedia.org/wiki/Nihon_Bussan)          | Pending     | N         | NB1414M4 |
-[**Chouji Meikyuu Legion**](https://en.wikipedia.org/wiki/Nihon_Bussan) | Pending     | N         | NB1414M4 |
-[**Crazy Climber 2**](https://en.wikipedia.org/wiki/Nihon_Bussan)       | Pending     | N         | NB1414M4 |
-[**Armed F**](https://en.wikipedia.org/wiki/Formation_Armed_F)          | Implemented | **Y**     | None     |
-[**Tatakae! Big Fighter**](https://en.wikipedia.org/wiki/Nihon_Bussan)  | Pending     | N         | i8751    |
+| Title | Status | Released | Protection | Unprotected Sets |
+|------|---------|----------|------------|------------------|
+[**Terra Force**](https://en.wikipedia.org/wiki/Nihon_Bussan)           | **W.I.P**   | N         | NB1414M4 | **terrafjb**            |
+[**Kozure Ōkami**](https://en.wikipedia.org/wiki/Nihon_Bussan)          | **W.I.P**   | N         | NB1414M4 | N/A                     |
+[**Chouji Meikyuu Legion**](https://en.wikipedia.org/wiki/Nihon_Bussan) | Implemented | N         | NB1414M4 | **legionjb, legionjb2** |
+[**Crazy Climber 2**](https://en.wikipedia.org/wiki/Nihon_Bussan)       | **W.I.P**   | N         | NB1414M4 | N/A                     |
+[**Armed F**](https://en.wikipedia.org/wiki/Formation_Armed_F)          | **W.I.P**   | **Y**     | None     | No Protection           |
+[**Tatakae! Big Fighter**](https://en.wikipedia.org/wiki/Nihon_Bussan)  | Pending     | N         | i8751    | N/A                     |
 
 ## External Modules
 
@@ -55,7 +53,7 @@ Reverse engineering of an authentic Terra Force PCB will be done by [**Darren Ol
 
 H-Sync      | V-Sync      | Source                                   |
 ------------|-------------|------------------------------------------|
-15.625kHz   | 59.092993Hz | [DSLogic +](https://www.is.gd/AFLNoI)    |
+15.51kHz    | 59.092993Hz | [DSLogic +](https://www.is.gd/AFLNoI)    |
 
 ### Crystal Oscillators
 
@@ -68,9 +66,13 @@ F1 (Bottom Board)  | 24.000     | Z80 / YM3526 |
 
 **Estimated geometry:**
 
-    387 pixels/line
+    387 pixels/line (Terra Force, Kozure Ōkami, Armed F, Tatakae! Big Fighter)
   
     262 pixels/line
+  
+    352 pixels/line (Chouji Meikyuu Legion, Crazy Climber 2)
+  
+    248 pixels/line
 
 ### Main Components
 
@@ -85,7 +87,7 @@ D1  (Daughter Board) | [**Intel 8751**](https://en.wikipedia.org/wiki/Intel_8051
 
 | Location | Chip | Use | PCB | ROM set |
 |----------|-----|------|-----|---------|
-A9  (Top Board)  | [**NB1414M4**](https://raw.githubusercontent.com/va7deo/TerraForce/main/doc/Terra%20Force%2026494/Terra%20Force%2026494%20Front.jpg?token=GHSAT0AAAAAABKJR6W6CVBT5FROK2UKF75KYTXT2BA) | Protection IC | <u>**Chouji Meikyuu Legion**</u> <br> <u>**Terra Force**</u> <br> <u>**Kozure Ōkami**</u> <br> <u>**Crazy Climber 2**</u> | legion, legionj, legionj2 <br> terraf, terrafu, terrafj <br> kozure <br> cclimbr2, cclimbr2a |
+A9  (Top Board) | [**NB1414M4**](https://raw.githubusercontent.com/va7deo/TerraForce/main/doc/Terra%20Force%2026494/Terra%20Force%2026494%20Front.jpg?token=GHSAT0AAAAAABKJR6W6CVBT5FROK2UKF75KYTXT2BA) | Protection IC | <u>**Chouji Meikyuu Legion**</u> <br> <u>**Terra Force**</u> <br> <u>**Kozure Ōkami**</u> <br> <u>**Crazy Climber 2**</u> | legion, legionj, legionj2 <br> terraf, terrafu, terrafj <br> kozure <br> cclimbr2, cclimbr2a |
 
 # Debugging Features
 
@@ -98,7 +100,7 @@ A hidden debug menu can be accessed for **Terra Force, Kozure Ōkami, Chouji Mei
 - To utilize the OSD method for accessing the Debug Method do the following, **Pause when OSD is open: Off**.
 <br>
 
-|Armed F Debugging Menu Example|
+| Debugging Menu Example |
 |:--:|
 |<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th></tr><tr><td>![1](https://tcrf.net/images/4/46/FormationArmedFArcDebug1.png)</td><td> ![2](https://tcrf.net/images/9/9d/FormationArmedFArcDebug2.png)</td><td>![3](https://tcrf.net/images/a/a8/FormationArmedFArcDebug3.png)</td></tr></table> |
 
@@ -106,7 +108,7 @@ A hidden debug menu can be accessed for **Terra Force, Kozure Ōkami, Chouji Mei
 
 Game | Joystick | Service Menu | Shared Controls | Dip Default |
 :---: | :---: | :---: | :---: | :---: |
-Armed F| 8-Way | <p align="center"><img width="120" height="160" src="https://user-images.githubusercontent.com/32810066/167619407-71b94a8b-2013-4166-bbc8-0de3c1e442d2.png"></p> | Upright | **Upright**
+Armed F| 8-Way | <img width="120" height="160" src="https://user-images.githubusercontent.com/32810066/167619407-71b94a8b-2013-4166-bbc8-0de3c1e442d2.png"> | Upright | **Upright**
 
 <br>
 
