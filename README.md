@@ -1,4 +1,5 @@
 
+
 # Nichibutsu M68000 (Armed F) FPGA Implementation
 
 FPGA compatible core of Nichibutsu M68000 (Terra Force Based) arcade hardware for [**MiSTerFPGA**](https://github.com/MiSTer-devel/Main_MiSTer/wiki) written by [**Darren Olafson**](https://twitter.com/Darren__O). Terra Force PCB (different board revisions) donated by [**@atrac17**](https://twitter.com/_atrac17) / [**@djhardrich**](https://twitter.com/djhardrich).
@@ -95,13 +96,24 @@ A9  (Top Board) | [**NB1414M4**](https://raw.githubusercontent.com/va7deo/TerraF
 
 # Debugging Features
 
-A hidden debug menu can be accessed for **Terra Force, Kozure Ōkami, Chouji Meikyuu Legion, Crazy Climber 2 and Armed F**.  For more information on each debugging menu per game visit "[**The Cutting Room Floor**](https://tcrf.net/Category:Games_developed_by_Nichibutsu)".<br><br>**Tatakae! Big Fighter** has debug options set via dipswitches.
+### GFX Layer Toggle
 
-**Follow these steps to access the debug menu:** 
+The four graphics layers can be toggled in the OSD under the Debug options or by pressing F7-F10 on the keyboard.
+<br>
+|Layer Debug|
+|:--:|
+|<table><tr><th>Text Layer</th><th>Background Layer</th><th>Foreground Layer</th><th>Sprite Layer</th><th>All Layers</th></tr><tr><td><img width="" height="" src="https://user-images.githubusercontent.com/32810066/170846019-e70e74b9-1e88-4991-b8c3-3b9b52935ad8.png"></p></td><td><img width="" height="" src="https://user-images.githubusercontent.com/32810066/170846020-8459d346-0a97-41ff-ae5f-f7793a4c7bcb.png"></p></td><td><img width="" height="" src="https://user-images.githubusercontent.com/32810066/170846021-08f8506d-e764-42b6-8c4a-ea19b059060b.png"></td><td><img width="" height="" src="https://user-images.githubusercontent.com/32810066/170846022-5237caf6-bf3a-4461-b324-5e44733310ff.png"></td><td><img width="" height="" src="https://user-images.githubusercontent.com/32810066/170846026-eefddb1b-6a81-4c20-9a99-509dcb888735.png"></td></tr></table>
 
-- Turn on **Service Menu** in the debug OSD options or press **F2**. Then turn on **Debug Menu** or press and hold **R**, **A**, **S** . For **Crazy Climber 2** press and hold  **Up**, **LCtrl**, **Spacebar**.<br><br>
-- Toggle the **Service Menu** option off; then toggle **Debug Menu** off in the OSD or keep those corresponding keys held and press **F2**.<br><br>
-- To utilize the OSD method for accessing the Debug Method do the following, **Pause when OSD is open: Off**.
+### Debugging Menu
+
+A hidden debug menu can be accessed for **Terra Force, Kozure Ōkami, Chouji Meikyuu Legion, Crazy Climber 2 and Armed F**.  For more information on each debugging menu per game visit "[**The Cutting Room Floor**](https://tcrf.net/Category:Games_developed_by_Nichibutsu)".<br><br>**Tatakae! Big Fighter** has debug options set via dipswitches. Each debug menu has different features to display Character, Object, Scoll, Foreground, Background, or Priority tests.
+
+**Follow these steps to access the debug menu (OSD or Keyboard):** 
+
+> - Turn on **Service Menu** in the debug OSD options or press **F2**. Then turn on **Debug Menu** or press and hold **R**, **A**, **S**. For **Crazy Climber 2** press and hold  **Up**, **LCtrl**, **Spacebar**.<br><br>
+> - Toggle the **Service Menu** option off; then toggle **Debug Menu** off in the OSD or keep those corresponding keys held and press **F2**.<br><br>
+> - To utilize the OSD method for accessing the Debug Method do the following, **Pause when OSD is open: Off**.
+
 <br>
 
 | **Armed F Debugging Menu** |
