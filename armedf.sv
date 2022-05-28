@@ -215,6 +215,11 @@ wire [3:0] vs_offset = status[31:28];
 wire [1:0] select = status[12:11];
 wire [1:0] offset = status[14:13];
 
+wire gfx1_en = ~status[37];
+wire gfx2_en = ~status[38];
+wire gfx3_en = ~status[39];
+wire gfx4_en = ~status[40];
+
 assign VIDEO_ARX = (!aspect_ratio) ? (orientation  ? 8'd4 : 8'd3) : (aspect_ratio - 1'd1);
 assign VIDEO_ARY = (!aspect_ratio) ? (orientation  ? 8'd3 : 8'd4) : 12'd0;
 
@@ -243,6 +248,10 @@ localparam CONF_STR = {
     "P3-;",
     "P3o3,Service Menu,Off,On;",
     "P3o4,Debug Menu,Off,On;",
+    "P2o5,Txt Layer,On,Off;",
+    "P2o6,Background,On,Off;",
+    "P2o7,Foreground,On,Off;",
+    "P2o8,Sprites,On,Off;",
     "P3-;",
     "DIP;",
     "-;",
@@ -712,42 +721,42 @@ always @ (posedge clk_6M) begin
         
         // 15 == transparent
         // lowest priority
-        if ( tx_enable == 1 && tx_pal_addr[3:0] != 15 ) begin
+        if ( gfx1_en == 1 && tx_enable == 1 && tx_pal_addr[3:0] != 15 ) begin
             tile_pal_addr <= tx_pal_addr;
             draw_pix <= 1;
         end
 
         // background
-        if ( bg_enable == 1 && bg_pal_addr[3:0] != 15 ) begin
+        if ( gfx2_en == 1 && bg_enable == 1 && bg_pal_addr[3:0] != 15 ) begin
             tile_pal_addr <= bg_pal_addr ;
             draw_pix <= 1;
         end
          
         // sprite priority 2
-        if ( sp_enable == 1 && sprite_fb_out[1:0] == 2 ) begin  
+        if ( gfx4_en == 1 && sp_enable == 1 && sprite_fb_out[1:0] == 2 ) begin  
             tile_pal_addr <= ( sprite_pal_ofs + sprite_fb_out[10:2] ) ;
             draw_pix <= 1;
         end
         
-        if ( fg_enable == 1 && fg_pal_addr[3:0] != 15 ) begin
+        if ( gfx3_en == 1 && fg_enable == 1 && fg_pal_addr[3:0] != 15 ) begin
             tile_pal_addr <= fg_pal_addr ;
             draw_pix <= 1;
         end
         
         // sprite priority 1
-        if ( sp_enable == 1 && sprite_fb_out[1:0] == 1 ) begin 
+        if ( gfx4_en == 1 && sp_enable == 1 && sprite_fb_out[1:0] == 1 ) begin 
             tile_pal_addr <= ( sprite_pal_ofs + sprite_fb_out[10:2] ) ;
             draw_pix <= 1;
         end
         
         // highest priority 
-        if ( tx_enable == 1 && tx_pal_addr[3:0] != 15 && gfx_txt_attr_latch3[3] == 0) begin
+        if ( gfx1_en == 1 && tx_enable == 1 && tx_pal_addr[3:0] != 15 && gfx_txt_attr_latch3[3] == 0) begin
             tile_pal_addr <=  tx_pal_addr;
             draw_pix <= 1;
         end
         
         // sprite priority 0
-        if ( sp_enable == 1 && sprite_fb_out[1:0] == 0 ) begin 
+        if ( gfx4_en == 1 && sp_enable == 1 && sprite_fb_out[1:0] == 0 ) begin 
             tile_pal_addr <= ( sprite_pal_ofs + sprite_fb_out[10:2] ) ;
             draw_pix <= 1;
         end
@@ -803,68 +812,86 @@ end
 // vblank handling 
 // process interrupt and sprite buffering
 always @ (posedge clk_sys ) begin
-    if ( reset == 1 ) begin
-        m68k_ipl0_n  <= 1 ;
-        m68k_ipl1_n  <= 1 ;
-        int_ack <= 0;
-        z80_b_irq_n <= 1;
-//    end else if ( clk_8M == 1 ) begin
-    end else if ( clk_16M == 1 ) begin
 
-        vbl_sr <= { vbl_sr[0], vbl };
-        
-        // only a write to 0x07c00e clears to interrupt line
-        if ( irq_ack_cs == 1 ) begin
-            m68k_ipl0_n <= 1 ;
-            m68k_ipl1_n <= 1 ;
-        end else if ( irq_z80_cs == 1 ) begin
-            //if (data & 0x4000 && ((m_vreg & 0x4000) == 0)) //0 -> 1 transition
-            //    m_extra->set_input_line(0, HOLD_LINE);
-            
-            if ( pcb == 0 ) begin
-                //if ( m68k_dout == 16'hcf90 || m68k_dout == 16'hc010 || m68k_dout == 16'hc190 || m68k_dout == 16'hce10 || m68k_dout == 16'hce10 ) begin 
-                //if ( m68k_dout != 16'hce10 ) begin 
-                if ( m68k_dout[14] == 1 ) begin 
-                    z80_b_irq_n <= 0;
+end
+ 
+reg  [3:0]  nb1414m4_state;
+reg  [3:0]  nb1414m4_cmd_state;
+reg         nb1414m4_wr;
+reg  [15:0] nb1414m4_cmd;
+wire [13:0] nb1414m4_dst = nb1414m4_idx; // might need to change
+reg  [13:0] nb1414m4_idx;
+
+reg  [13:0] nb1414m4_src;
+reg  [13:0] nb1414m4_address;
+wire [7:0]  nb1414m4_data;
+
+//	dst = (m_data[0x330 + ((mcu_cmd & 0xf) * 2)] << 8) | (m_data[0x331 + ((mcu_cmd & 0xf) * 2)] & 0xff);
+//	dst &= 0x3fff;
+
+always @ (posedge clk_sys) begin
+    if ( nb1414m4_state == 1 ) begin
+        // DMA transfer
+        if ( nb1414m4_cmd[15:8] == 8'h02 ) begin
+            // lookup dst in m4 rom table. index is part of command
+            if ( nb1414m4_cmd_state == 0 ) begin
+                nb1414m4_cmd_state <= 1;
+                // setup read for high byte of destination
+                // mcu_cmd & 0x87
+                nb1414m4_address[13:0] <= 14'h330 + { nb1414m4_cmd[2:0], 1'b0 } ;
+            end else if ( nb1414m4_cmd_state == 1 ) begin
+                // latch in high byte of source
+                nb1414m4_src[13:8] <= nb1414m4_data[5:0];
+                // setup read for low byte of destination
+                nb1414m4_address[13:0] <= 14'h331 + { nb1414m4_cmd[2:0], 1'b0 } ;
+                nb1414m4_cmd_state <= 2;
+            end else if ( nb1414m4_cmd_state == 2 ) begin
+                // latch in low byte of source
+                nb1414m4_src[7:0] <= nb1414m4_data[7:0];
+                // start after command data
+                nb1414m4_idx <= 14'h012;
+                nb1414m4_cmd_state <= 3;
+            end else if ( nb1414m4_cmd_state == 3 ) begin 
+                nb1414m4_address <= nb1414m4_src + nb1414m4_idx;
+                nb1414m4_wr <= 0;
+                nb1414m4_cmd_state <= 4;
+            end else if ( nb1414m4_cmd_state == 4 ) begin
+                // address is valid.  clock in the read
+                nb1414m4_cmd_state <= 5;
+                // setup a write.  the data will be valid in the next clock
+                nb1414m4_wr <= 1;
+            end else if ( nb1414m4_cmd_state == 5 ) begin
+                // source data is valid.  write 
+                // disable write
+                nb1414m4_wr <= 0;
+                // first 0x400 is char data, second 0x400 is attributes
+                if ( nb1414m4_idx < 14'h7ff ) begin 
+                    nb1414m4_idx <= nb1414m4_idx + 1;
+                    nb1414m4_cmd_state <= 3;
+                end else begin
+                    // done
+                    nb1414m4_cmd_state <= 6;
                 end
-            end else begin
-                if ( m68k_dout[14] == 1 ) begin 
-                    z80_b_irq_n <= 0;
-                end
+            end else if ( nb1414m4_cmd_state == 6 ) begin
+                nb1414m4_cmd_state <= 0;
             end
-            bg_enable <= m68k_dout[11];
-            fg_enable <= m68k_dout[10];
-            sp_enable <= m68k_dout[9];
-            tx_enable <= m68k_dout[8];
-
         end
-        
-        if ( pcb == 0 ) begin
-            // terraf bootleg.  hack to deassert interrupt
-            if ( z80_b_irq_n == 0 && z80_b_addr == 16'h0038 ) begin
-                z80_b_irq_n <= 1;
-            end
-        end 
-        
-        if ( M1_b_n == 0 && IORQ_b_n == 0 && z80_b_irq_n == 0 ) begin
-            // z80 acknowledged so deassert
-            z80_b_irq_n <= 1;
-        end
-        
-
-//        if ( clk_8M == 1 ) begin
-//            int_ack <= ( m68k_as_n == 0 ) && ( m68k_fc == 3'b111 ); // cpu acknowledged the interrupt
-//        end
-        if ( vbl_sr == 2'b01 ) begin // rising edge
-            //  68k vbl interrupt
-            if ( pcb == 2 || pcb == 3 || pcb == 4 || pcb == 6 ) begin
-                m68k_ipl1_n <= 0;
-            end else begin
-                m68k_ipl0_n <= 0;
-            end
-        end 
     end
 end
+
+dual_port_ram #(.LEN(16384)) nb1414m4_rom (
+    .clock_a ( clk_sys ),
+    .address_a ( nb1414m4_address ),
+    .wren_a ( 0 ),
+    .data_a ( ),
+    .q_a ( nb1414m4_data ),
+
+    .clock_b ( clk_sys ),
+    .address_b ( ioctl_addr[13:0] ),
+    .wren_b ( nb1414m4_ioctl_wr ),
+    .data_b ( ioctl_dout ),
+    .q_b(  )
+    );
 
 //IORQ gets together with M1-pin active/low. 
 always @ (posedge clk_sys) begin
@@ -995,33 +1022,134 @@ always @ (posedge clk_sys) begin
          end 
     end
 
+    if ( reset == 1 ) begin
+        m68k_ipl0_n  <= 1 ;
+        m68k_ipl1_n  <= 1 ;
+        int_ack <= 0;
+        z80_b_irq_n <= 1;
+    end else if ( clk_16M == 1 ) begin
+
+        vbl_sr <= { vbl_sr[0], vbl };
+        
+        if ( nb1414m4_cmd_state == 6 ) begin
+            nb1414m4_state <= 0;
+        end 
+        
+        // only a write to 0x07c00e clears to interrupt line
+        if ( irq_ack_cs == 1 ) begin
+            m68k_ipl0_n <= 1 ;
+            m68k_ipl1_n <= 1 ;
+        end else if ( irq_z80_cs == 1 ) begin
+            //if (data & 0x4000 && ((m_vreg & 0x4000) == 0)) //0 -> 1 transition
+            //    m_extra->set_input_line(0, HOLD_LINE);
+            
+//localparam pcb_terra_force      = 0;
+//localparam pcb_armedf           = 1;
+//localparam pcb_legion           = 2;
+//localparam pcb_legionjb         = 3;
+//localparam pcb_legionjb2        = 4;
+//localparam pcb_kozure           = 5;
+//localparam pcb_cclimbr2         = 6;
+//localparam pcb_bigfghtr         = 7;
+            
+            if ( has_nb1414m4 == 1 ) begin
+                // nb1414m4
+                if ( m68k_dout[14] == 1 ) begin 
+                    nb1414m4_state <= 1;
+//reg [7:0] nb_scroll_x_l;
+//reg [7:0] nb_scroll_x_h;
+//reg [7:0] nb_scroll_y_l;
+//reg [7:0] nb_scroll_y_h;                    
+                    fg_scroll_x[9:0] <= { nb_scroll_x_h[1:0], nb_scroll_x_l[7:0] };
+                    fg_scroll_y[9:0] <= { nb_scroll_y_h[1:0], nb_scroll_y_l[7:0] };
+                end
+            end else begin
+                if ( m68k_dout[14] == 1 ) begin 
+                    z80_b_irq_n <= 0;
+                end
+            end
+            bg_enable <= m68k_dout[11];
+            fg_enable <= m68k_dout[10];
+            sp_enable <= m68k_dout[9];
+            tx_enable <= m68k_dout[8];
+
+        end
+        
+        if ( pcb == 0 ) begin
+            // terraf bootleg.  hack to deassert interrupt
+            if ( z80_b_irq_n == 0 && z80_b_addr == 16'h0038 ) begin
+                z80_b_irq_n <= 1;
+            end
+        end 
+        
+        if ( M1_b_n == 0 && IORQ_b_n == 0 && z80_b_irq_n == 0 ) begin
+            // z80 acknowledged so deassert
+            z80_b_irq_n <= 1;
+        end
+        
+
+//        if ( clk_8M == 1 ) begin
+//            int_ack <= ( m68k_as_n == 0 ) && ( m68k_fc == 3'b111 ); // cpu acknowledged the interrupt
+//        end
+        if ( vbl_sr == 2'b01 ) begin // rising edge
+            //  68k vbl interrupt
+            if ( pcb == 2 || pcb == 3 || pcb == 4 || pcb == 6 ) begin
+                m68k_ipl1_n <= 0;
+            end else begin
+                m68k_ipl0_n <= 0;
+            end
+        end 
+    end
 end
+
+wire has_nb1414m4 = ( pcb == 2 || pcb == 5 || pcb == 6 ) ;
 
 // shared text ram write arbiter
 reg shared_w;
 reg [11:0] shared_addr;
 reg  [7:0] shared_data;
 
+// the text ram will need to be accessible from the 68k, bootleg z80, and nb1414m4
+// need better arbitration
+
+// for now hack in scrolling for nb1414m4
+
+reg [7:0] nb_scroll_x_l;
+reg [7:0] nb_scroll_x_h;
+reg [7:0] nb_scroll_y_l;
+reg [7:0] nb_scroll_y_h;
+
 always @ (posedge clk_sys) begin
 //    if ( clk_8M == 1 ) begin
-    if ( clk_16M == 1 ) begin
         shared_w <= 0;
 //        txt_ram_valid <= 0;
         
         // only 68k can read shared. the z80 is write only
-        if ( m68k_txt_ram_cs & !m68k_lds_n ) begin
+        if ( clk_16M == 1 && m68k_txt_ram_cs & !m68k_lds_n ) begin
             shared_addr <= m68k_a[12:1];
+            case ( m68k_a[12:1] )
+                13'h00: nb1414m4_cmd[15:8] <= m68k_dout[7:0];
+                13'h01: nb1414m4_cmd[7:0]  <= m68k_dout[7:0];
+                13'h0d: nb_scroll_x_l      <= m68k_dout[7:0];
+                13'h0e: nb_scroll_x_h      <= m68k_dout[7:0];
+                13'h0b: nb_scroll_y_l      <= m68k_dout[7:0];
+                13'h0c: nb_scroll_y_h      <= m68k_dout[7:0];
+            endcase
+
         end
         
-        if ( !m68k_rw && m68k_txt_ram_cs & !m68k_lds_n ) begin
+        if ( clk_16M == 1 && !m68k_rw && m68k_txt_ram_cs & !m68k_lds_n ) begin
             shared_data <= m68k_dout[7:0];
             shared_w <= 1;
-        end else if (z80_b_ram_txt_cs & ~z80_b_wr_n) begin
+        end else if ( has_nb1414m4 == 1 && nb1414m4_wr == 1 ) begin
+            shared_addr <= nb1414m4_dst;
+            shared_data <= nb1414m4_data;
+            shared_w    <= 1;
+        end else if (clk_4M == 1 && z80_b_ram_txt_cs & ~z80_b_wr_n) begin
             shared_addr <= z80_b_addr[11:0];
             shared_data <= z80_b_dout;
             shared_w <= 1;
         end 
-    end
 end
 
 wire    m68k_rom_cs;
@@ -1523,7 +1651,7 @@ wire [7:0]  i8751_shared_ram_data_l;
 wire [7:0]  i8751_shared_ram_data_h;
 
 wire i8751_int0_n = ~irq_i8751_cs;
-
+/*
 jtframe_8751mcu #(.SYNC_INT(1)) i8751 (
     .rst( reset ),
     .clk( clk_sys ),
@@ -1563,7 +1691,7 @@ jtframe_8751mcu #(.SYNC_INT(1)) i8751 (
     .prom_din( ioctl_dout ),
     .prom_we( i8751_ioctl_wr )
 );
-
+*/
    
 reg sound_addr ;
 reg  [7:0] sound_data ;
@@ -1641,9 +1769,10 @@ wire gfx1_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h140000) 
 //wire z80_a_rom_ioctl_wr  = rom_download & ioctl_wr & (ioctl_addr >= 24'h150000) & (ioctl_addr < 24'h160000) ;
 wire z80_b_rom_ioctl_wr  = rom_download & ioctl_wr & (ioctl_addr >= 24'h160000) & (ioctl_addr < 24'h164000) ;
 
-//wire nb1414m4_ioctl_wr   = rom_download & ioctl_wr & (ioctl_addr >= 24'h120000) & (ioctl_addr < 24'h124000) ;
 //wire prom_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h104000) & (ioctl_addr < 24'h0f4100) ;
-wire i8751_ioctl_wr        = rom_download & ioctl_wr & (ioctl_addr >= 24'h170000) & (ioctl_addr < 24'h171000) ;
+
+wire i8751_ioctl_wr      = rom_download & ioctl_wr & (ioctl_addr >= 24'h170000) & (ioctl_addr < 24'h171000) ;
+wire nb1414m4_ioctl_wr   = rom_download & ioctl_wr & (ioctl_addr >= 24'h180000) & (ioctl_addr < 24'h184000) ;
 
 // main 68k ram high    
 dual_port_ram #(.LEN(16384)) ram8kx8_H (

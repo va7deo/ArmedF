@@ -19,10 +19,10 @@ set_global_assignment -name VHDL_FILE rtl/mem/segment.vhd
 set_global_assignment -name VHDL_FILE rtl/mem/download_buffer.vhd
 set_global_assignment -name VHDL_FILE rtl/mem/sdram.vhd
 set_global_assignment -name VHDL_FILE rtl/mem/dual_port_ram.vhd
-set_global_assignment -name VERILOG_FILE rtl/jtframe/jtframe_8751mcu.v
-set_global_assignment -name VERILOG_FILE rtl/jtframe/jtframe_sync.v
-set_global_assignment -name VERILOG_FILE rtl/jtframe/jtframe_dual_ram.v
-set_global_assignment -name VERILOG_FILE rtl/jtframe/jtframe_ram.v
-set_global_assignment -name QIP_FILE rtl/8051/mc8051.qip
+# set_global_assignment -name VERILOG_FILE rtl/jtframe/jtframe_8751mcu.v
+# set_global_assignment -name VERILOG_FILE rtl/jtframe/jtframe_sync.v
+# set_global_assignment -name VERILOG_FILE rtl/jtframe/jtframe_dual_ram.v
+# set_global_assignment -name VERILOG_FILE rtl/jtframe/jtframe_ram.v
+# set_global_assignment -name QIP_FILE rtl/8051/mc8051.qip
 
 
