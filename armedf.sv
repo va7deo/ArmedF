@@ -317,7 +317,7 @@ wire [24:0] ioctl_addr;
 wire  [7:0] ioctl_dout;
 wire  [7:0] ioctl_din;
 
-reg   [2:0] pcb;
+reg   [3:0] pcb;
 
 always @(posedge clk_sys) begin
     if (ioctl_wr && (ioctl_index==1)) begin

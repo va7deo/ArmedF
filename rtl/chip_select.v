@@ -2,7 +2,7 @@
 
 module chip_select
 (
-    input  [2:0] pcb,
+    input  [3:0] pcb,
 
     input [23:0] m68k_a,
     input        m68k_as_n,
@@ -54,6 +54,7 @@ localparam pcb_terraf           = 0;
 localparam pcb_kozure           = 1;
 localparam pcb_armedf           = 2;
 localparam pcb_bigfghtr         = 3;
+
 // 228x224 (nb1414m4)
 localparam pcb_cclimbr2         = 4;
 localparam pcb_legion           = 5;
