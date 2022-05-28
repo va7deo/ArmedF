@@ -254,10 +254,6 @@ localparam CONF_STR = {
     "P3o7,Foreground Layer,On,Off;",
     "P3o8,Sprite Layer,On,Off;",
     "P3-;",
-    "P3o9C,Background X Adj.,0,1,2,3,4,5,6,7,-8,-7,-6,-5,-4,-3,-2,-1;",
-    "P3oDG,Background Y Adj.,0,1,2,3,4,5,6,7,-8,-7,-6,-5,-4,-3,-2,-1;",
-    "P3oHK,Foreground X Adj.,0,1,2,3,4,5,6,7,-8,-7,-6,-5,-4,-3,-2,-1;",
-    "P3oLO,Foreground Y Adj.,0,1,2,3,4,5,6,7,-8,-7,-6,-5,-4,-3,-2,-1;",
     "DIP;",
     "-;",
     "R0,Reset;",
@@ -626,15 +622,9 @@ end
 wire [9:0] bg_x = hc + bg_scroll_x[9:0] + 96 ; //ok
 wire [9:0] bg_y = vc + bg_scroll_y[9:0] ;
 
-assign [3:0] bg_x = status[44:41];
-assign [3:0] bg_y = status[48:45];
-
 // layer 2 / gfx2
 wire [9:0] fg_x = hc + fg_scroll_x[9:0] + 96 ; //ok
 wire [9:0] fg_y = vc + fg_scroll_y[9:0] ;
-
-assign [3:0] fg_x = status[52:49];
-assign [3:0] fg_y = status[56:53];
 
 reg  [9:0] bg_x_latch ;
 reg  [9:0] bg_y_latch ;

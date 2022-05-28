@@ -527,7 +527,7 @@ always @ (*) begin
             fg_scroll_x_cs   = m68k_cs( 24'h07c008, 24'h07c009 ) ; // SCROLL X
 
 //                map(0x0c0000, 0x0c0000).w(FUNC(armedf_state::terrafb_fg_scroll_msb_arm_w));
-
+    
             m68k_ram_3_cs    = 0 ; // unused
             irq_i8751_cs     = 0 ; // unused
 
