@@ -335,10 +335,10 @@ reg [15:0] sys ;
 
 always @ (posedge clk_sys ) begin 
     p1 <= 16'hffff;
-    p1[6:0] <= ~{ p1_buttons[2:0], p1_right, p1_left ,p1_down, p1_up};
+    p1[7:0] <= ~{ p1_buttons[3:0], p1_right, p1_left ,p1_down, p1_up};
      
     p2 <= 16'hffff;
-    p2[6:0] <= ~{ p2_buttons[2:0], p2_right, p2_left ,p2_down, p2_up};
+    p2[7:0] <= ~{ p2_buttons[3:0], p2_right, p2_left ,p2_down, p2_up};
     
 //    sys <= 16'hffff;
     p1[8] <= ~start1  ; 
@@ -357,27 +357,27 @@ wire        p1_right   = joy0[0] | key_p1_right;
 wire        p1_left    = joy0[1] | key_p1_left;
 wire        p1_down    = joy0[2] | key_p1_down;
 wire        p1_up      = joy0[3] | key_p1_up;
-wire [2:0]  p1_buttons = joy0[6:4] | {key_p1_c, key_p1_b, key_p1_a};
+wire [3:0]  p1_buttons = joy0[7:4] | {key_p1_d, key_p1_c, key_p1_b, key_p1_a};
 
 wire        p2_right   = joy1[0] | key_p2_right;
 wire        p2_left    = joy1[1] | key_p2_left;
 wire        p2_down    = joy1[2] | key_p2_down;
 wire        p2_up      = joy1[3] | key_p2_up | status[36];
-wire [2:0]  p2_buttons = joy1[6:4] | {key_p2_c, key_p2_b | status[36], key_p2_a | status[36]};
+wire [3:0]  p2_buttons = joy1[7:4] | {key_p2_d, key_p2_c, key_p2_b | status[36], key_p2_a | status[36]};
 
-wire        start1  = joy0[7]  | joy1[7]  | key_start_1p;
-wire        start2  = joy0[8]  | joy1[8]  | key_start_2p;
-wire        coin_a  = joy0[9]  | joy1[9]  | key_coin_a;
-wire        coin_b  = joy0[10] | joy1[10] | key_coin_b;
-wire        b_pause = joy0[11] | key_pause ;
+wire        start1  = joy0[8]  | joy1[8]  | key_start_1p;
+wire        start2  = joy0[9]  | joy1[9]  | key_start_2p;
+wire        coin_a  = joy0[10] | joy1[10] | key_coin_a;
+wire        coin_b  = joy0[11] | joy1[11] | key_coin_b;
+wire        b_pause = joy0[12] | key_pause ;
 
 // Keyboard handler
 
 wire key_start_1p, key_start_2p, key_coin_a, key_coin_b;
 wire key_test, key_reset, key_service, key_pause;
 
-wire key_p1_up, key_p1_left, key_p1_down, key_p1_right, key_p1_a, key_p1_b, key_p1_c;
-wire key_p2_up, key_p2_left, key_p2_down, key_p2_right, key_p2_a, key_p2_b, key_p2_c;
+wire key_p1_up, key_p1_left, key_p1_down, key_p1_right, key_p1_a, key_p1_b, key_p1_c, key_p1_d;
+wire key_p2_up, key_p2_left, key_p2_down, key_p2_right, key_p2_a, key_p2_b, key_p2_c, key_p2_d;
 
 wire pressed = ps2_key[9];
 
@@ -403,6 +403,7 @@ always @(posedge clk_sys) begin
             'h014: key_p1_a       <= pressed; // lctrl
             'h011: key_p1_b       <= pressed; // lalt
             'h029: key_p1_c       <= pressed; // spacebar
+            'h012: key_p1_d       <= pressed; // lshift
 
             'h02d: key_p2_up      <= pressed; // r
             'h02b: key_p2_down    <= pressed; // f
@@ -411,6 +412,7 @@ always @(posedge clk_sys) begin
             'h01c: key_p2_a       <= pressed; // a
             'h01b: key_p2_b       <= pressed; // s
             'h015: key_p2_c       <= pressed; // q
+            'h01d: key_p2_d       <= pressed; // w
 
         endcase
     end
