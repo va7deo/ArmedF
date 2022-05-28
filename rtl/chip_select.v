@@ -96,7 +96,7 @@ endfunction
 always @ (*) begin
     // Memory mapping based on PCB type
     case (pcb)
-        pcb_terraf,pcb_terrafjb,pcb_terrafb: begin
+        pcb_terraf: begin
 
             m68k_rom_cs      = m68k_cs( 24'h000000, 24'h05ffff ) ;
             m68k_spr_cs      = m68k_cs( 24'h060000, 24'h0603ff ) ; // 1k
@@ -452,6 +452,93 @@ always @ (*) begin
             z80_latch_r_cs   = z80_io_cs(8'h06);
         end
 
+        pcb_terrafjb: begin
+
+            m68k_rom_cs      = m68k_cs( 24'h000000, 24'h05ffff ) ;
+            m68k_spr_cs      = m68k_cs( 24'h060000, 24'h0603ff ) ; // 1k
+            m68k_ram_cs      = m68k_cs( 24'h060400, 24'h063fff ) ; // 15k
+
+            m68k_tile_pal_cs = m68k_cs( 24'h064000, 24'h064fff ) ; // 4k
+            m68k_txt_ram_cs  = m68k_cs( 24'h068000, 24'h069fff ) ; // 4k shared (1k tile attr) low byte
+            m68k_ram_2_cs    = m68k_cs( 24'h06a000, 24'h06afff ) ; // 4k
+            m68k_spr_pal_cs  = m68k_cs( 24'h06c000, 24'h06cfff ) ; // 4k
+
+            m68k_fg_ram_cs   = m68k_cs( 24'h070000, 24'h070fff ) ; // 4k
+            m68k_bg_ram_cs   = m68k_cs( 24'h074000, 24'h074fff ) ; // 4k
+
+            input_p1_cs      = m68k_cs( 24'h078000, 24'h078001 ) ; // P1
+            input_p2_cs      = m68k_cs( 24'h078002, 24'h078003 ) ; // P2
+            input_dsw1_cs    = m68k_cs( 24'h078004, 24'h078005 ) ; // DSW1
+            input_dsw2_cs    = m68k_cs( 24'h078006, 24'h078007 ) ; // DSW2
+
+            irq_z80_cs       = m68k_cs( 24'h07c000, 24'h07c001 ) ; // z80 interrupt
+
+            bg_scroll_x_cs   = m68k_cs( 24'h07c002, 24'h07c003 ) ; // SCROLL X
+            bg_scroll_y_cs   = m68k_cs( 24'h07c004, 24'h07c005 ) ; // SCROLL Y
+
+            sound_latch_cs   = m68k_cs( 24'h07c00a, 24'h07c00b ) ; // sound latch
+            irq_ack_cs       = m68k_cs( 24'h07c00e, 24'h07c00f ) ; // irq ack
+
+            fg_scroll_y_cs   = 0 ; // unused
+            fg_scroll_x_cs   = 0 ; // unused
+
+            m68k_ram_3_cs    = 0 ; // unused
+            irq_i8751_cs     = 0 ; // unused
+
+            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hf800 );
+            z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hf800 );
+
+            z80_sound0_cs    = z80_io_cs(8'h00);
+            z80_sound1_cs    = z80_io_cs(8'h01);
+            z80_dac1_cs      = z80_io_cs(8'h02);
+            z80_dac2_cs      = z80_io_cs(8'h03);
+            z80_latch_clr_cs = z80_io_cs(8'h04);
+            z80_latch_r_cs   = z80_io_cs(8'h06);
+        end
+
+        pcb_terrafb: begin
+
+            m68k_rom_cs      = m68k_cs( 24'h000000, 24'h05ffff ) ;
+            m68k_spr_cs      = m68k_cs( 24'h060000, 24'h0603ff ) ; // 1k
+            m68k_ram_cs      = m68k_cs( 24'h060400, 24'h063fff ) ; // 15k
+
+            m68k_tile_pal_cs = m68k_cs( 24'h064000, 24'h064fff ) ; // 4k
+            m68k_txt_ram_cs  = m68k_cs( 24'h068000, 24'h069fff ) ; // 4k shared (1k tile attr) low byte
+            m68k_ram_2_cs    = m68k_cs( 24'h06a000, 24'h06afff ) ; // 4k
+            m68k_spr_pal_cs  = m68k_cs( 24'h06c000, 24'h06cfff ) ; // 4k
+
+            m68k_fg_ram_cs   = m68k_cs( 24'h070000, 24'h070fff ) ; // 4k
+            m68k_bg_ram_cs   = m68k_cs( 24'h074000, 24'h074fff ) ; // 4k
+
+            input_p1_cs      = m68k_cs( 24'h078000, 24'h078001 ) ; // P1
+            input_p2_cs      = m68k_cs( 24'h078002, 24'h078003 ) ; // P2
+            input_dsw1_cs    = m68k_cs( 24'h078004, 24'h078005 ) ; // DSW1
+            input_dsw2_cs    = m68k_cs( 24'h078006, 24'h078007 ) ; // DSW2
+
+            irq_z80_cs       = m68k_cs( 24'h07c000, 24'h07c001 ) ; // z80 interrupt
+
+            bg_scroll_x_cs   = m68k_cs( 24'h07c002, 24'h07c003 ) ; // SCROLL X
+            bg_scroll_y_cs   = m68k_cs( 24'h07c004, 24'h07c005 ) ; // SCROLL Y
+
+            sound_latch_cs   = m68k_cs( 24'h07c00a, 24'h07c00b ) ; // sound latch
+            irq_ack_cs       = m68k_cs( 24'h07c00e, 24'h07c00f ) ; // irq ack
+
+            fg_scroll_y_cs   = m68k_cs( 24'h07c006, 24'h07c007 ) ; // SCROLL Y
+            fg_scroll_x_cs   = m68k_cs( 24'h07c008, 24'h07c009 ) ; // SCROLL X
+
+            m68k_ram_3_cs    = 0 ; // unused
+            irq_i8751_cs     = 0 ; // unused
+
+            z80_rom_cs       = ( MREQ_n == 0 && z80_addr[15:0]  < 16'hf800 );
+            z80_ram_cs       = ( MREQ_n == 0 && z80_addr[15:0] >= 16'hf800 );
+
+            z80_sound0_cs    = z80_io_cs(8'h00);
+            z80_sound1_cs    = z80_io_cs(8'h01);
+            z80_dac1_cs      = z80_io_cs(8'h02);
+            z80_dac2_cs      = z80_io_cs(8'h03);
+            z80_latch_clr_cs = z80_io_cs(8'h04);
+            z80_latch_r_cs   = z80_io_cs(8'h06);
+        end
         default:;
     endcase
 end
