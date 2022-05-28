@@ -22,15 +22,15 @@ module video_timing
 
 // 6MHz
 wire [8:0] h_ofs = 32;
-wire [8:0] HBL_START  = ( pcb == 2 || pcb == 3 || pcb == 4 || pcb == 6 ) ? 336 -1 : 352 -1;
-wire [8:0] HBL_END    = ( pcb == 2 || pcb == 3 || pcb == 4 || pcb == 6 ) ? 48 - 1 : 32  -1;
+wire [8:0] HBL_START  = ( pcb == 4 || pcb == 5 || pcb == 6 || pcb == 7 ) ? 336 -1 : 352 -1;
+wire [8:0] HBL_END    = ( pcb == 4 || pcb == 5 || pcb == 6 || pcb == 7 ) ? 48 - 1 : 32  -1;
 wire [8:0] HS_START   = 364 -1;
 wire [8:0] HS_END     = 380 -1;
 wire [8:0] HTOTAL     = 387 -1;
 
 wire [8:0] v_ofs = 0;
-wire [8:0] VBL_START  = ( pcb == 2 || pcb == 3 || pcb == 4 || pcb == 6 ) ? 240 -1 : 248 -1;
-wire [8:0] VBL_END    = ( pcb == 2 || pcb == 3 || pcb == 4 || pcb == 6 ) ? 16 - 1 : 8   -1;
+wire [8:0] VBL_START  = ( pcb == 4 || pcb == 5 || pcb == 6 || pcb == 7 ) ? 240 -1 : 248 -1;
+wire [8:0] VBL_END    = ( pcb == 4 || pcb == 5 || pcb == 6 || pcb == 7 ) ? 16 - 1 : 8   -1;
 wire [8:0] VS_START   = 252 -1;
 wire [8:0] VS_END     = 256 -1;
 wire [8:0] VTOTAL     = 262 -1;
