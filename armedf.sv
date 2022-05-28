@@ -699,7 +699,7 @@ always @ (posedge clk_6M) begin
 // text layer
     
         // read from two addresses at once
-        if ( pcb == 0 || pcb == 8 || pcb == 9 || pcb == 4) begin
+        if ( pcb == 0 || pcb == 8 || pcb == 4) begin
             gfx_txt_addr      <= { tx_x[8], 1'b0, ~tx_y[7:3], tx_x[7:3] } ;//{ 1'b0, t1[9:0] };
             gfx_txt_attr_addr <= { tx_x[8], 1'b1, ~tx_y[7:3], tx_x[7:3] } ; //{ 1'b1, t1[9:0] } ;
         end else if ( pcb == 2 ) begin
@@ -981,7 +981,7 @@ always @ (posedge clk_sys) begin
             end else if ( bg_scroll_y_cs == 1) begin
               bg_scroll_y <= m68k_dout[15:0];
             end else if ( fg_scroll_y_cs == 1 ) begin 
-                if ( pcb == 2 ) begin
+                if ( pcb == 2 || pcb == 6 || pcb == 7 ) begin
                     fg_scroll_y[9:0] <= m68k_dout[9:0];
                 end else if ( pcb == 6 || pcb == 7 ) begin
                     // legion bootlegs
@@ -992,7 +992,7 @@ always @ (posedge clk_sys) begin
                     end
                 end
             end else if ( fg_scroll_x_cs == 1 ) begin  // && m68k_rw == 0
-                if ( pcb == 1 ) begin
+                if ( pcb == 2 || pcb == 6 || pcb == 7 ) begin
                     fg_scroll_x[9:0] <= m68k_dout[9:0];
                 end else if ( pcb == 6 || pcb == 7 ) begin
                     // legion bootlegs
@@ -1010,7 +1010,7 @@ always @ (posedge clk_sys) begin
 
     if ( reset == 1 ) begin
     end else begin
-        if ( pcb == 8 || pcb == 9 ) begin
+        if ( pcb == 8 ) begin
             // bootleg z80 controls foreground scrolling
             if ( z80_b_fg_scroll_x_cs == 1 && z80_b_wr_n == 0 ) begin
                 fg_scroll_x[7:0] <= z80_b_dout;
@@ -1068,7 +1068,7 @@ always @ (posedge clk_sys) begin
 
         end
         
-        if ( pcb == 8 || pcb == 9 ) begin
+        if ( pcb == 8 ) begin
             // terraf bootleg.  hack to deassert interrupt
             if ( z80_b_irq_n == 0 && z80_b_addr == 16'h0038 ) begin
                 z80_b_irq_n <= 1;
@@ -1268,6 +1268,10 @@ wire curr_line;
 
 wire [9:0] sprite_y_adj = ( pcb == 4 || pcb == 5 || pcb == 6 || pcb == 7) ? 0 : 128 ;
 
+// kozure (1), armedf (2), cclimbr2 (4), legion (5,6,7)
+// big fighter is 192
+wire [9:0] sprite_count = ( pcb == 0 || pcb == 8 || pcb == 9 ) ? 127 : 511;
+
 always @ (posedge clk_sys) begin
     //   copy sprite list to dedicated sprite list ram
     // start state machine for copy
@@ -1322,7 +1326,7 @@ always @ (posedge clk_sys) begin
         // write is complete
         sprite_buffer_w <= 0;
         // sprite has been buffered.  are we done?
-        if ( sprite_buffer_addr < 8'h7f ) begin
+        if ( sprite_buffer_addr < sprite_count ) begin
             // start on next sprite
             sprite_buffer_addr <= sprite_buffer_addr + 1;
             copy_sprite_state <= 2;
@@ -1413,7 +1417,7 @@ always @ (posedge clk_sys) begin
         end
     end else if (draw_sprite_state == 7) begin                        
         // done. next sprite
-        if ( sprite_buffer_addr < 127 ) begin
+        if ( sprite_buffer_addr < sprite_count ) begin
             sprite_buffer_addr <= sprite_buffer_addr + 1;
             draw_sprite_state <= 2;
         end else begin
@@ -1587,7 +1591,7 @@ reg [9:0] fg_scroll_x;
 reg [9:0] fg_scroll_y;
 
 T80pa z80_b (
-    .RESET_n    ( ~reset & (pcb == 8 || pcb == 9) ),  // don't run if no bootleg cpu
+    .RESET_n    ( ~reset & (pcb == 8) ),  // don't run if no bootleg cpu
     .CLK        ( clk_sys ),
     .CEN_p      ( clk_4M ),
     .CEN_n      ( ~clk_4M ),
@@ -1975,7 +1979,7 @@ dual_port_ram #(.LEN(2048)) spr_pal_L (
     .q_b( spr_pal_dout[7:0] )
     ); 
 
-reg  [6:0]  sprite_buffer_addr;  // 128 sprites
+reg  [8:0]  sprite_buffer_addr;  // 128 sprites
 reg  [63:0] sprite_buffer_din;
 wire [63:0] sprite_buffer_dout;
 reg  sprite_buffer_w;
