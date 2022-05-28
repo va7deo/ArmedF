@@ -54,11 +54,6 @@ localparam pcb_terraf           = 0;
 localparam pcb_kozure           = 1;
 localparam pcb_armedf           = 2;
 localparam pcb_bigfghtr         = 3;
-
-// 320x224 (bootleg)
-// localparam pcb_terrafjb         = 4; // Uses Extra z80 CPU
-// localparam pcb_terrafb          = 5;
-
 // 228x224 (nb1414m4)
 localparam pcb_cclimbr2         = 4;
 localparam pcb_legion           = 5;
@@ -66,6 +61,11 @@ localparam pcb_legion           = 5;
 // 228x224 (bootleg)
 localparam pcb_legionjb         = 6;
 localparam pcb_legionjb2        = 7;
+
+// 320x224 (bootleg)
+localparam pcb_terrafjb         = 8; // Uses Extra z80 CPU
+localparam pcb_terrafb          = 9;
+
 
 
 function m68k_cs;
@@ -95,7 +95,7 @@ endfunction
 always @ (*) begin
     // Memory mapping based on PCB type
     case (pcb)
-        pcb_terraf: begin
+        pcb_terraf,pcb_terrafjb,pcb_terrafb: begin
 
             m68k_rom_cs      = m68k_cs( 24'h000000, 24'h05ffff ) ;
             m68k_spr_cs      = m68k_cs( 24'h060000, 24'h0603ff ) ; // 1k

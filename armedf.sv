@@ -241,24 +241,25 @@ localparam CONF_STR = {
     "P1-;",
     "P2,Pause options;",
     "P2-;",
-    "P2OP,Pause when OSD is open,On,Off;",
-    "P2OQ,Dim video after 10s,On,Off;",
+    "P2OP,Pause when OSD is open,Off,On;",
+    "P2OQ,Dim video after 10s,Off,On;",
     "P2-;",
     "P3,Debug;",
     "P3-;",
     "P3o3,Service Menu,Off,On;",
     "P3o4,Debug Menu,Off,On;",
-    "P2o5,Txt Layer,On,Off;",
-    "P2o6,Background,On,Off;",
-    "P2o7,Foreground,On,Off;",
-    "P2o8,Sprites,On,Off;",
+    "P3-;",
+    "P3o5,Text Layer,On,Off;",
+    "P3o6,Background Layer,On,Off;",
+    "P3o7,Foreground Layer,On,Off;",
+    "P3o8,Sprite Layer,On,Off;",
     "P3-;",
     "DIP;",
     "-;",
     "R0,Reset;",
     "J1,Button 1,Button 2,Button 3,Start,Coin,Pause;",
     "jn,A,B,X,R,L,Start;",           // name mapping
-    "V,v",`BUILD_DATE 
+    "V,v",`BUILD_DATE
 };
 
 wire forced_scandoubler;
@@ -549,7 +550,7 @@ pause #(8,8,8,72) pause
     .reset(reset),
     .user_button(b_pause),
     .pause_request(hs_pause),
-    .options(~status[26:25]),
+    .options(status[26:25]),
     .pause_cpu(pause_cpu),
     .dim_video(dim_video),
     .OSD_STATUS(OSD_STATUS),
@@ -605,18 +606,16 @@ reg [31:0] ticks /* synthesis keep */;
 wire [9:0] tx_x ; 
 wire [9:0] tx_y ; 
 
+
+
 always @ (*) begin
-    if ( pcb == 0 ) begin
-        tx_x <= hc - 32;
-        tx_y <= vc ;
-    end else if ( pcb == 1 ) begin
+    if ( pcb == 2 ) begin
         tx_x <= hc + 96 ;
         tx_y <= vc ;
     end else begin
         tx_x <= hc - 32;
         tx_y <= vc ;
     end
-    
 end
 
 // layer 1 / gfx3
@@ -700,13 +699,13 @@ always @ (posedge clk_6M) begin
 // text layer
     
         // read from two addresses at once
-        if ( pcb == 0 || pcb == 6) begin
+        if ( pcb == 0 || pcb == 8 || pcb == 9 || pcb == 4) begin
             gfx_txt_addr      <= { tx_x[8], 1'b0, ~tx_y[7:3], tx_x[7:3] } ;//{ 1'b0, t1[9:0] };
             gfx_txt_attr_addr <= { tx_x[8], 1'b1, ~tx_y[7:3], tx_x[7:3] } ; //{ 1'b1, t1[9:0] } ;
-        end else if ( pcb == 1 ) begin
+        end else if ( pcb == 2 ) begin
             gfx_txt_addr      <= { 1'b0, tx_x[8:3], tx_y[7:3] } ; 
             gfx_txt_attr_addr <= { 1'b1, tx_x[8:3], tx_y[7:3] } ;
-        end else if ( pcb == 2 || pcb == 3 || pcb == 4  ) begin              
+        end else if ( pcb == 5 || pcb == 6 || pcb == 7  ) begin              
             gfx_txt_addr      <= { tx_x[8], 1'b0, tx_x[7:3], tx_y[7:3] } ;
             gfx_txt_attr_addr <= { tx_x[8], 1'b1, tx_x[7:3], tx_y[7:3] } ;
         end
@@ -982,9 +981,9 @@ always @ (posedge clk_sys) begin
             end else if ( bg_scroll_y_cs == 1) begin
               bg_scroll_y <= m68k_dout[15:0];
             end else if ( fg_scroll_y_cs == 1 ) begin 
-                if ( pcb == 1 ) begin
+                if ( pcb == 2 ) begin
                     fg_scroll_y[9:0] <= m68k_dout[9:0];
-                end else if ( pcb == 3 || pcb == 4 ) begin
+                end else if ( pcb == 6 || pcb == 7 ) begin
                     // legion bootlegs
                     if ( m68k_a[1] == 1 ) begin
                         fg_scroll_y[7:0] <= m68k_dout[7:0];
@@ -995,7 +994,7 @@ always @ (posedge clk_sys) begin
             end else if ( fg_scroll_x_cs == 1 ) begin  // && m68k_rw == 0
                 if ( pcb == 1 ) begin
                     fg_scroll_x[9:0] <= m68k_dout[9:0];
-                end else if ( pcb == 3 || pcb == 4 ) begin
+                end else if ( pcb == 6 || pcb == 7 ) begin
                     // legion bootlegs
                     if ( m68k_a[1] == 1 ) begin
                         fg_scroll_x[7:0] <= m68k_dout[7:0];
@@ -1011,7 +1010,7 @@ always @ (posedge clk_sys) begin
 
     if ( reset == 1 ) begin
     end else begin
-        if ( pcb == 0 ) begin
+        if ( pcb == 8 || pcb == 9 ) begin
             // bootleg z80 controls foreground scrolling
             if ( z80_b_fg_scroll_x_cs == 1 && z80_b_wr_n == 0 ) begin
                 fg_scroll_x[7:0] <= z80_b_dout;
@@ -1045,15 +1044,7 @@ always @ (posedge clk_sys) begin
             //if (data & 0x4000 && ((m_vreg & 0x4000) == 0)) //0 -> 1 transition
             //    m_extra->set_input_line(0, HOLD_LINE);
             
-//localparam pcb_terra_force      = 0;
-//localparam pcb_armedf           = 1;
-//localparam pcb_legion           = 2;
-//localparam pcb_legionjb         = 3;
-//localparam pcb_legionjb2        = 4;
-//localparam pcb_kozure           = 5;
-//localparam pcb_cclimbr2         = 6;
-//localparam pcb_bigfghtr         = 7;
-            
+           
             if ( has_nb1414m4 == 1 ) begin
                 // nb1414m4
                 if ( m68k_dout[14] == 1 ) begin 
@@ -1077,7 +1068,7 @@ always @ (posedge clk_sys) begin
 
         end
         
-        if ( pcb == 0 ) begin
+        if ( pcb == 8 || pcb == 9 ) begin
             // terraf bootleg.  hack to deassert interrupt
             if ( z80_b_irq_n == 0 && z80_b_addr == 16'h0038 ) begin
                 z80_b_irq_n <= 1;
@@ -1095,7 +1086,7 @@ always @ (posedge clk_sys) begin
 //        end
         if ( vbl_sr == 2'b01 ) begin // rising edge
             //  68k vbl interrupt
-            if ( pcb == 2 || pcb == 3 || pcb == 4 || pcb == 6 ) begin
+            if ( pcb == 4 || pcb == 5 || pcb == 6 || pcb == 7 ) begin
                 m68k_ipl1_n <= 0;
             end else begin
                 m68k_ipl0_n <= 0;
@@ -1104,7 +1095,7 @@ always @ (posedge clk_sys) begin
     end
 end
 
-wire has_nb1414m4 = ( pcb == 2 || pcb == 5 || pcb == 6 ) ;
+wire has_nb1414m4 = ( pcb < 6 ) ;
 
 // shared text ram write arbiter
 reg shared_w;
@@ -1275,7 +1266,7 @@ reg sp_enable;
 
 wire curr_line;
 
-wire [9:0] sprite_y_adj = ( pcb == 2 || pcb == 3 || pcb == 4 || pcb == 6) ? 0 : 128 ;
+wire [9:0] sprite_y_adj = ( pcb == 4 || pcb == 5 || pcb == 6 || pcb == 7) ? 0 : 128 ;
 
 always @ (posedge clk_sys) begin
     //   copy sprite list to dedicated sprite list ram
@@ -1596,7 +1587,7 @@ reg [9:0] fg_scroll_x;
 reg [9:0] fg_scroll_y;
 
 T80pa z80_b (
-    .RESET_n    ( ~reset & (pcb == 0) ),  // don't run if no bootleg cpu
+    .RESET_n    ( ~reset & (pcb == 8 || pcb == 9) ),  // don't run if no bootleg cpu
     .CLK        ( clk_sys ),
     .CEN_p      ( clk_4M ),
     .CEN_n      ( ~clk_4M ),
