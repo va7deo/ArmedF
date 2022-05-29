@@ -17,7 +17,7 @@ The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra 
 [**Kozure Ōkami**](https://en.wikipedia.org/wiki/Nihon_Bussan)          | **W.I.P**   | N         | NB1414M4 | N/A                     |
 [**Chouji Meikyuu Legion**](https://en.wikipedia.org/wiki/Nihon_Bussan) | **W.I.P**   | N         | NB1414M4 | **legionjb, legionjb2** |
 [**Crazy Climber 2**](https://en.wikipedia.org/wiki/Nihon_Bussan)       | **W.I.P**   | N         | NB1414M4 | N/A                     |
-[**Armed F**](https://en.wikipedia.org/wiki/Formation_Armed_F)          | **W.I.P**   | **Y**     | None     | No Protection           |
+[**Armed F**](https://en.wikipedia.org/wiki/Formation_Armed_F)          | Implemented | **Y**     | None     | N/A                     |
 [**Tatakae! Big Fighter**](https://en.wikipedia.org/wiki/Nihon_Bussan)  | Pending     | N         | i8751    | N/A                     |
 
 ## External Modules
@@ -32,16 +32,23 @@ The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra 
 # Known Issues / Tasks
 
 - ~~Clock domains need to be verified~~  
-- H/V clock timings for CRT need to be verified  
 - ~~Sprite Handling for 6MHz pxl clk and sdram memory controller~~  
-- Screen Flip implementation  
 - ~~Player 2 controls tied to screen flip/table mode~~  
-- ~~Y/C video output~~  
-- Dot Crawl on Y/C video output  
 - ~~Implement keyboard handler / service menu~~  
-- Reverse engineer Terra Force and provide schematics  
+- ~~Y/C video output~~  
+- ~~Scroll handling done by **NB1414M4**~~  
+- ~~Sprite size adjusted per PCB~~  
+- H/V clock timings for CRT need to be verified  
+- Screen Flip implementation  
+- Dot Crawl on Y/C video output  
 - Protection MCU i8571 implementation (**Tatakae! Big Fighter**)    
 - Protection Chip **NB1414M4** implementation  
+- Text Layer **NB1414M4** implementation  
+- Scroll implementation **(Terra Force (Japan, bootleg set 2))**  
+- Layer priority **Chouji Meikyuu Legion (Japan ver 1.05, bootleg set 1)**  
+- Sprite alignment per PCB  
+- Shared memory between fx68k and jt8751  
+- Reverse engineer Terra Force and provide schematics  
 
 # PCB Check List
 
@@ -125,12 +132,15 @@ A hidden debug menu can be accessed for **Terra Force, Kozure Ōkami, Chouji Mei
 
 Game | Joystick | Service Menu | Shared Controls | Dip Default |
 :---: | :---: | :---: | :---: | :---: |
-Armed F               | 8-Way | <img width="" height="" src="https://user-images.githubusercontent.com/32810066/170657740-f1781b3a-f50b-41eb-aff3-63d8b891ccf6.png"> | Upright | **Upright** |
+Armed F                   | 8-Way | <img width="" height="" src="https://user-images.githubusercontent.com/32810066/170657740-f1781b3a-f50b-41eb-aff3-63d8b891ccf6.png"> | Upright | **Upright** |
 Chouji Meikyuu<br> Legion | 8-Way | <img width="" height="" src="https://user-images.githubusercontent.com/32810066/170711151-9d7e8a34-b715-48a5-b89f-9b8004cb04f0.png"> | Co-Op   | **Upright** |
+Crazy Climber 2           | 4-Way | <img width="" height="" src="https://user-images.githubusercontent.com/32810066/170847086-105099f0-2e8a-4bdb-af1a-b8fa5a9c5f6d.png"> | Upright | **Upright** |
 
 <br>
 
-- Upright cabinets share a **1L3B** control panel layout. Players are required to switch controller. If set the cabinet type is set to table, the screen inverts for cocktail mode per player and has multiple controls. <br><br>Push button 3 may have no function in game, but corresponds to the original hardware and service menu.
+### Note: (Only applies once screen flip is implemented)
+
+> Upright cabinets share a **1L3B** control panel layout. Players are required to switch controller. If set the cabinet type is set to table, the screen inverts for cocktail mode per player and has multiple controls. <br><br>Push button 3 may have no function in game, but corresponds to the original hardware and service menu. Crazy Climber 2 uses two 4-way joysticks and the second stick (right) corresponds to buttons 1 thru 4 for movement.
 
 <br>
 
@@ -144,7 +154,7 @@ Chouji Meikyuu<br> Legion | 8-Way | <img width="" height="" src="https://user-im
 
 |Player 1|Player 2|
 |--|--|
-|<table> <tr><th>Functions</th><th>Keymap</th></tr><tr><td>P1 Up</td><td>Up</td></tr><tr><td>P1 Down</td><td>Down</td></tr><tr><td>P1 Left</td><td>Left</td></tr><tr><td>P1 Right</td><td>Right</td></tr><tr><td>P1 Bttn 1</td><td>L-CTRL</td></tr><tr><td>P1 Bttn 2</td><td>L-ALT</td></tr><tr><td>P1 Bttn 3</td><td>Space</td></tr><tr><td>P1 Bttn 4</td><td>L-Shift</td></tr> </table> | <table> <tr><th>Functions</th><th>Keymap</th></tr><tr><td>P2 Up</td><td>R</td></tr><tr><td>P2 Down</td><td>F</td></tr><tr><td>P2 Left</td><td>D</td></tr><tr><td>P2 Right</td><td>G</td></tr><tr><td>P2 Bttn 1</td><td>A</td></tr><tr><td>P2 Bttn 2</td><td>S</td></tr><tr><td>P2 Bttn 3</td><td>Q</td></tr><tr><td>P2 Bttn 4</td><td>W</td></tr> </table>|
+|<table> <tr><th>Functions</th><th>Keymap</th></tr><tr><td>P1 Up</td><td>Up</td></tr><tr><td>P1 Down</td><td>Down</td></tr><tr><td>P1 Left</td><td>Left</td></tr><tr><td>P1 Right</td><td>Right</td></tr><tr><td>P1 Bttn 1</td><td>L-Ctrl</td></tr><tr><td>P1 Bttn 2</td><td>L-Alt</td></tr><tr><td>P1 Bttn 3</td><td>Space</td></tr><tr><td>P1 Bttn 4</td><td>L-Shift</td></tr> </table> | <table> <tr><th>Functions</th><th>Keymap</th></tr><tr><td>P2 Up</td><td>R</td></tr><tr><td>P2 Down</td><td>F</td></tr><tr><td>P2 Left</td><td>D</td></tr><tr><td>P2 Right</td><td>G</td></tr><tr><td>P2 Bttn 1</td><td>A</td></tr><tr><td>P2 Bttn 2</td><td>S</td></tr><tr><td>P2 Bttn 3</td><td>Q</td></tr><tr><td>P2 Bttn 4</td><td>W</td></tr> </table>|
 
 |Debug|
 |--|
