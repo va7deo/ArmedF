@@ -376,6 +376,7 @@ wire        b_pause = joy0[12] | key_pause ;
 
 wire key_start_1p, key_start_2p, key_coin_a, key_coin_b;
 wire key_test, key_reset, key_service, key_pause;
+wire key_txt_enable, key_fg_enable, key_bg_enable, key_spr_enable;
 
 wire key_p1_up, key_p1_left, key_p1_down, key_p1_right, key_p1_a, key_p1_b, key_p1_c, key_p1_d;
 wire key_p2_up, key_p2_left, key_p2_down, key_p2_right, key_p2_a, key_p2_b, key_p2_c, key_p2_d;
@@ -415,6 +416,10 @@ always @(posedge clk_sys) begin
             'h015: key_p2_c       <= pressed; // q
             'h01d: key_p2_d       <= pressed; // w
 
+            'h083: key_txt_enable <= key_txt_enable ^ pressed; // f7
+            'h00A: key_bg_enable  <= key_bg_enable  ^ pressed; // f8
+            'h001: key_fg_enable  <= key_fg_enable  ^ pressed; // f9
+            'h009: key_spr_enable <= key_spr_enable ^ pressed; // f10
         endcase
     end
 end
