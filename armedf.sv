@@ -205,7 +205,7 @@ assign m68k_a[0] = reset;
 // 0         1         2         3          4         5         6   
 // 01234567890123456789012345678901 23456789012345678901234567890123
 // 0123456789ABCDEFGHIJKLMNOPQRSTUV 0123456789ABCDEFGHIJKLMNOPQRSTUV
-   X  XXXXXXX XXXX     XXX XXXXXXXX    XXXXXX                       
+// X  XXXXXXX XXXX     XXX XXXXXXXX    XXXXXX                       
 
 wire [1:0] aspect_ratio = status[9:8];
 wire orientation = ~status[3];
@@ -215,10 +215,10 @@ wire [3:0] vs_offset = status[31:28];
 wire [1:0] select = status[12:11];
 wire [1:0] offset = status[14:13];
 
-wire gfx1_en = ~status[37];
-wire gfx2_en = ~status[38];
-wire gfx3_en = ~status[39];
-wire gfx4_en = ~status[40];
+wire gfx1_en = ~(status[37] | key_txt_enable);
+wire gfx2_en = ~(status[38] | key_bg_enable);
+wire gfx3_en = ~(status[39] | key_fg_enable );
+wire gfx4_en = ~(status[40] | key_spr_enable);
 
 assign VIDEO_ARX = (!aspect_ratio) ? (orientation  ? 8'd4 : 8'd3) : (aspect_ratio - 1'd1);
 assign VIDEO_ARY = (!aspect_ratio) ? (orientation  ? 8'd3 : 8'd4) : 12'd0;
@@ -704,13 +704,16 @@ always @ (posedge clk_6M) begin
 // text layer
     
         // read from two addresses at once
-        if ( pcb == 0 || pcb == 8 || pcb == 4) begin
+        if ( pcb == 0 || pcb == 8 || pcb == 9 || pcb == 1 || pcb == 4) begin
+            // terra force and crazy climber 2
             gfx_txt_addr      <= { tx_x[8], 1'b0, ~tx_y[7:3], tx_x[7:3] } ;//{ 1'b0, t1[9:0] };
             gfx_txt_attr_addr <= { tx_x[8], 1'b1, ~tx_y[7:3], tx_x[7:3] } ; //{ 1'b1, t1[9:0] } ;
         end else if ( pcb == 2 ) begin
+            // armed f
             gfx_txt_addr      <= { 1'b0, tx_x[8:3], tx_y[7:3] } ; 
             gfx_txt_attr_addr <= { 1'b1, tx_x[8:3], tx_y[7:3] } ;
-        end else if ( pcb == 5 || pcb == 6 || pcb == 7  ) begin              
+        end else if ( pcb == 3 || pcb == 5 || pcb == 6 || pcb == 7  ) begin
+            // legion
             gfx_txt_addr      <= { tx_x[8], 1'b0, tx_x[7:3], tx_y[7:3] } ;
             gfx_txt_attr_addr <= { tx_x[8], 1'b1, tx_x[7:3], tx_y[7:3] } ;
         end
@@ -914,6 +917,8 @@ always @ (posedge clk_sys) begin
     end
 end
 
+reg scroll_msb;
+
 always @ (posedge clk_sys) begin
      if ( clk_4M == 1 ) begin
 
@@ -986,7 +991,7 @@ always @ (posedge clk_sys) begin
             end else if ( bg_scroll_y_cs == 1) begin
               bg_scroll_y <= m68k_dout[15:0];
             end else if ( fg_scroll_y_cs == 1 ) begin 
-                if ( pcb == 2 || pcb == 6 || pcb == 7 ) begin
+                if ( pcb == 2 ) begin
                     fg_scroll_y[9:0] <= m68k_dout[9:0];
                 end else if ( pcb == 6 || pcb == 7 ) begin
                     // legion bootlegs
@@ -995,9 +1000,13 @@ always @ (posedge clk_sys) begin
                     end else begin
                         fg_scroll_y[9:8] <= m68k_dout[1:0];
                     end
+                end else if ( pcb == 9 ) begin  
+                    fg_scroll_y[7:0] <= m68k_dout[7:0];
+                    scroll_msb <= 1;
+                    // terrafb
                 end
             end else if ( fg_scroll_x_cs == 1 ) begin  // && m68k_rw == 0
-                if ( pcb == 2 || pcb == 6 || pcb == 7 ) begin
+                if ( pcb == 2 ) begin
                     fg_scroll_x[9:0] <= m68k_dout[9:0];
                 end else if ( pcb == 6 || pcb == 7 ) begin
                     // legion bootlegs
@@ -1006,7 +1015,17 @@ always @ (posedge clk_sys) begin
                     end else begin
                         fg_scroll_x[9:8] <= m68k_dout[1:0];
                     end
+                end else if ( pcb == 9 ) begin                                        
+                    // terrafb
+                    if ( scroll_msb == 1 ) begin
+                        fg_scroll_x[9:8] <= m68k_dout[5:4];
+                        fg_scroll_y[9:8] <= m68k_dout[1:0];
+                    end else begin
+                        fg_scroll_x[7:0] <= m68k_dout[7:0];
+                    end
                 end
+            end else if ( terrafb_fg_scroll_msb_w == 1 ) begin
+                scroll_msb <= 0;
             end else if ( sound_latch_cs == 1) begin
               sound_latch <= {m68k_dout[6:0],1'b1};
             end
@@ -1232,6 +1251,9 @@ chip_select cs (
     .z80_latch_r_cs(z80_a_latch_r_cs)
 );
  
+//	map(0x0c0000, 0x0c0000).w(FUNC(armedf_state::terrafb_fg_scroll_msb_arm_w)); 
+wire terrafb_fg_scroll_msb_w = ( pcb == 9 && m68k_a[23:0] >= 24'h0c0000 && m68k_a[23:0] <= 24'h0c0001) & !m68k_as_n;
+ 
 reg [15:0] bg_scroll_x;
 reg [15:0] bg_scroll_y;
 
@@ -1275,7 +1297,7 @@ wire [9:0] sprite_y_adj = ( pcb == 4 || pcb == 5 || pcb == 6 || pcb == 7) ? 0 : 
 
 // kozure (1), armedf (2), cclimbr2 (4), legion (5,6,7)
 // big fighter is 192
-wire [9:0] sprite_count = ( pcb == 0 || pcb == 8 || pcb == 9 ) ? 127 : 511;
+wire [9:0] sprite_count = ( pcb == 0 || pcb == 8 || pcb == 9 || pcb == 1 ) ? 127 : 511;
 
 always @ (posedge clk_sys) begin
     //   copy sprite list to dedicated sprite list ram

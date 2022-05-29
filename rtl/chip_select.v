@@ -185,7 +185,7 @@ always @ (*) begin
 
             m68k_rom_cs      = m68k_cs( 24'h000000, 24'h05ffff ) ;
 
-            m68k_spr_cs      = m68k_cs( 24'h060000, 24'h0603ff ) ; // 1k
+            m68k_spr_cs      = m68k_cs( 24'h060000, 24'h060fff ) ; // 1k
             m68k_ram_cs      = m68k_cs( 24'h060400, 24'h063fff ) ; // 15k
 
             m68k_ram_2_cs    = m68k_cs( 24'h064000, 24'h065fff ) ; // 8k
@@ -520,13 +520,16 @@ always @ (*) begin
             bg_scroll_x_cs   = m68k_cs( 24'h07c002, 24'h07c003 ) ; // SCROLL X
             bg_scroll_y_cs   = m68k_cs( 24'h07c004, 24'h07c005 ) ; // SCROLL Y
 
-            sound_latch_cs   = m68k_cs( 24'h07c00a, 24'h07c00b ) ; // sound latch
-            irq_ack_cs       = m68k_cs( 24'h07c00e, 24'h07c00f ) ; // irq ack
-
             fg_scroll_y_cs   = m68k_cs( 24'h07c006, 24'h07c007 ) ; // SCROLL Y
             fg_scroll_x_cs   = m68k_cs( 24'h07c008, 24'h07c009 ) ; // SCROLL X
 
-//                map(0x0c0000, 0x0c0000).w(FUNC(armedf_state::terrafb_fg_scroll_msb_arm_w));
+//	map(0x07c006, 0x07c006).w(FUNC(armedf_state::terrafb_fg_scrolly_w));
+//	map(0x07c008, 0x07c008).w(FUNC(armedf_state::terrafb_fg_scrollx_w));
+//	map(0x0c0000, 0x0c0000).w(FUNC(armedf_state::terrafb_fg_scroll_msb_arm_w));
+            
+            sound_latch_cs   = m68k_cs( 24'h07c00a, 24'h07c00b ) ; // sound latch
+            irq_ack_cs       = m68k_cs( 24'h07c00e, 24'h07c00f ) ; // irq ack
+
     
             m68k_ram_3_cs    = 0 ; // unused
             irq_i8751_cs     = 0 ; // unused
