@@ -201,11 +201,11 @@ assign BUTTONS = 0;
 assign m68k_a[0] = reset;
 
 // Status Bit Map:
-//              Upper Case                     Lower Case
-// 0         1         2         3          4         5         6
+//              Upper Case                     Lower Case           
+// 0         1         2         3          4         5         6   
 // 01234567890123456789012345678901 23456789012345678901234567890123
 // 0123456789ABCDEFGHIJKLMNOPQRSTUV 0123456789ABCDEFGHIJKLMNOPQRSTUV
-
+   X  XXXXXXX XXXX     XXX XXXXXXXX    XXXXXX                       
 
 wire [1:0] aspect_ratio = status[9:8];
 wire orientation = ~status[3];
@@ -241,8 +241,8 @@ localparam CONF_STR = {
     "P1-;",
     "P2,Pause options;",
     "P2-;",
-    "P2OP,Pause when OSD is open,Off,On;",
-    "P2OQ,Dim video after 10s,Off,On;",
+    "P2OK,Pause when OSD is open,Off,On;",
+    "P2OL,Dim video after 10s,Off,On;",
     "P2-;",
     "P3,Debug;",
     "P3-;",
@@ -555,7 +555,7 @@ pause #(8,8,8,72) pause
     .reset(reset),
     .user_button(b_pause),
     .pause_request(hs_pause),
-    .options(status[26:25]),
+    .options(status[21:20]),
     .pause_cpu(pause_cpu),
     .dim_video(dim_video),
     .OSD_STATUS(OSD_STATUS),

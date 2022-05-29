@@ -22,8 +22,8 @@ module video_timing
 
 // 6MHz
 wire [8:0] h_ofs = 32;
-wire [8:0] HBL_START  = ( pcb == 4 || pcb == 5 || pcb == 6 || pcb == 7 ) ? 326 -1 : 352 -1;
-wire [8:0] HBL_END    = ( pcb == 4 || pcb == 5 || pcb == 6 || pcb == 7 ) ? 38 - 1 : 32  -1;
+wire [8:0] HBL_START  = ( pcb == 4 || pcb == 5 || pcb == 6 || pcb == 7 ) ? 336 -1 : 352 -1;
+wire [8:0] HBL_END    = ( pcb == 4 || pcb == 5 || pcb == 6 || pcb == 7 ) ? 48 - 1 : 32  -1;
 wire [8:0] HS_START   = 364 -1;
 wire [8:0] HS_END     = 380 -1;
 wire [8:0] HTOTAL     = 387 -1;
