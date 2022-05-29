@@ -44,8 +44,8 @@ The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra 
 - Protection MCU i8571 implementation (**Tatakae! Big Fighter**)    
 - Protection Chip **NB1414M4** implementation  
 - Text Layer **NB1414M4** implementation  
-- Scroll implementation **(Terra Force (Japan, bootleg set 2))**  
-- Layer priority **Chouji Meikyuu Legion (Japan ver 1.05, bootleg set 1)**  
+- Scroll implementation - **Terra Force (Japan, bootleg set 2)**  
+- Layer priority - **Chouji Meikyuu Legion (Japan ver 1.05, bootleg set 1)**  
 - Sprite alignment per PCB  
 - Shared memory between fx68k and jt8751  
 - Reverse engineer Terra Force and provide schematics  
