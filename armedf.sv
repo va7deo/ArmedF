@@ -825,23 +825,31 @@ always @ (posedge clk_sys ) begin
 end
  
 reg  [3:0]  nb1414m4_state;
-reg  [3:0]  nb1414m4_cmd_state;
+reg  [7:0]  nb1414m4_cmd_state;
 reg         nb1414m4_wr;
 reg  [15:0] nb1414m4_cmd;
-wire [13:0] nb1414m4_dst = nb1414m4_idx; // might need to change
+reg  [13:0] nb1414m4_dst; // might need to change
 reg  [13:0] nb1414m4_idx;
+reg  [13:0] nb1414m4_dma_size;
 
 reg  [13:0] nb1414m4_src;
 reg  [13:0] nb1414m4_address;
-wire [7:0]  nb1414m4_data;
+wire [7:0]  nb1414m4_dout;
+wire [7:0]  nb1414m4_din;
+wire [7:0]  nb1414m4_tile;
+wire [7:0]  nb1414m4_pal;
 
 //	dst = (m_data[0x330 + ((mcu_cmd & 0xf) * 2)] << 8) | (m_data[0x331 + ((mcu_cmd & 0xf) * 2)] & 0xff);
 //	dst &= 0x3fff;
 
 always @ (posedge clk_sys) begin
-    if ( nb1414m4_state == 1 ) begin
+    if ( reset == 1 ) begin
+        nb1414m4_cmd_state <= 0;
+        nb1414m4_wr <= 0;
+    end else if ( nb1414m4_state == 1 ) begin
         // DMA transfer
         if ( nb1414m4_cmd[15:8] == 8'h02 ) begin
+            // 200 command
             // lookup dst in m4 rom table. index is part of command
             if ( nb1414m4_cmd_state == 0 ) begin
                 nb1414m4_cmd_state <= 1;
@@ -849,51 +857,130 @@ always @ (posedge clk_sys) begin
                 // mcu_cmd & 0x87
                 nb1414m4_address[13:0] <= 14'h330 + { nb1414m4_cmd[2:0], 1'b0 } ;
             end else if ( nb1414m4_cmd_state == 1 ) begin
-                // latch in high byte of source
-                nb1414m4_src[13:8] <= nb1414m4_data[5:0];
-                // setup read for low byte of destination
-                nb1414m4_address[13:0] <= 14'h331 + { nb1414m4_cmd[2:0], 1'b0 } ;
+                // need a cycle to read
                 nb1414m4_cmd_state <= 2;
             end else if ( nb1414m4_cmd_state == 2 ) begin
-                // latch in low byte of source
-                nb1414m4_src[7:0] <= nb1414m4_data[7:0];
-                // start after command data
-                nb1414m4_idx <= 14'h012;
+                // latch in high byte of source
+                nb1414m4_src[13:8] <= nb1414m4_dout[5:0];
+                // setup read for low byte of destination
+                nb1414m4_address[13:0] <= 14'h331 + { nb1414m4_cmd[2:0], 1'b0 } ;
                 nb1414m4_cmd_state <= 3;
-            end else if ( nb1414m4_cmd_state == 3 ) begin 
-                nb1414m4_address <= nb1414m4_src + nb1414m4_idx;
-                nb1414m4_wr <= 0;
+            end else if ( nb1414m4_cmd_state == 3 ) begin
+                // need a cycle to read
                 nb1414m4_cmd_state <= 4;
             end else if ( nb1414m4_cmd_state == 4 ) begin
-                // address is valid.  clock in the read
+                // latch in low byte of source
+                nb1414m4_src[7:0] <= nb1414m4_dout[7:0];
+                // start dma
                 nb1414m4_cmd_state <= 5;
-                // setup a write.  the data will be valid in the next clock
-                nb1414m4_wr <= 1;
             end else if ( nb1414m4_cmd_state == 5 ) begin
-                // source data is valid.  write 
-                // disable write
-                nb1414m4_wr <= 0;
-                // first 0x400 is char data, second 0x400 is attributes
-                if ( nb1414m4_idx < 14'h7ff ) begin 
-                    nb1414m4_idx <= nb1414m4_idx + 1;
-                    nb1414m4_cmd_state <= 3;
+                nb1414m4_idx <= 0;
+                if ( nb1414m4_src[10:0] == 0 ) begin
+                    // start after command data
+                    // dma(src, 0x0000, 0x400, 1, vram);
+                    nb1414m4_dma_size <= 14'h800;
+                    nb1414m4_dst <= 0;
+                    nb1414m4_cmd_state <= 8'h80;
                 end else begin
-                    // done
-                    nb1414m4_cmd_state <= 6;
+                    //fill(0x0000, m_data[src], m_data[src + 1], vram);
+                    nb1414m4_cmd_state <= 8'h90;
                 end
-            end else if ( nb1414m4_cmd_state == 6 ) begin
-                nb1414m4_cmd_state <= 0;
             end
+        end
+        
+        // DMA transfer
+        if ( nb1414m4_cmd_state == 8'h80 ) begin 
+            // start transfer
+            nb1414m4_address <= nb1414m4_src + nb1414m4_idx;
+            nb1414m4_wr <= 0;
+            nb1414m4_cmd_state <= 8'h81;
+        end else if ( nb1414m4_cmd_state == 8'h81 ) begin
+            // read takes a cycle
+            nb1414m4_cmd_state <= 8'h82;
+        end else if ( nb1414m4_cmd_state == 8'h82 ) begin
+            nb1414m4_din <= nb1414m4_dout;
+            
+            // address is valid.  clock in the read
+            nb1414m4_cmd_state <= 8'h85;
+            // setup a write.  the data will be valid in the next clock
+            // writes to shared ram at ofset nb1414m4_dst
+            if ( nb1414m4_dst > 18 ) begin
+                // only write if not in the command buffer
+                nb1414m4_wr <= 1;
+            end
+//        end else if ( nb1414m4_cmd_state == 8'h84 ) begin            
+//            // need a cycle to write
+//            nb1414m4_cmd_state <= 8'h85;
+        end else if ( nb1414m4_cmd_state == 8'h85 ) begin
+            // source data is valid.  write 
+            // disable write
+            nb1414m4_wr <= 0;
+            // first 0x400 is char data, second 0x400 is attributes
+            if ( nb1414m4_idx < (nb1414m4_dma_size-1) ) begin 
+                nb1414m4_idx <= nb1414m4_idx + 1;
+                nb1414m4_dst <= nb1414m4_dst + 1;
+
+                nb1414m4_cmd_state <= 8'h80;
+            end else begin
+                // done
+                nb1414m4_cmd_state <= 8'hff;
+            end
+        end 
+        
+        // fill
+        if ( nb1414m4_cmd_state == 8'h90 ) begin 
+            nb1414m4_dst <= 0;
+            nb1414m4_idx <= 0;
+            nb1414m4_address[13:0] <= nb1414m4_src ;
+            nb1414m4_cmd_state <= 8'h91;
+        end else if ( nb1414m4_cmd_state == 8'h91 ) begin
+            // need a cycle to read
+            nb1414m4_cmd_state <= 8'h92;
+        end else if ( nb1414m4_cmd_state == 8'h92 ) begin
+            nb1414m4_tile <= nb1414m4_dout;
+            nb1414m4_address[13:0] <= nb1414m4_src + 1 ;
+            nb1414m4_cmd_state <= 8'h93;
+        end else if ( nb1414m4_cmd_state == 8'h93 ) begin            
+            nb1414m4_cmd_state <= 8'h94;
+        end else if ( nb1414m4_cmd_state == 8'h94 ) begin
+            nb1414m4_pal <= nb1414m4_dout;
+            nb1414m4_cmd_state <= 8'h95;
+            nb1414m4_din <= nb1414m4_tile;
+            nb1414m4_wr <= 1;
+        end else if ( nb1414m4_cmd_state == 8'h95 ) begin
+            if ( nb1414m4_idx < 14'h7ff ) begin
+                // increment write pos
+                nb1414m4_dst <= nb1414m4_dst + 1;
+                // increment count
+                nb1414m4_idx <= nb1414m4_idx + 1;
+                if ( nb1414m4_idx == 14'h400 ) begin
+                    // switch to writing the txt pal value
+                    nb1414m4_din <= nb1414m4_pal;
+                end
+            end else begin
+                // done
+                nb1414m4_cmd_state <= 8'hff;
+            end
+        end
+        
+        // reset state
+        if ( nb1414m4_cmd_state == 8'hff ) begin
+            nb1414m4_wr <= 0;
+            nb1414m4_cmd_state <= 0;
         end
     end
 end
 
+//        end else if ( has_nb1414m4 == 1 && nb1414m4_wr == 1 ) begin
+//            shared_addr <= nb1414m4_dst;
+//            shared_data <= nb1414m4_data;
+            
 dual_port_ram #(.LEN(16384)) nb1414m4_rom (
     .clock_a ( clk_sys ),
     .address_a ( nb1414m4_address ),
     .wren_a ( 0 ),
     .data_a ( ),
-    .q_a ( nb1414m4_data ),
+    .q_a ( nb1414m4_dout ),
 
     .clock_b ( clk_sys ),
     .address_b ( ioctl_addr[13:0] ),
@@ -1056,7 +1143,7 @@ always @ (posedge clk_sys) begin
 
         vbl_sr <= { vbl_sr[0], vbl };
         
-        if ( nb1414m4_cmd_state == 6 ) begin
+        if ( nb1414m4_cmd_state == 8'hff ) begin
             nb1414m4_state <= 0;
         end 
         
@@ -1072,11 +1159,9 @@ always @ (posedge clk_sys) begin
             if ( has_nb1414m4 == 1 ) begin
                 // nb1414m4
                 if ( m68k_dout[14] == 1 ) begin 
+                    // trigger nb1414m4 command handler
                     nb1414m4_state <= 1;
-//reg [7:0] nb_scroll_x_l;
-//reg [7:0] nb_scroll_x_h;
-//reg [7:0] nb_scroll_y_l;
-//reg [7:0] nb_scroll_y_h;                    
+
                     fg_scroll_x[9:0] <= { nb_scroll_x_h[1:0], nb_scroll_x_l[7:0] };
                     fg_scroll_y[9:0] <= { nb_scroll_y_h[1:0], nb_scroll_y_l[7:0] };
                 end
@@ -1160,7 +1245,7 @@ always @ (posedge clk_sys) begin
             shared_w <= 1;
         end else if ( has_nb1414m4 == 1 && nb1414m4_wr == 1 ) begin
             shared_addr <= nb1414m4_dst;
-            shared_data <= nb1414m4_data;
+            shared_data <= nb1414m4_din;
             shared_w    <= 1;
         end else if (clk_4M == 1 && z80_b_ram_txt_cs & ~z80_b_wr_n) begin
             shared_addr <= z80_b_addr[11:0];
