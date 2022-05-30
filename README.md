@@ -42,13 +42,16 @@ The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra 
 - Screen Flip implementation  
 - Dot Crawl on Y/C video output  
 - Protection MCU i8571 implementation (**Tatakae! Big Fighter**)    
-- Protection Chip **NB1414M4** implementation  
+- Protection Chip **NB1414M4** implementation / reverse engineer  
 - Text Layer **NB1414M4** implementation  
+- Individual Text Layer **NB1414M4** implementation  
 - Scroll implementation - **Terra Force (Japan, bootleg set 2)**  
 - Layer priority - **Chouji Meikyuu Legion (Japan ver 1.05, bootleg set 1)**  
+- Layer alignment per PCB  
 - Sprite alignment per PCB  
 - Shared memory between fx68k and jt8751  
 - Reverse engineer Terra Force and provide schematics  
+- Audio issues known, may be an issue with the jtopl2 core or the current usage<br>(No need to report further audio issues)
 
 # PCB Check List
 
@@ -67,7 +70,7 @@ H-Sync      | V-Sync      | Source                                   |
 Location           | Freq (MHz) | Use          |
 -------------------|------------|--------------|
 C1 (Top Board)     | 16.000     | M68000       |
-F1 (Bottom Board)  | 24.000     | Z80 / YM3526 |
+F1 (Bottom Board)  | 24.000     | Z80 / YM3812 |
 
 **Pixel clock:** 6.00 MHz
 
