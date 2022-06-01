@@ -6,21 +6,19 @@ FPGA compatible core of Nichibutsu M68000 (Terra Force Based) arcade hardware fo
 The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra Force based) 68000 hardware. Currently in an alpha state, this core is in active development with assistance from [**atrac17**](https://github.com/atrac17).
 
 <br>
-<h3 align="center">
-  <img width="739" height="163" src="https://user-images.githubusercontent.com/32810066/167605126-bead271f-2c0b-4b52-9283-6dbe15140c8a.png">
-</h>
+<img width="" height="" src="https://user-images.githubusercontent.com/32810066/170655863-5b1418f1-1020-46f6-9e72-6ad08ec96b49.png">
 <br>
 
 ## Supported Games
 
-| Title | Status | Released | Protection |
-|------|---------|----------|------------|
-[**Terra Force**](https://en.wikipedia.org/wiki/Nihon_Bussan)           | **W.I.P**   | N         | NB1414M4 |
-[**Kozure Ōkami**](https://en.wikipedia.org/wiki/Nihon_Bussan)          | Pending     | N         | NB1414M4 |
-[**Chouji Meikyuu Legion**](https://en.wikipedia.org/wiki/Nihon_Bussan) | Pending     | N         | NB1414M4 |
-[**Crazy Climber 2**](https://en.wikipedia.org/wiki/Nihon_Bussan)       | Pending     | N         | NB1414M4 |
-[**Armed F**](https://en.wikipedia.org/wiki/Formation_Armed_F)          | Implemented | **Y**     | None     |
-[**Tatakae! Big Fighter**](https://en.wikipedia.org/wiki/Nihon_Bussan)  | Pending     | N         | i8751    |
+| Title | Status | Released | Protection | Unprotected Sets |
+|------|---------|----------|------------|------------------|
+[**Terra Force**](https://en.wikipedia.org/wiki/Nihon_Bussan)           | **W.I.P**   | N         | NB1414M4 | **terrafb, terrafjb**   |
+[**Kozure Ōkami**](https://en.wikipedia.org/wiki/Nihon_Bussan)          | **W.I.P**   | N         | NB1414M4 | N/A                     |
+[**Chouji Meikyuu Legion**](https://en.wikipedia.org/wiki/Nihon_Bussan) | **W.I.P**   | N         | NB1414M4 | **legionjb, legionjb2** |
+[**Crazy Climber 2**](https://en.wikipedia.org/wiki/Nihon_Bussan)       | **W.I.P**   | N         | NB1414M4 | N/A                     |
+[**Armed F**](https://en.wikipedia.org/wiki/Formation_Armed_F)          | Implemented | **Y**     | None     | N/A                     |
+[**Tatakae! Big Fighter**](https://en.wikipedia.org/wiki/Nihon_Bussan)  | Pending     | N         | i8751    | N/A                     |
 
 ## External Modules
 
@@ -62,7 +60,7 @@ H-Sync      | V-Sync      | Source                                   |
 Location           | Freq (MHz) | Use          |
 -------------------|------------|--------------|
 C1 (Top Board)     | 16.000     | M68000       |
-F1 (Bottom Board)  | 24.000     | Z80 / YM3526 |
+F1 (Bottom Board)  | 24.000     | Z80 / YM3812 |
 
 **Pixel clock:** 6.00 MHz
 
