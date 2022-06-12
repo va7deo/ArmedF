@@ -80,10 +80,10 @@
     <part repeat="0x4000"> ff</part>
 
     <!-- checksum pass -->
-    <patch offset="0x000488">4e 71</patch offset>
+    <patch offset="0x000488">4e 71</patch>
 
     <!-- enable invulnerability -->
-    <patch offset="0x0001d6">00 01</patch offset>
+    <patch offset="0x0001d6">00 01</patch>
 
     <!-- Total 0x194000 bytes - 1616 kBytes -->
   </rom>
