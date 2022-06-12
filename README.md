@@ -111,7 +111,7 @@ A9  (Top Board) | [**NB1414M4**](https://raw.githubusercontent.com/va7deo/TerraF
 
 |<p align="center">Game Debugging|
 |:---:|
-|<table><tr><th>Chouji Meikyuu<br>Legion</th><th>Debugging Features [legion, legionj, legionjb]</th></tr><tr><td><img src="https://user-images.githubusercontent.com/32810066/173247174-3ff281fe-89b1-4bae-8340-8e482c5d92b8.png"></img></td><td><p align="left">Chouji Meikyuu Legion has hidden debug dipswitches by enabling offsets at 0x000488 and 0x0001d6.<br><br>This enables P1 and P2 Invunerability and the ability to overclock the games framerate by holding the<br> 2P Start Bttn.<br><br>The dipswitch information was taken from mame, the overclocked framerate was discovered during<br> core development.<br><br>These features are enabled in the MRA's for the corresponding sets.</p></td></table>
+|<table><tr><th>Chouji Meikyuu<br>Legion</th><th>Debugging Features [legion, legionj, legionjb]</th></tr><tr><td><img src="https://user-images.githubusercontent.com/32810066/173247174-3ff281fe-89b1-4bae-8340-8e482c5d92b8.png"></img></td><td><p align="left">Chouji Meikyuu Legion has hidden debug dipswitches by enabling offsets at<br>0x000488 and 0x0001d6.<br><br>This enables P1 and P2 Invunerability and the ability to overclock the games<br>framerate by holding the 2P Start Bttn.<br><br>The dipswitch information was taken from mame, the overclocked framerate<br>was discovered during core development.<br><br>These features are enabled in the MRA's for the corresponding sets.</p></td></table>
 
 <br>
 
