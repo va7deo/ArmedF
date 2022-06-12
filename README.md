@@ -44,6 +44,8 @@ The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra 
 - ~~Individual Text Layer **NB1414M4** implementation~~  
 - ~~Text Layer **NB1414M4** implementation~~  
 - ~~Scroll handling done by **NB1414M4**~~  
+- Pause module is unstable **Multiple presses will initiate an address error**  
+- CRT output will vary due to sync / clock timings **Please do not report if your CRT does not sync**  
 - Protection MCU i8571 implementation (**Tatakae! Big Fighter**)    
 - Protection Chip **NB1414M4** reverse engineer  
 - Service Menu Text Layer **NB1414M4**  
