@@ -127,15 +127,23 @@ A hidden debug menu can be accessed for **Terra Force, Kozure Ōkami, Chouji Mei
 
 | **Armed F Debugging Menu** |
 |:--:|
-|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th></tr><tr><td>![1](https://tcrf.net/images/4/46/FormationArmedFArcDebug1.png)</td><td> ![2](https://tcrf.net/images/9/9d/FormationArmedFArcDebug2.png)</td><td>![3](https://tcrf.net/images/a/a8/FormationArmedFArcDebug3.png)</td></tr></table> |
+|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th></tr><tr><td>![1](https://user-images.githubusercontent.com/32810066/173248139-b60228f0-c0c0-4768-bf28-b26bbc9271c9.png)</td><td> ![2](https://user-images.githubusercontent.com/32810066/173248152-41b9cffb-4221-42cd-9bc5-dff1472d97ea.png)</td><td>![3](https://user-images.githubusercontent.com/32810066/173248161-5b8db7e2-efbd-4f8d-8075-5ef066c49e2c.png)</td></tr></table> |
+
 | **Chouji Meikyuu Legion Debugging Menu** |
-|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th><th>Foreground /<br> Background Bank Test</th></tr><tr><td>![1](https://tcrf.net/images/8/80/LegionSpinner87Debug1.png)</td><td>![2](https://tcrf.net/images/8/81/LegionSpinner87Debug2.png)</td><td>![3](https://tcrf.net/images/2/2b/LegionSpinner87Debug3.png)</td><td>![4](https://tcrf.net/images/2/22/LegionSpinner87Debug4.png)</td></tr></table> |
+|:--:|
+|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th><th>Foreground /<br> Background Bank Test</th></tr><tr><td>![1](https://user-images.githubusercontent.com/32810066/173248203-f99d7ff8-7389-40c3-a0c4-10ee5f9d6b1f.png)</td><td>![2](https://user-images.githubusercontent.com/32810066/173248211-7d8140a0-9e0e-464c-a009-c0256f89866a.png)</td><td>![3](https://user-images.githubusercontent.com/32810066/173248215-70b78879-2097-495b-8c4c-f22967f69a09.png)</td><td>![4](https://user-images.githubusercontent.com/32810066/173248218-66228428-41ef-461c-b37b-22c8a0bfd0d1.png)</td></tr></table> |
+
 | **Crazy Climber 2 Debugging Menu** |
-|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th></tr><tr><td>![1](https://tcrf.net/images/f/f6/CrazyClimber2Debug1.png)</td><td> ![2](https://tcrf.net/images/2/29/CrazyClimber2Debug2.png)</td><td>![3](https://tcrf.net/images/5/55/CrazyClimber2Debug3.png)</td></tr></table> |
+|:--:|
+|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th></tr><tr><td>![1](https://user-images.githubusercontent.com/32810066/173248250-d7e25b6b-7859-4a03-a3ee-a934dfd12cec.png)</td><td> ![2](https://user-images.githubusercontent.com/32810066/173248252-99b5a7a7-a3e7-4216-9657-12f8b3db58bb.png)</td><td>![3](https://user-images.githubusercontent.com/32810066/173248253-1d69d607-7058-49bc-a399-4508d461e543.png)</td></tr></table> |
+
 | **Kozure Ōkami Debugging Menu** |
-|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Basic Stage Viewer</th><th>Sprite Priority Test</th></tr><tr><td>![1](https://tcrf.net/images/6/61/KozureOokamiDebug1.png)</td><td>![2](https://tcrf.net/images/9/9a/KozureOokamiDebug2.png)</td><td>![3](https://tcrf.net/images/b/b3/KozureOokamiDebug3_2.png)</td><td>![4](https://tcrf.net/images/f/f9/KozureOokamiDebug5.png)</td></tr></table> |
+|:--:|
+|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Basic Stage Viewer</th><th>Sprite Priority Test</th></tr><tr><td>![1](https://user-images.githubusercontent.com/32810066/173248334-143ce6d1-0d43-40bf-acfe-333f32bb0059.png)</td><td>![2](https://user-images.githubusercontent.com/32810066/173248338-578e49ec-1836-4752-9dea-04aef77b6ecc.png)</td><td>![3](https://user-images.githubusercontent.com/32810066/173248342-f01e2f65-2c6d-4a09-953f-55899a51bb25.png)</td><td>![4](https://user-images.githubusercontent.com/32810066/173248343-1e6e2017-2117-4abd-bf2e-98cf3f9efb07.png)</td></tr></table> |
+
 | **Terra Force Debugging Menu** |
-|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th></tr><tr><td>![1](https://tcrf.net/images/c/c5/TerraForceDebug1.png)</td><td> ![2](https://tcrf.net/images/a/a7/TerraForceDebug2.png)</td><td>![3](https://tcrf.net/images/e/e1/TerraForceDebug3.png)</td></tr></table> |
+|:--:|
+|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th></tr><tr><td>![1](https://user-images.githubusercontent.com/32810066/173248409-739f7414-1fad-43f1-9b66-21c0a6d5ec81.png)</td><td> ![2](https://user-images.githubusercontent.com/32810066/173248419-2a24c5ad-5935-4fa4-b8b6-773e2ec8be8e.png)</td><td>![3](https://user-images.githubusercontent.com/32810066/173248424-2f6e6ff2-976c-4f30-98fb-ae5fe2493e11.png)</td></tr></table> |
 
 <br>
 
@@ -145,7 +153,7 @@ The four graphical layers can be toggled in the OSD under the Debug options or b
 <br>
 |Layer Debug|
 |:--:|
-|<table><tr><th>Text Layer</th><th>Background Layer</th><th>Foreground Layer</th><th>Sprite Layer</th><th>All Layers</th></tr><tr><td><img width="" height="" src="https://user-images.githubusercontent.com/32810066/170846019-e70e74b9-1e88-4991-b8c3-3b9b52935ad8.png"></p></td><td><img width="" height="" src="https://user-images.githubusercontent.com/32810066/170846020-8459d346-0a97-41ff-ae5f-f7793a4c7bcb.png"></p></td><td><img width="" height="" src="https://user-images.githubusercontent.com/32810066/170846021-08f8506d-e764-42b6-8c4a-ea19b059060b.png"></td><td><img width="" height="" src="https://user-images.githubusercontent.com/32810066/170846022-5237caf6-bf3a-4461-b324-5e44733310ff.png"></td><td><img width="" height="" src="https://user-images.githubusercontent.com/32810066/170846026-eefddb1b-6a81-4c20-9a99-509dcb888735.png"></td></tr></table>
+|<table><tr><th>Text Layer</th><th>Background Layer</th><th>Foreground Layer</th><th>Sprite Layer</th><th>All Layers</th></tr><tr><td><img width="120" height="160" src="https://user-images.githubusercontent.com/32810066/170846019-e70e74b9-1e88-4991-b8c3-3b9b52935ad8.png"></p></td><td><img width="120" height="160" src="https://user-images.githubusercontent.com/32810066/170846020-8459d346-0a97-41ff-ae5f-f7793a4c7bcb.png"></p></td><td><img width="120" height="160" src="https://user-images.githubusercontent.com/32810066/170846021-08f8506d-e764-42b6-8c4a-ea19b059060b.png"></td><td><img width="120" height="160" src="https://user-images.githubusercontent.com/32810066/170846022-5237caf6-bf3a-4461-b324-5e44733310ff.png"></td><td><img width="120" height="160" src="https://user-images.githubusercontent.com/32810066/170846026-eefddb1b-6a81-4c20-9a99-509dcb888735.png"></td></tr></table>
 
 # Control Layout
 
