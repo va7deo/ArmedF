@@ -201,11 +201,11 @@ assign BUTTONS = 0;
 assign m68k_a[0] = reset;
 
 // Status Bit Map:
-//              Upper Case                     Lower Case
-// 0         1         2         3          4         5         6
+//              Upper Case                     Lower Case           
+// 0         1         2         3          4         5         6   
 // 01234567890123456789012345678901 23456789012345678901234567890123
 // 0123456789ABCDEFGHIJKLMNOPQRSTUV 0123456789ABCDEFGHIJKLMNOPQRSTUV
-
+// X  XXXXXXX XXXX     XXX XXXXXXXX    XXXXXX                       
 
 wire [1:0] aspect_ratio = status[9:8];
 wire orientation = ~status[3];
@@ -214,6 +214,11 @@ wire [3:0] hs_offset = status[27:24];
 wire [3:0] vs_offset = status[31:28];
 wire [1:0] select = status[12:11];
 wire [1:0] offset = status[14:13];
+
+wire gfx1_en = ~(status[37] | key_txt_enable);
+wire gfx2_en = ~(status[38] | key_fg_enable );
+wire gfx3_en = ~(status[39] | key_bg_enable);
+wire gfx4_en = ~(status[40] | key_spr_enable);
 
 assign VIDEO_ARX = (!aspect_ratio) ? (orientation  ? 8'd4 : 8'd3) : (aspect_ratio - 1'd1);
 assign VIDEO_ARY = (!aspect_ratio) ? (orientation  ? 8'd3 : 8'd4) : 12'd0;
@@ -234,22 +239,27 @@ localparam CONF_STR = {
     "P1OOR,H-sync Adjust,0,1,2,3,4,5,6,7,-8,-7,-6,-5,-4,-3,-2,-1;",
     "P1OSV,V-sync Adjust,0,1,2,3,4,5,6,7,-8,-7,-6,-5,-4,-3,-2,-1;",
     "P1-;",
-    "P2,Pause options;",
+    "P2,Pause Options;",
     "P2-;",
-    "P2OP,Pause when OSD is open,On,Off;",
-    "P2OQ,Dim video after 10s,On,Off;",
-    "P2-;",
-    "P3,Debug;",
+    "P2OK,Pause when OSD is open,Off,On;",
+    "P2OL,Dim video after 10s,Off,On;",
+    "-;",
+    "P3,PCB & Debug Settings;",
     "P3-;",
     "P3o3,Service Menu,Off,On;",
     "P3o4,Debug Menu,Off,On;",
+    "P3-;",
+    "P3o5,Text Layer,On,Off;",
+    "P3o6,Foreground Layer,On,Off;",
+    "P3o7,Background Layer,On,Off;",
+    "P3o8,Sprite Layer,On,Off;",
     "P3-;",
     "DIP;",
     "-;",
     "R0,Reset;",
     "J1,Button 1,Button 2,Button 3,Start,Coin,Pause;",
     "jn,A,B,X,R,L,Start;",           // name mapping
-    "V,v",`BUILD_DATE 
+    "V,v",`BUILD_DATE
 };
 
 wire forced_scandoubler;
@@ -307,7 +317,7 @@ wire [24:0] ioctl_addr;
 wire  [7:0] ioctl_dout;
 wire  [7:0] ioctl_din;
 
-reg   [2:0] pcb;
+reg   [3:0] pcb;
 
 always @(posedge clk_sys) begin
     if (ioctl_wr && (ioctl_index==1)) begin
@@ -326,10 +336,10 @@ reg [15:0] sys ;
 
 always @ (posedge clk_sys ) begin 
     p1 <= 16'hffff;
-    p1[6:0] <= ~{ p1_buttons[2:0], p1_right, p1_left ,p1_down, p1_up};
+    p1[7:0] <= ~{ p1_buttons[3:0], p1_right, p1_left ,p1_down, p1_up};
      
     p2 <= 16'hffff;
-    p2[6:0] <= ~{ p2_buttons[2:0], p2_right, p2_left ,p2_down, p2_up};
+    p2[7:0] <= ~{ p2_buttons[3:0], p2_right, p2_left ,p2_down, p2_up};
     
 //    sys <= 16'hffff;
     p1[8] <= ~start1  ; 
@@ -337,7 +347,7 @@ always @ (posedge clk_sys ) begin
     p1[10] <= ~coin_a ;
     p1[11] <= ~coin_b ;
     
-    p2[8] <= ~(joy0[12] | key_service); 
+    p2[8] <= ~key_service; 
     p2[9] <= ~(key_test | status[35]);     
     
     dsw1 <=  { 8'b0, sw[0] };
@@ -348,27 +358,28 @@ wire        p1_right   = joy0[0] | key_p1_right;
 wire        p1_left    = joy0[1] | key_p1_left;
 wire        p1_down    = joy0[2] | key_p1_down;
 wire        p1_up      = joy0[3] | key_p1_up;
-wire [2:0]  p1_buttons = joy0[6:4] | {key_p1_c, key_p1_b, key_p1_a};
+wire [3:0]  p1_buttons = joy0[7:4] | {key_p1_d, key_p1_c, key_p1_b, key_p1_a};
 
 wire        p2_right   = joy1[0] | key_p2_right;
 wire        p2_left    = joy1[1] | key_p2_left;
 wire        p2_down    = joy1[2] | key_p2_down;
 wire        p2_up      = joy1[3] | key_p2_up | status[36];
-wire [2:0]  p2_buttons = joy1[6:4] | {key_p2_c, key_p2_b | status[36], key_p2_a | status[36]};
+wire [3:0]  p2_buttons = joy1[7:4] | {key_p2_d, key_p2_c, key_p2_b | status[36], key_p2_a | status[36]};
 
-wire        start1  = joy0[7]  | joy1[7]  | key_start_1p;
-wire        start2  = joy0[8]  | joy1[8]  | key_start_2p;
-wire        coin_a  = joy0[9]  | joy1[9]  | key_coin_a;
-wire        coin_b  = joy0[10] | joy1[10] | key_coin_b;
-wire        b_pause = joy0[11] | key_pause ;
+wire        start1  = joy0[8]  | joy1[8]  | key_start_1p;
+wire        start2  = joy0[9]  | joy1[9]  | key_start_2p;
+wire        coin_a  = joy0[10] | joy1[10] | key_coin_a;
+wire        coin_b  = joy0[11] | joy1[11] | key_coin_b;
+wire        b_pause = joy0[12] | key_pause ;
 
 // Keyboard handler
 
 wire key_start_1p, key_start_2p, key_coin_a, key_coin_b;
 wire key_test, key_reset, key_service, key_pause;
+wire key_txt_enable, key_fg_enable, key_bg_enable, key_spr_enable;
 
-wire key_p1_up, key_p1_left, key_p1_down, key_p1_right, key_p1_a, key_p1_b, key_p1_c;
-wire key_p2_up, key_p2_left, key_p2_down, key_p2_right, key_p2_a, key_p2_b, key_p2_c;
+wire key_p1_up, key_p1_left, key_p1_down, key_p1_right, key_p1_a, key_p1_b, key_p1_c, key_p1_d;
+wire key_p2_up, key_p2_left, key_p2_down, key_p2_right, key_p2_a, key_p2_b, key_p2_c, key_p2_d;
 
 wire pressed = ps2_key[9];
 
@@ -394,6 +405,7 @@ always @(posedge clk_sys) begin
             'h014: key_p1_a       <= pressed; // lctrl
             'h011: key_p1_b       <= pressed; // lalt
             'h029: key_p1_c       <= pressed; // spacebar
+            'h012: key_p1_d       <= pressed; // lshift
 
             'h02d: key_p2_up      <= pressed; // r
             'h02b: key_p2_down    <= pressed; // f
@@ -402,7 +414,12 @@ always @(posedge clk_sys) begin
             'h01c: key_p2_a       <= pressed; // a
             'h01b: key_p2_b       <= pressed; // s
             'h015: key_p2_c       <= pressed; // q
+            'h01d: key_p2_d       <= pressed; // w
 
+            'h083: key_txt_enable <= key_txt_enable ^ pressed; // f7
+            'h00A: key_bg_enable  <= key_bg_enable  ^ pressed; // f8
+            'h001: key_fg_enable  <= key_fg_enable  ^ pressed; // f9
+            'h009: key_spr_enable <= key_spr_enable ^ pressed; // f10
         endcase
     end
 end
@@ -510,12 +527,16 @@ wire vsync;
 
 wire hbl_delay, vbl_delay;
 
-delay delay_hbl( .clk(clk_6M), .i( hbl ), .o(hbl_delay) ) ;
-delay delay_vbl( .clk(clk_6M), .i( vbl ), .o(vbl_delay) ) ;
+assign hbl_delay = hbl ;
+assign vbl_delay = vbl ;
+
+//delay delay_hbl( .clk(clk_6M), .i( hbl ), .o(hbl_delay) ) ;
+//delay delay_vbl( .clk(clk_6M), .i( vbl ), .o(vbl_delay) ) ;
 
 video_timing video_timing (
     .clk(clk_6M),
     .clk_pix(1'b1),
+    .pcb(pcb),
     .hc(hc),
     .vc(vc),
     .hs_offset(hs_offset),
@@ -537,7 +558,7 @@ pause #(8,8,8,72) pause
     .reset(reset),
     .user_button(b_pause),
     .pause_request(hs_pause),
-    .options(~status[26:25]),
+    .options(status[21:20]),
     .pause_cpu(pause_cpu),
     .dim_video(dim_video),
     .OSD_STATUS(OSD_STATUS),
@@ -593,24 +614,27 @@ reg [31:0] ticks /* synthesis keep */;
 wire [9:0] tx_x ; 
 wire [9:0] tx_y ; 
 
+wire [9:0] tile_x_ofs = 10'd85;
+wire [9:0] y_adj = ( pcb > 3 && pcb < 8 ) ? 0 : 8 ;
+
 always @ (*) begin
-    if ( pcb == 0 ) begin
-        tx_x <= hc - 32;
-        tx_y <= vc ;
+    if ( pcb == 2 ) begin
+        tx_x <= hc + tile_x_ofs;
+        tx_y <= vc - y_adj ;
     end else begin
-        tx_x <= hc + 96 ;
-        tx_y <= vc ;
+        tx_x <= hc - ( tile_x_ofs - 10'd42 );
+        tx_y <= vc - y_adj ;
     end
-    
 end
 
+
 // layer 1 / gfx3
-wire [9:0] bg_x = hc + bg_scroll_x[9:0] + 96 ; //ok
-wire [9:0] bg_y = vc + bg_scroll_y[9:0] ;
+wire [9:0] bg_x = hc + bg_scroll_x[9:0] + tile_x_ofs ; //ok
+wire [9:0] bg_y = vc + bg_scroll_y[9:0] - y_adj ; 
 
 // layer 2 / gfx2
-wire [9:0] fg_x = hc + fg_scroll_x[9:0] + 96 ; //ok
-wire [9:0] fg_y = vc + fg_scroll_y[9:0] ;
+wire [9:0] fg_x = hc + fg_scroll_x[9:0] + tile_x_ofs ; //ok
+wire [9:0] fg_y = vc + fg_scroll_y[9:0] - y_adj ; 
 
 reg  [9:0] bg_x_latch ;
 reg  [9:0] bg_y_latch ;
@@ -642,8 +666,8 @@ always @ (posedge clk_6M) begin
     if ( reset == 1 ) begin
 
     end else begin
-        
-        sprite_fb_addr_r <= { ~vc[0], hc[8:0] };
+
+        sprite_fb_addr_r <= { ~vc[0], hc[8:0] } ;
         
         // make this a pipline
         fg_x_latch <= fg_x;
@@ -655,7 +679,7 @@ always @ (posedge clk_6M) begin
         tx_x_latch <= tx_x;
         tx_y_latch <= tx_y;
         
-// background            
+// background 0x3ff           
         
         // tile #
         bg_ram_addr <=  { bg_x[9:4], bg_y[8:4] }; 
@@ -669,12 +693,12 @@ always @ (posedge clk_6M) begin
         //tile_pal_addr <= 11'h600 + { gfx_bg_latch[15:11] , bg_x[0]  ? gfx3_dout[3:0] : gfx3_dout[7:4] };
         bg_pal_addr <=  11'h600 + { gfx_bg_latch2[15:11] , bg_x[0]  ? gfx3_dout[3:0] : gfx3_dout[7:4] };
         
-// foreground            
+// foreground 0x7ff         
 
         fg_ram_addr <=  { fg_x[9:4], fg_y[8:4] };
         
         gfx_fg_latch <= fg_ram_dout;
-        gfx2_addr    <= { fg_ram_dout[9:0], fg_y[3:0], fg_x_latch[3:1] };
+        gfx2_addr    <= { fg_ram_dout[10:0], fg_y[3:0], fg_x_latch[3:1] };
         
         gfx_fg_latch2 <= gfx_fg_latch;
         
@@ -685,16 +709,24 @@ always @ (posedge clk_6M) begin
 // text layer
     
         // read from two addresses at once
-        if ( pcb == 0 ) begin
+        if ( pcb == 0 || pcb == 8 || pcb == 9 || pcb == 1 || pcb == 4) begin
+            // terra force and crazy climber 2
             gfx_txt_addr      <= { tx_x[8], 1'b0, ~tx_y[7:3], tx_x[7:3] } ;//{ 1'b0, t1[9:0] };
             gfx_txt_attr_addr <= { tx_x[8], 1'b1, ~tx_y[7:3], tx_x[7:3] } ; //{ 1'b1, t1[9:0] } ;
-        end else if ( pcb == 1 ) begin
+        end else if ( pcb == 2 ) begin
+            // armed f
             gfx_txt_addr      <= { 1'b0, tx_x[8:3], tx_y[7:3] } ; 
             gfx_txt_attr_addr <= { 1'b1, tx_x[8:3], tx_y[7:3] } ;
+        end else if ( pcb == 3 || pcb == 5 || pcb == 6 || pcb == 7  ) begin
+            // legion / big fighter
+            gfx_txt_addr      <= { tx_x[8], 1'b0, tx_x[7:3], tx_y[7:3] } ;
+            gfx_txt_attr_addr <= { tx_x[8], 1'b1, tx_x[7:3], tx_y[7:3] } ;
         end
         
-        gfx1_addr     <= { gfx_txt_attr_dout[1:0], gfx_txt_dout[7:0], tx_y[2:0], tx_x_latch[2:1] } ;  //gfx_txt_attr_dout[1:0]
+        gfx1_addr <= { gfx_txt_attr_dout[1:0], ( has_nb1414m4 == 0 || gfx_txt_addr > 12'h12 ) ? gfx_txt_dout[7:0] : 8'h0 , tx_y[2:0], tx_x_latch[2:1] } ;  
+
         gfx_txt_attr_latch <= gfx_txt_attr_dout;
+
         gfx_txt_attr_latch2 <= gfx_txt_attr_latch;
         
         tx_pal_addr <= { gfx_txt_attr_latch2[7:4] , ( tx_x[0] ? gfx1_dout[3:0] : gfx1_dout[7:4] ) };
@@ -705,42 +737,42 @@ always @ (posedge clk_6M) begin
         
         // 15 == transparent
         // lowest priority
-        if ( tx_enable == 1 && tx_pal_addr[3:0] != 15 ) begin
+        if ( gfx1_en == 1 && tx_enable == 1 && tx_pal_addr[3:0] != 15 ) begin
             tile_pal_addr <= tx_pal_addr;
             draw_pix <= 1;
         end
 
         // background
-        if ( bg_enable == 1 && bg_pal_addr[3:0] != 15 ) begin
+        if ( gfx3_en == 1 && bg_enable == 1 && bg_pal_addr[3:0] != 15 ) begin
             tile_pal_addr <= bg_pal_addr ;
             draw_pix <= 1;
         end
          
         // sprite priority 2
-        if ( sp_enable == 1 && sprite_fb_out[1:0] == 2 ) begin  
+        if ( gfx4_en == 1 && sp_enable == 1 && sprite_fb_out[1:0] == 2 ) begin  
             tile_pal_addr <= ( sprite_pal_ofs + sprite_fb_out[10:2] ) ;
             draw_pix <= 1;
         end
         
-        if ( fg_enable == 1 && fg_pal_addr[3:0] != 15 ) begin
+        if ( gfx2_en == 1 && fg_enable == 1 && fg_pal_addr[3:0] != 15 ) begin
             tile_pal_addr <= fg_pal_addr ;
             draw_pix <= 1;
         end
         
         // sprite priority 1
-        if ( sp_enable == 1 && sprite_fb_out[1:0] == 1 ) begin 
+        if ( gfx4_en == 1 && sp_enable == 1 && sprite_fb_out[1:0] == 1 ) begin 
             tile_pal_addr <= ( sprite_pal_ofs + sprite_fb_out[10:2] ) ;
             draw_pix <= 1;
         end
         
         // highest priority 
-        if ( tx_enable == 1 && tx_pal_addr[3:0] != 15 && gfx_txt_attr_latch3[3] == 0) begin
+        if ( gfx1_en == 1 && tx_enable == 1 && tx_pal_addr[3:0] != 15 && gfx_txt_attr_latch3[3] == 0) begin
             tile_pal_addr <=  tx_pal_addr;
             draw_pix <= 1;
         end
         
         // sprite priority 0
-        if ( sp_enable == 1 && sprite_fb_out[1:0] == 0 ) begin 
+        if ( gfx4_en == 1 && sp_enable == 1 && sprite_fb_out[1:0] == 0 ) begin 
             tile_pal_addr <= ( sprite_pal_ofs + sprite_fb_out[10:2] ) ;
             draw_pix <= 1;
         end
@@ -748,8 +780,8 @@ always @ (posedge clk_6M) begin
         rgb <= 0;
                            
         if ( draw_pix == 1 ) begin
-            rgb <= { tile_pal_dout[11:8], 4'b0, tile_pal_dout[7:4] , 4'b0, tile_pal_dout[3:0], 4'b0} ;
-        end 
+            rgb <= { tile_pal_dout[11:8], 4'b0, tile_pal_dout[7:4] , 4'b0, tile_pal_dout[3:0], 4'b0 } ;
+        end
 
     end
 end
@@ -770,86 +802,484 @@ always @ (posedge clk_sys) begin
         // tell 68k to wait for valid data. 0=ready 1=wait
         // always ack when it's not program rom
         m68k_dtack_n <= m68k_rom_cs ? !m68k_rom_valid : 
-                        // m68k_txt_ram_cs ? !txt_ram_valid : // not needed if in bram
+                        m68k_txt_ram_cs ? !txt_ram_valid : 
+//                        irq_z80_cs ? nb1414m4_busy : 
                         0; 
 
         // select cpu data input based on what is active 
         m68k_din <=  m68k_rom_cs  ? m68k_rom_data :
                      m68k_ram_cs  ? ram68k_dout :
+                     m68k_ram_2_cs ? m68k_ram_2_dout :
+                     m68k_ram_3_cs ? m68k_ram_3_dout :
+                     m68k_tile_pal_cs ? m68k_tile_pal_dout :
+                     m68k_spr_cs  ? ram68k_sprite_dout :
+                     m68k_spr_pal_cs ? m68k_spr_pal_dout :
                      m68k_txt_ram_cs ? { 8'h00, m68k_txt_attr_ram_dout } :
                      m68k_bg_ram_cs ? m68k_bg_ram_dout :
                      m68k_fg_ram_cs ? m68k_fg_ram_dout :
-                     m68k_ram_2_cs ? m68k_ram_2_dout :
-                     m68k_ram_3_cs ? m68k_ram_3_dout :
-                     m68k_spr_pal_cs ? m68k_spr_pal_dout :
                      input_p1_cs ? p1 :
                      input_p2_cs ? p2 :
-//                     input_system_cs ? sys:
                      input_dsw1_cs ? dsw1 :
                      input_dsw2_cs ? dsw2 :
                      16'd0;
+                     
     end
 end 
 
 // vblank handling 
 // process interrupt and sprite buffering
 always @ (posedge clk_sys ) begin
-    if ( reset == 1 ) begin
-        m68k_ipl0_n  <= 1 ;
-        int_ack <= 0;
-        z80_b_irq_n <= 1;
-//    end else if ( clk_8M == 1 ) begin
-    end else if ( clk_16M == 1 ) begin
 
-        vbl_sr <= { vbl_sr[0], vbl };
+end
+ 
+reg         nb1414m4_busy;
+reg  [7:0]  nb1414m4_cmd_state;
+reg  [3:0]  nb1414m4_dma_state;
+reg         nb1414m4_wr;
+reg         nb1414m4_erase;
+reg  [15:0] nb1414m4_cmd;
+reg  [15:0] nb1414m4_next_cmd;
+reg  [14:0] nb1414m4_cmd_addr;
+reg  [14:0] nb1414m4_cmd_src;
+reg  [13:0] nb1414m4_src;
+reg  [13:0] nb1414m4_dst; // might need to change
+reg  [13:0] nb1414m4_dst_attr;
+reg  [13:0] nb1414m4_idx;
+reg  [13:0] nb1414m4_dma_size;
+reg  [4:0]  nb1414m4_frame;
+reg         nb1414m4_use_buffer;
+reg  [7:0]  nb1414m4_buffer[15:0];
+
+reg  [13:0] nb1414m4_address;
+wire [7:0]  nb1414m4_dout;
+wire [7:0]  nb1414m4_din;
+wire [7:0]  nb1414m4_tile;
+wire [7:0]  nb1414m4_pal;
+reg  [7:0]  nb1414m4_credits;
+reg [23:0]  nb1414m4_p1;
+reg [23:0]  nb1414m4_p2;
+
+//	dst = (m_data[0x330 + ((mcu_cmd & 0xf) * 2)] << 8) | (m_data[0x331 + ((mcu_cmd & 0xf) * 2)] & 0xff);
+//	dst &= 0x3fff;
+
+always @ (posedge clk_sys) begin
+    if ( reset == 1 ) begin
+        nb1414m4_cmd_state <= 0;
+        nb1414m4_dma_state <= 0;
+        nb1414m4_wr <= 0;
+        nb1414m4_erase <= 0;
+        nb1414m4_use_buffer <= 0;
+    end else if ( nb1414m4_busy == 1 ) begin
+        // 0x200 command
+        // default to draw
         
-        // only a write to 0x07c00e clears to interrupt line
-        if ( irq_ack_cs == 1 ) begin
-            m68k_ipl0_n <= 1 ;
-        end else if ( irq_z80_cs == 1 ) begin
-            //if (data & 0x4000 && ((m_vreg & 0x4000) == 0)) //0 -> 1 transition
-            //    m_extra->set_input_line(0, HOLD_LINE);
+        if ( nb1414m4_cmd[15:8] == 8'h02 ) begin
+            // 200 command
+            // lookup dst in m4 rom table. index is part of command
+            if ( nb1414m4_cmd_state == 0 ) begin
+                nb1414m4_cmd_state <= 1;
+                // setup read for high byte of destination
+                // mcu_cmd & 0x87
+                nb1414m4_address[13:0] <= 14'h330 + { nb1414m4_cmd[2:0], 1'b0 } ;
+            end else if ( nb1414m4_cmd_state == 1 ) begin
+                // need a cycle to read
+                nb1414m4_cmd_state <= 2;
+            end else if ( nb1414m4_cmd_state == 2 ) begin
+                // latch in high byte of source
+                nb1414m4_src[13:8] <= nb1414m4_dout[5:0];
+                // setup read for low byte of destination
+                nb1414m4_address[13:0] <= 14'h331 + { nb1414m4_cmd[2:0], 1'b0 } ;
+                nb1414m4_cmd_state <= 3;
+            end else if ( nb1414m4_cmd_state == 3 ) begin
+                // need a cycle to read
+                nb1414m4_cmd_state <= 4;
+            end else if ( nb1414m4_cmd_state == 4 ) begin
+                // latch in low byte of source
+                nb1414m4_src[7:0] <= nb1414m4_dout[7:0];
+                // start dma
+                nb1414m4_cmd_state <= 5;
+            end else if ( nb1414m4_cmd_state == 5 ) begin
+                nb1414m4_idx <= 0;
+                if ( nb1414m4_src[10:0] == 0 ) begin
+                    // start after command data
+                    // dma(src, 0x0000, 0x400, 1, vram);
+                    nb1414m4_dma_size <= 14'h400;
+                    nb1414m4_dst <= 0;
+                    nb1414m4_dma_state <= 4'h1;
+                    nb1414m4_cmd_state <= 8'h06 ;
+                end else begin
+                    //fill(0x0000, m_data[src], m_data[src + 1], vram);
+                    nb1414m4_cmd_state <= 8'h90;
+                end
+            end else if ( nb1414m4_cmd_state == 8'h06 ) begin                
+                // wait for dma
+                if ( nb1414m4_dma_state == 4'hf ) begin
+                    // done
+                    nb1414m4_cmd_state <= 8'hff;
+                end
+            end
+        end if ( nb1414m4_cmd[15:8] == 8'h00 ) begin
+            if ( nb1414m4_cmd_state == 0 ) begin
+                // read credits
+                nb1414m4_cmd_state <= 1;
+                nb1414m4_use_buffer <= 0;
+
+                // setup read for high byte of destination
+                // mcu_cmd & 0x87
+                // nb1414m4_address[13:0] <= 14'h00f ;
+            end else if ( nb1414m4_cmd_state == 1 ) begin
+                // need a cycle to read
+                nb1414m4_cmd_state <= 2;
+            end else if ( nb1414m4_cmd_state == 2 ) begin    
+                if ( nb1414m4_credits == 0 ) begin
+                    // insert coin
+                    nb1414m4_cmd_addr  <= 14'h001 ;
+                    nb1414m4_cmd_src   <= 14'h003 ;
+                    nb1414m4_dma_size  <= 14'h010 ;
+                    nb1414m4_erase     <= nb1414m4_frame[4];
+                    nb1414m4_cmd_state <=   8'h80 ;
+                    nb1414m4_next_cmd  <=   8'h03 ;
+                end else begin
+                    // press start
+                    nb1414m4_cmd_addr  <= 14'h049 ;
+                    nb1414m4_cmd_src   <= 14'h04b ;
+                    nb1414m4_dma_size  <= 14'h018 ;
+                    nb1414m4_erase     <= 0;
+                    nb1414m4_cmd_state <=   8'h80 ;
+                    nb1414m4_next_cmd  <=   8'h03 ;
+                end
+            end else if ( nb1414m4_cmd_state == 8'h03 ) begin                
+                // credit
+                nb1414m4_cmd_addr  <= 14'h023 ;
+                nb1414m4_cmd_src   <= 14'h025 ;
+                nb1414m4_dma_size  <= 14'h010 ;
+                nb1414m4_erase     <= 0;
+                nb1414m4_cmd_state <=   8'h80 ;
+                nb1414m4_next_cmd  <=   8'h04 ;
+            end else if ( nb1414m4_cmd_state == 8'h04 ) begin                
+                // default - skip to next if no credits?
+                nb1414m4_cmd_state <=   8'h05 ;
+                if ( nb1414m4_credits == 1 ) begin
+                    // press 1 player
+                    nb1414m4_cmd_addr  <= 14'h07b ;
+                    nb1414m4_cmd_src   <= 14'h07d ;
+                    nb1414m4_dma_size  <= 14'h018 ;
+                    nb1414m4_erase     <= nb1414m4_frame[4];
+                    nb1414m4_cmd_state <=   8'h80 ;
+                    nb1414m4_next_cmd  <=   8'h05 ;
+                end else if ( nb1414m4_credits > 1 ) begin
+                    // press 1 or 2 players
+                    nb1414m4_cmd_addr  <= 14'h0ad ;
+                    nb1414m4_cmd_src   <= 14'h0af ;
+                    nb1414m4_dma_size  <= 14'h018 ;
+                    nb1414m4_erase     <= nb1414m4_frame[4];
+                    nb1414m4_cmd_state <=   8'h80 ;
+                    nb1414m4_next_cmd  <=   8'h05 ;
+                end
+            end else if ( nb1414m4_cmd_state == 8'h05 ) begin                                    
+                    nb1414m4_cmd_addr  <= 14'h045 ;
+                    nb1414m4_cmd_src   <= 14'h045 ;
+                    nb1414m4_dma_size  <= 14'h002 ;
+                    nb1414m4_use_buffer <= 1;
+                    nb1414m4_buffer[0] <= ( nb1414m4_credits[7:4] == 0 ) ? 8'h20 : { 4'h3, nb1414m4_credits[7:4] };
+                    nb1414m4_buffer[1] <= { 4'h3, nb1414m4_credits[3:0] };
+                    nb1414m4_erase     <= 0;
+                    nb1414m4_cmd_state <=   8'h80 ;
+                    nb1414m4_next_cmd  <=   8'hff ;  // done
+
+//                    nb1414m4_cmd_state <=   8'h06 ;
+            end
             
-            if ( pcb == 0 ) begin
-                //if ( m68k_dout == 16'hcf90 || m68k_dout == 16'hc010 || m68k_dout == 16'hc190 || m68k_dout == 16'hce10 || m68k_dout == 16'hce10 ) begin 
-                //if ( m68k_dout != 16'hce10 ) begin 
-                if ( m68k_dout[14] == 1 ) begin 
-                    z80_b_irq_n <= 0;
+        end else if ( nb1414m4_cmd[15:8] == 8'h06 ) begin
+            // service mode
+        end else if ( nb1414m4_cmd[15:8] == 8'h0e ) begin
+            // gameplay
+            if ( nb1414m4_cmd_state == 0 ) begin
+                // read credits
+                nb1414m4_cmd_state <= 1;
+                nb1414m4_use_buffer <= 0;
+
+                // setup read for high byte of destination
+                // mcu_cmd & 0x87
+                // nb1414m4_address[13:0] <= 14'h00f ;
+            end else if ( nb1414m4_cmd_state == 1 ) begin
+                // need a cycle to read
+                nb1414m4_cmd_state <= 2;
+            end else if ( nb1414m4_cmd_state == 2 ) begin    
+                // p1 score
+                nb1414m4_cmd_addr  <= 14'h10d ;
+                nb1414m4_cmd_src   <= 14'h107 ;
+                nb1414m4_dma_size  <= 14'h008 ;
+                nb1414m4_use_buffer <= 1;
+                nb1414m4_erase     <= 0;
+                nb1414m4_cmd_state <=   8'h80 ;
+                nb1414m4_next_cmd  <=   8'h03 ;
+                
+                nb1414m4_buffer[0] <= { (nb1414m4_p1[23:20] == 0 ) ? 4'h2 : 4'h3, nb1414m4_p1[23:20] };
+                nb1414m4_buffer[1] <= { (nb1414m4_p1[23:16] == 0 ) ? 4'h2 : 4'h3, nb1414m4_p1[19:16] };
+                nb1414m4_buffer[2] <= { (nb1414m4_p1[23:12] == 0 ) ? 4'h2 : 4'h3, nb1414m4_p1[15:12] };
+                nb1414m4_buffer[3] <= { (nb1414m4_p1[23:8]  == 0 ) ? 4'h2 : 4'h3, nb1414m4_p1[11:8] };
+                nb1414m4_buffer[4] <= { (nb1414m4_p1[23:4]  == 0 ) ? 4'h2 : 4'h3, nb1414m4_p1[7:4] };
+                nb1414m4_buffer[5] <= { (nb1414m4_p1[23:0]  == 0 ) ? 4'h2 : 4'h3, nb1414m4_p1[3:0] };
+                nb1414m4_buffer[6] <=   (nb1414m4_p1[23:0]  == 0 ) ? 8'h20 : 8'h30;
+                nb1414m4_buffer[7] <= 8'h30;
+                
+            end else if ( nb1414m4_cmd_state == 3 ) begin    
+                // high score
+                nb1414m4_cmd_addr  <= 14'h0df ;
+                nb1414m4_cmd_src   <= 14'h0e1 ;
+                nb1414m4_dma_size  <= 14'h008 ;
+                nb1414m4_erase     <= 0;
+                nb1414m4_cmd_state <=   8'h80 ;
+                nb1414m4_next_cmd  <=   8'h04 ;
+            end else if ( nb1414m4_cmd_state == 4 )  begin    
+                // p1 message
+                nb1414m4_cmd_addr  <= 14'h0fb ;
+                nb1414m4_cmd_src   <= 14'h0fd ;
+                nb1414m4_dma_size  <= 14'h008 ;
+                nb1414m4_erase     <= ~nb1414m4_cmd[0] ;
+                nb1414m4_cmd_state <=   8'h80 ;
+                nb1414m4_next_cmd  <=   8'h05 ;
+            end else if ( nb1414m4_cmd_state == 5 ) begin    
+                if ( nb1414m4_cmd[7] == 1 ) begin
+                    // p2 message
+                    nb1414m4_cmd_addr  <= 14'h117 ;
+                    nb1414m4_cmd_src   <= 14'h119 ;
+                    nb1414m4_dma_size  <= 14'h008 ;
+                    nb1414m4_erase     <= ~nb1414m4_cmd[1] ;
+                    nb1414m4_cmd_state <=   8'h80 ;
+                    nb1414m4_next_cmd  <=   8'h06 ;
+                end else begin
+                    nb1414m4_cmd_state <=   8'h07 ;
+                end
+            end else if ( nb1414m4_cmd_state == 8'h06 ) begin    
+                // p2 score
+                nb1414m4_cmd_addr  <= 14'h129 ;
+                nb1414m4_cmd_src   <= 14'h123 ;
+                nb1414m4_dma_size  <= 14'h008 ;
+                nb1414m4_use_buffer <= 1;
+                nb1414m4_erase     <= 0;
+                nb1414m4_cmd_state <=   8'h80 ;
+                nb1414m4_next_cmd  <=   8'h07 ;
+                
+                nb1414m4_buffer[0] <= { (nb1414m4_p2[23:20] == 0 ) ? 4'h2 : 4'h3, nb1414m4_p2[23:20] };
+                nb1414m4_buffer[1] <= { (nb1414m4_p2[23:16] == 0 ) ? 4'h2 : 4'h3, nb1414m4_p2[19:16] };
+                nb1414m4_buffer[2] <= { (nb1414m4_p2[23:12] == 0 ) ? 4'h2 : 4'h3, nb1414m4_p2[15:12] };
+                nb1414m4_buffer[3] <= { (nb1414m4_p2[23:8]  == 0 ) ? 4'h2 : 4'h3, nb1414m4_p2[11:8] };
+                nb1414m4_buffer[4] <= { (nb1414m4_p2[23:4]  == 0 ) ? 4'h2 : 4'h3, nb1414m4_p2[7:4] };
+                nb1414m4_buffer[5] <= { (nb1414m4_p2[23:0]  == 0 ) ? 4'h2 : 4'h3, nb1414m4_p2[3:0] };
+                nb1414m4_buffer[6] <=   (nb1414m4_p2[23:0]  == 0 ) ? 8'h20 : 8'h30;
+                nb1414m4_buffer[7] <= 8'h30;
+            end else if ( nb1414m4_cmd_state == 8'h07 ) begin  
+                if ( nb1414m4_cmd[6] == 1 ) begin
+                    // game over man
+                    nb1414m4_cmd_addr  <= 14'h133 ;
+                    nb1414m4_cmd_src   <= 14'h135 ;
+                    nb1414m4_dma_size  <= 14'h010 ;
+                    nb1414m4_erase     <= 0;
+                    nb1414m4_cmd_state <=   8'h80 ;
+                    nb1414m4_next_cmd  <=   8'hff ;
+                end else begin
+                    nb1414m4_cmd_state <=   8'hff ;
+                end
+            end
+        end
+        
+        // show message
+        if ( nb1414m4_cmd_state == 8'h80 ) begin
+            nb1414m4_cmd_state <= 8'h81;
+            // setup read for high byte of destination
+            nb1414m4_address[13:0] <= nb1414m4_cmd_addr ;
+        end else if ( nb1414m4_cmd_state == 8'h81 ) begin
+            // need a cycle to read
+            nb1414m4_cmd_state <= 8'h82;
+        end else if ( nb1414m4_cmd_state == 8'h82 ) begin
+            // latch in high byte of source
+            nb1414m4_dst[13:8] <= nb1414m4_dout[5:0];
+            // setup read for low byte of destination
+            nb1414m4_address[13:0] <= nb1414m4_cmd_addr + 1 ;
+            nb1414m4_cmd_state <= 8'h83;
+        end else if ( nb1414m4_cmd_state == 8'h83 ) begin
+            // need a cycle to read
+            nb1414m4_cmd_state <= 8'h84;
+        end else if ( nb1414m4_cmd_state == 8'h84 ) begin
+            nb1414m4_src <= nb1414m4_cmd_src;
+            // latch in low byte of source
+            nb1414m4_dst[7:0] <= nb1414m4_dout[7:0];
+            // start dma
+            nb1414m4_idx <= 0;
+            nb1414m4_cmd_state <= 8'h85;
+            // start a transfer
+            nb1414m4_dma_state <= 4'h1;
+        end else if ( nb1414m4_cmd_state == 8'h85 ) begin
+            // wait until transfer is done
+            if ( nb1414m4_dma_state == 4'hf ) begin
+                nb1414m4_cmd_state <= nb1414m4_next_cmd ;
+            end                
+        end 
+        
+        // DMA transfer
+        if ( nb1414m4_dma_state == 4'h1 ) begin 
+            nb1414m4_dst_attr <= nb1414m4_dst + 14'h400;
+            nb1414m4_dma_state <= 4'h2;
+            nb1414m4_idx <= 0;
+        end else if ( nb1414m4_dma_state == 4'h2 ) begin        
+            // start transfer
+            nb1414m4_address <= nb1414m4_src + nb1414m4_idx;
+            nb1414m4_wr <= 0;
+            nb1414m4_dma_state <= 4'h3;
+        end else if ( nb1414m4_dma_state == 4'h3 ) begin
+            // read takes a cycle
+            nb1414m4_dma_state <= 4'h4;
+        end else if ( nb1414m4_dma_state == 4'h4 ) begin
+            if ( nb1414m4_use_buffer == 1 ) begin
+                nb1414m4_din <= nb1414m4_buffer[nb1414m4_idx];
+            end else if ( nb1414m4_erase == 0 ) begin
+                nb1414m4_din <= nb1414m4_dout;
+            end else begin
+                nb1414m4_din <= 8'h20;
+            end
+            
+            // address is valid.  clock in the read
+            nb1414m4_dma_state <= 4'h5;
+            // setup a write.  the data will be valid in the next clock
+            // writes to shared ram at ofset nb1414m4_dst
+            if ( nb1414m4_dst > 18 ) begin
+                // only write if not in the command buffer
+                nb1414m4_wr <= 1;
+            end
+        end else if ( nb1414m4_dma_state == 4'h5 ) begin
+            nb1414m4_wr <= 0;
+            // source data is valid.  write 
+            // disable write
+            // first 0x400 is char data, second 0x400 is attributes
+            if ( nb1414m4_idx < (nb1414m4_dma_size-1) ) begin 
+                if ( nb1414m4_dst > 18 ) begin
+                    nb1414m4_wr <= 1;
+                end
+
+                nb1414m4_idx <= nb1414m4_idx + 1;
+                nb1414m4_dst <= nb1414m4_dst + 1;
+
+                nb1414m4_dma_state <= 4'h2;
+            end else begin
+                // done
+                nb1414m4_idx <= 0;
+                // start attributes
+                nb1414m4_dst <= nb1414m4_dst_attr;
+                nb1414m4_dma_state <= 4'h6;
+            end
+        end else if ( nb1414m4_dma_state == 4'h6 ) begin 
+            // start attribute transfer
+            if ( nb1414m4_erase == 0 ) begin
+                nb1414m4_address <= nb1414m4_src + nb1414m4_dma_size + nb1414m4_idx;
+            end else begin
+                nb1414m4_address <= 14'h013;
+            end
+            nb1414m4_wr <= 0;
+            nb1414m4_dma_state <= 4'h7;
+        end else if ( nb1414m4_dma_state == 4'h7 ) begin
+            // read takes a cycle
+            nb1414m4_dma_state <= 4'h8;
+        end else if ( nb1414m4_dma_state == 4'h8 ) begin
+            nb1414m4_din <= nb1414m4_dout;
+            
+            // address is valid.  clock in the read
+            nb1414m4_dma_state <= 4'h9;
+            // setup a write.  the data will be valid in the next clock
+            // writes to shared ram at ofset nb1414m4_dst
+            nb1414m4_wr <= 1;
+        end else if ( nb1414m4_dma_state == 4'h9 ) begin
+            nb1414m4_wr <= 0;
+            // source data is valid.  write 
+            // disable write
+            // first 0x400 is char data, second 0x400 is attributes
+            if ( nb1414m4_idx < (nb1414m4_dma_size-1) ) begin 
+
+                nb1414m4_idx <= nb1414m4_idx + 1;
+                nb1414m4_dst <= nb1414m4_dst + 1;
+
+                nb1414m4_dma_state <= 4'h6;
+            end else begin
+                // done
+                nb1414m4_wr <= 0;
+                nb1414m4_use_buffer <= 0;
+                nb1414m4_dma_state <= 4'hf;
+            end
+            
+        end 
+        
+        // fill
+        if ( nb1414m4_cmd_state == 8'h90 ) begin 
+            nb1414m4_wr <= 0;
+            nb1414m4_dst <= 0;
+            nb1414m4_idx <= 8'h0;
+            nb1414m4_address[13:0] <= nb1414m4_src ;
+            nb1414m4_cmd_state <= 8'h91;
+        end else if ( nb1414m4_cmd_state == 8'h91 ) begin
+            // need a cycle to read
+            nb1414m4_cmd_state <= 8'h92;
+        end else if ( nb1414m4_cmd_state == 8'h92 ) begin
+            nb1414m4_tile <= nb1414m4_dout;
+            nb1414m4_address[13:0] <= nb1414m4_src + 1 ;
+            nb1414m4_cmd_state <= 8'h93;
+        end else if ( nb1414m4_cmd_state == 8'h93 ) begin            
+            nb1414m4_cmd_state <= 8'h94;
+        end else if ( nb1414m4_cmd_state == 8'h94 ) begin
+            nb1414m4_pal <= nb1414m4_dout;
+            nb1414m4_cmd_state <= 8'h95;
+            nb1414m4_din <= nb1414m4_tile;
+            if ( nb1414m4_dst > 18 ) begin
+                nb1414m4_wr <= 1;
+            end
+        end else if ( nb1414m4_cmd_state == 8'h95 ) begin
+            nb1414m4_wr <= 0;
+            if ( nb1414m4_idx < 14'h7ff ) begin
+                if ( nb1414m4_dst > 18 ) begin
+                    nb1414m4_wr <= 1;
+                end
+
+                // increment write pos
+                nb1414m4_dst <= nb1414m4_dst + 1;
+                // increment count
+                nb1414m4_idx <= nb1414m4_idx + 1;
+                if ( nb1414m4_idx == 14'h400 ) begin
+                    // switch to writing the txt pal value
+                    nb1414m4_din <= nb1414m4_pal;
                 end
             end else begin
-                if ( m68k_dout[14] == 1 ) begin 
-                    z80_b_irq_n <= 0;
-                end
+                // done
+                nb1414m4_cmd_state <= 8'hff;
             end
-            bg_enable <= m68k_dout[11];
-            fg_enable <= m68k_dout[10];
-            sp_enable <= m68k_dout[9];
-            tx_enable <= m68k_dout[8];
-
         end
         
-        if ( pcb == 0 ) begin
-            // terraf bootleg.  hack to deassert interrupt
-            if ( z80_b_irq_n == 0 && z80_b_addr == 16'h0038 ) begin
-                z80_b_irq_n <= 1;
-            end
-        end 
-        
-        if ( M1_b_n == 0 && IORQ_b_n == 0 && z80_b_irq_n == 0 ) begin
-            // z80 acknowledged so deassert
-            z80_b_irq_n <= 1;
+        // reset state
+        if ( nb1414m4_cmd_state == 8'hff ) begin
+            nb1414m4_wr <= 0;
+            nb1414m4_cmd_state <= 0;
+            nb1414m4_dma_state <= 0;
+            nb1414m4_erase <= 0 ;
         end
-        
-
-//        if ( clk_8M == 1 ) begin
-//            int_ack <= ( m68k_as_n == 0 ) && ( m68k_fc == 3'b111 ); // cpu acknowledged the interrupt
-//        end
-        if ( vbl_sr == 2'b01 ) begin // rising edge
-            //  68k vbl interrupt
-            m68k_ipl0_n <= 0;
-        end 
     end
 end
+
+//        end else if ( has_nb1414m4 == 1 && nb1414m4_wr == 1 ) begin
+//            shared_addr <= nb1414m4_dst;
+//            shared_data <= nb1414m4_data;
+            
+dual_port_ram #(.LEN(16384)) nb1414m4_rom (
+    .clock_a ( clk_sys ),
+    .address_a ( nb1414m4_address ),
+    .wren_a ( 0 ),
+    .data_a ( ),
+    .q_a ( nb1414m4_dout ),
+
+    .clock_b ( clk_sys ),
+    .address_b ( ioctl_addr[13:0] ),
+    .wren_b ( nb1414m4_ioctl_wr ),
+    .data_b ( ioctl_dout ),
+    .q_b(  )
+    );
 
 //IORQ gets together with M1-pin active/low. 
 always @ (posedge clk_sys) begin
@@ -865,6 +1295,8 @@ always @ (posedge clk_sys) begin
         z80_a_irq_n <= 1;
     end
 end
+
+reg scroll_msb;
 
 always @ (posedge clk_sys) begin
      if ( clk_4M == 1 ) begin
@@ -931,31 +1363,58 @@ always @ (posedge clk_sys) begin
     // both the 68k and the bootleg z80 write to the scroll registers
 //    if ( clk_8M == 1 ) begin
     if ( clk_16M == 1 ) begin
-
-         if (!m68k_rw & bg_scroll_x_cs ) begin
+        // 68k writes
+        if ( !m68k_rw ) begin
+            if ( bg_scroll_x_cs == 1) begin
               bg_scroll_x <= m68k_dout[15:0];
-         end
-
-         if (!m68k_rw & bg_scroll_y_cs ) begin
+            end else if ( bg_scroll_y_cs == 1) begin
               bg_scroll_y <= m68k_dout[15:0];
-         end
-
-         if (!m68k_rw & sound_latch_cs ) begin
+            end else if ( fg_scroll_y_cs == 1 ) begin 
+                if ( pcb == 2 ) begin
+                    fg_scroll_y[9:0] <= m68k_dout[9:0];
+                end else if ( pcb == 6 || pcb == 7 ) begin
+                    // legion bootlegs
+                    if ( m68k_a[7:0] == 8'h16 ) begin
+                        fg_scroll_y[7:0] <= m68k_dout[7:0]; // b
+                    end else if ( m68k_a[7:0] == 8'h18 ) begin
+                        fg_scroll_y[9:8] <= m68k_dout[1:0]; // c
+                    end 
+                end else if ( pcb == 9 ) begin  
+                    fg_scroll_y[7:0] <= m68k_dout[7:0];
+                    scroll_msb <= 1;
+                    // terrafb
+                end
+            end else if ( fg_scroll_x_cs == 1 ) begin  // && m68k_rw == 0
+                if ( pcb == 2 ) begin
+                    fg_scroll_x[9:0] <= m68k_dout[9:0];
+                end else if ( pcb == 6 || pcb == 7 ) begin
+                    // legion bootlegs
+                    
+                    if ( m68k_a[7:0] == 8'h1a ) begin
+                        fg_scroll_x[7:0] <= m68k_dout[7:0];
+                    end else if ( m68k_a[7:0] == 8'h1c ) begin
+                        fg_scroll_x[9:8] <= m68k_dout[1:0];
+                    end
+                end else if ( pcb == 9 ) begin                                        
+                    // terrafb
+                    if ( scroll_msb == 1 ) begin
+                        fg_scroll_x[9:8] <= m68k_dout[5:4];
+                        fg_scroll_y[9:8] <= m68k_dout[1:0];
+                    end else begin
+                        fg_scroll_x[7:0] <= m68k_dout[7:0];
+                    end
+                end
+            end else if ( terrafb_fg_scroll_msb_w == 1 ) begin
+                scroll_msb <= 0;
+            end else if ( sound_latch_cs == 1) begin
               sound_latch <= {m68k_dout[6:0],1'b1};
-         end
-         
-         if ( pcb == 1 ) begin
-            if ( fg_scroll_x_cs == 1 ) begin  // && m68k_rw == 0
-                fg_scroll_x[9:0] <= m68k_dout[9:0];
-            end else if ( fg_scroll_y_cs == 1 ) begin // && m68k_rw == 0 
-                fg_scroll_y[9:0] <= m68k_dout[9:0];
-            end         
-         end
+            end
+        end
     end
 
     if ( reset == 1 ) begin
     end else begin
-        if ( pcb == 0 ) begin
+        if ( pcb == 8 ) begin
             // bootleg z80 controls foreground scrolling
             if ( z80_b_fg_scroll_x_cs == 1 && z80_b_wr_n == 0 ) begin
                 fg_scroll_x[7:0] <= z80_b_dout;
@@ -968,30 +1427,146 @@ always @ (posedge clk_sys) begin
          end 
     end
 
+    if ( reset == 1 ) begin
+        m68k_ipl0_n  <= 1 ;
+        m68k_ipl1_n  <= 1 ;
+        int_ack <= 0;
+        z80_b_irq_n <= 1;
+        bg_enable <= 1;
+        fg_enable <= 1;
+        sp_enable <= 1;
+        tx_enable <= 1;
+        nb1414m4_frame <= 0;
+    end else if ( clk_16M == 1 ) begin
+
+        vbl_sr <= { vbl_sr[0], vbl };
+        
+        if ( nb1414m4_cmd_state == 8'hff ) begin
+            nb1414m4_busy <= 0;
+        end 
+        
+        // only a write to 0x07c00e clears to interrupt line
+        if ( irq_ack_cs == 1 ) begin
+            m68k_ipl0_n <= 1 ;
+            m68k_ipl1_n <= 1 ;
+        end else if ( irq_z80_cs == 1 ) begin
+            //if (data & 0x4000 && ((m_vreg & 0x4000) == 0)) //0 -> 1 transition
+            //    m_extra->set_input_line(0, HOLD_LINE);
+            
+           
+            if ( has_nb1414m4 == 1 ) begin
+                // nb1414m4
+                if ( m68k_dout[14] == 1 ) begin 
+                    // trigger nb1414m4 command handler
+                    nb1414m4_busy <= 1;
+
+                    fg_scroll_x[9:0] <= { nb_scroll_x_h[1:0], nb_scroll_x_l[7:0] };
+                    fg_scroll_y[9:0] <= { nb_scroll_y_h[1:0], nb_scroll_y_l[7:0] };
+                end
+            end else begin
+                if ( m68k_dout[14] == 1 ) begin 
+                    z80_b_irq_n <= 0;
+                end
+            end
+            bg_enable <= m68k_dout[11];
+            fg_enable <= m68k_dout[10];
+            sp_enable <= m68k_dout[9];
+            tx_enable <= m68k_dout[8];
+
+        end
+        
+        if ( pcb == 8 ) begin
+            // terraf bootleg.  hack to deassert interrupt
+            if ( z80_b_irq_n == 0 && z80_b_addr == 16'h0038 ) begin
+                z80_b_irq_n <= 1;
+            end
+        end 
+        
+        if ( M1_b_n == 0 && IORQ_b_n == 0 && z80_b_irq_n == 0 ) begin
+            // z80 acknowledged so deassert
+            z80_b_irq_n <= 1;
+        end
+        
+
+//        if ( clk_8M == 1 ) begin
+//            int_ack <= ( m68k_as_n == 0 ) && ( m68k_fc == 3'b111 ); // cpu acknowledged the interrupt
+//        end
+        if ( vbl_sr == 2'b01 ) begin // rising edge
+            // increment frame counter - used for flashing text
+            nb1414m4_frame <= nb1414m4_frame + 1;
+            //  68k vbl interrupt
+            if ( pcb == 4 || pcb == 5 || pcb == 6 || pcb == 7 ) begin
+                m68k_ipl1_n <= 0;
+            end else begin
+                m68k_ipl0_n <= 0;
+            end
+        end 
+    end
 end
+
+wire has_nb1414m4 = ( pcb < 6 && pcb != 2 ) ;
 
 // shared text ram write arbiter
 reg shared_w;
 reg [11:0] shared_addr;
 reg  [7:0] shared_data;
 
+// the text ram will need to be accessible from the 68k, bootleg z80, and nb1414m4
+// need better arbitration
+
+// for now hack in scrolling for nb1414m4
+
+reg [7:0] nb_scroll_x_l;
+reg [7:0] nb_scroll_x_h;
+reg [7:0] nb_scroll_y_l;
+reg [7:0] nb_scroll_y_h;
+
+reg txt_ram_valid;
+
 always @ (posedge clk_sys) begin
-//    if ( clk_8M == 1 ) begin
-    if ( clk_16M == 1 ) begin
+    if ( reset == 1 ) begin
+        nb1414m4_credits <= 0;
+        nb1414m4_p1 <= 0;
+    end else begin
         shared_w <= 0;
-//        txt_ram_valid <= 0;
         
         // only 68k can read shared. the z80 is write only
-        if ( m68k_txt_ram_cs & !m68k_lds_n ) begin
+        if ( clk_16M == 1 && m68k_txt_ram_cs & !m68k_lds_n ) begin
             shared_addr <= m68k_a[12:1];
+            case ( m68k_a[12:1] )
+                13'h00: nb1414m4_cmd[15:8] <= m68k_dout[7:0];
+                13'h01: nb1414m4_cmd[7:0]  <= m68k_dout[7:0];
+                13'h05: nb1414m4_p1[23:16] <= m68k_dout[7:0];
+                13'h06: nb1414m4_p1[15:8]  <= m68k_dout[7:0];
+                13'h07: nb1414m4_p1[7:0]   <= m68k_dout[7:0];
+                13'h08: nb1414m4_p2[23:16] <= m68k_dout[7:0];
+                13'h09: nb1414m4_p2[15:8]  <= m68k_dout[7:0];
+                13'h0a: nb1414m4_p2[7:0]   <= m68k_dout[7:0];
+                13'h0d: nb_scroll_x_l      <= m68k_dout[7:0];
+                13'h0e: nb_scroll_x_h      <= m68k_dout[7:0];
+                13'h0b: nb_scroll_y_l      <= m68k_dout[7:0];
+                13'h0c: nb_scroll_y_h      <= m68k_dout[7:0];
+            endcase
+
         end
         
-        if ( !m68k_rw && m68k_txt_ram_cs & !m68k_lds_n ) begin
+        if ( has_nb1414m4 == 1 && nb1414m4_wr == 1 ) begin
+            shared_addr <= nb1414m4_dst;
+            shared_data <= nb1414m4_din;
+            shared_w    <= 1;
+            txt_ram_valid <= 0;
+        end else if ( clk_16M == 1 && !m68k_rw && m68k_txt_ram_cs & !m68k_lds_n ) begin
+            if ( m68k_a[23:0] == 24'h06801e ) begin
+                nb1414m4_credits <= m68k_dout[7:0] ;
+            end
             shared_data <= m68k_dout[7:0];
+            // let the cpu know the write is done
+            txt_ram_valid <= 1;
             shared_w <= 1;
-        end else if (z80_b_ram_txt_cs & ~z80_b_wr_n) begin
+        end else if (clk_4M == 1 && z80_b_ram_txt_cs & ~z80_b_wr_n) begin
             shared_addr <= z80_b_addr[11:0];
             shared_data <= z80_b_dout;
+            txt_ram_valid <= 0;
             shared_w <= 1;
         end 
     end
@@ -1001,6 +1576,7 @@ wire    m68k_rom_cs;
 wire    m68k_ram_cs;
 wire    m68k_tile_pal_cs;
 wire    m68k_txt_ram_cs;
+wire    m68k_spr_cs;
 wire    m68k_ram_2_cs;
 wire    m68k_ram_3_cs;
 wire    m68k_spr_pal_cs;
@@ -1012,6 +1588,7 @@ wire    input_dsw1_cs;
 wire    input_dsw2_cs;
 wire    irq_z80_cs;
 wire    bg_scroll_x_cs;
+wire    irq_i8751_cs;
 wire    bg_scroll_y_cs;
 wire    fg_scroll_x_cs;
 wire    fg_scroll_y_cs;
@@ -1029,6 +1606,7 @@ wire z80_a_latch_clr_cs;
 wire z80_a_latch_r_cs;
     
 chip_select cs (
+    .clk(clk_sys),
     .pcb(pcb),
 
     // 68k bus
@@ -1040,6 +1618,7 @@ chip_select cs (
     .m68k_ram_cs(m68k_ram_cs),
     .m68k_tile_pal_cs(m68k_tile_pal_cs),
     .m68k_txt_ram_cs(m68k_txt_ram_cs),
+    .m68k_spr_cs(m68k_spr_cs),
     .m68k_ram_2_cs(m68k_ram_2_cs),
     .m68k_ram_3_cs(m68k_ram_3_cs),
     .m68k_spr_pal_cs(m68k_spr_pal_cs),
@@ -1056,6 +1635,8 @@ chip_select cs (
     .fg_scroll_y_cs(fg_scroll_y_cs),
     .sound_latch_cs(sound_latch_cs),
     .irq_ack_cs(irq_ack_cs),
+    .irq_i8751_cs(irq_i8751_cs),
+
     
     // sound z80 bus
     .z80_addr(z80_a_addr),
@@ -1073,6 +1654,9 @@ chip_select cs (
     .z80_latch_clr_cs(z80_a_latch_clr_cs),
     .z80_latch_r_cs(z80_a_latch_r_cs)
 );
+ 
+//	map(0x0c0000, 0x0c0000).w(FUNC(armedf_state::terrafb_fg_scroll_msb_arm_w)); 
+wire terrafb_fg_scroll_msb_w = ( pcb == 9 && m68k_a[23:0] >= 24'h0c0000 && m68k_a[23:0] <= 24'h0c0001) & !m68k_as_n;
  
 reg [15:0] bg_scroll_x;
 reg [15:0] bg_scroll_y;
@@ -1098,6 +1682,7 @@ reg  [15:0] m68k_din        ;
 // CPU inputs
 reg  m68k_dtack_n ;         // Data transfer ack (always ready)
 reg  m68k_ipl0_n ;
+reg  m68k_ipl1_n ;
 
 wire reset_n;
 wire m68k_vpa_n = 1'b0;//( m68k_lds_n == 0 && m68k_fc == 3'b111 ); // int ack
@@ -1112,11 +1697,20 @@ reg sp_enable;
 
 wire curr_line;
 
+wire [9:0] sprite_y_adj = ( pcb == 4 || pcb == 5 || pcb == 6 || pcb == 7) ? 0 : 128 ;
+
+// armedf (2), cclimbr2 (4), legion (5,6,7)
+// big fighter &  kozure (1) is 192 
+
+wire [9:0] max_sprites = ( pcb == 0 || pcb == 8 || pcb == 9 ) ? 127 : (pcb == 1 || pcb == 3) ? 191 : 511;
+reg  [9:0] sprite_count;
+
 always @ (posedge clk_sys) begin
     //   copy sprite list to dedicated sprite list ram
     // start state machine for copy
     if ( copy_sprite_state == 0 && vbl_sr == 2'b01 ) begin
         copy_sprite_state <= 1;    
+        sprite_count <= 0;
     end else if ( copy_sprite_state == 1 ) begin
         sprite_shared_addr <= 0;
         copy_sprite_state <= 2;
@@ -1127,13 +1721,11 @@ always @ (posedge clk_sys) begin
         copy_sprite_state <= 3; 
     end else if ( copy_sprite_state == 3 ) begin        
        // address 0 result
-        sprite_y_pos <= (240+128) - sprite_shared_ram_dout[8:0];
+        sprite_y_pos <= sprite_y_adj + y_adj + 239 - sprite_shared_ram_dout[8:0];
         sprite_pri   <= sprite_shared_ram_dout[13:12];
         sprite_shared_addr <= sprite_shared_addr + 1 ;
         copy_sprite_state <= 4; 
     end else if ( copy_sprite_state == 4 ) begin    
-    
-        
         // address 1 result
         // tile #
         sprite_tile[11:0] <= sprite_shared_ram_dout[11:0];
@@ -1155,29 +1747,29 @@ always @ (posedge clk_sys) begin
 
         copy_sprite_state <= 6; 
     end else if ( copy_sprite_state == 6 ) begin        
-        sprite_x_pos <= sprite_shared_ram_dout[8:0] - 94 ;
+        sprite_x_pos <= sprite_shared_ram_dout[8:0] + 2 - tile_x_ofs ;
         
         copy_sprite_state <= 7; 
     end else if ( copy_sprite_state == 7 ) begin                
         sprite_buffer_w <= 1;
         sprite_buffer_din <= {sprite_tile,sprite_x_pos,sprite_y_pos,sprite_colour,sprite_spr_lut, sprite_flip_x,sprite_flip_y,sprite_pri};
-        
+        sprite_buffer_addr <= sprite_buffer_addr + 1;
+
         copy_sprite_state <= 8;
     end else if ( copy_sprite_state == 8 ) begin                
-
+        sprite_count <= sprite_buffer_addr;
         // write is complete
         sprite_buffer_w <= 0;
         // sprite has been buffered.  are we done?
-        if ( sprite_buffer_addr < 8'h7f ) begin
+        if ( sprite_shared_addr[10:2] < max_sprites ) begin
             // start on next sprite
-            sprite_buffer_addr <= sprite_buffer_addr + 1;
             copy_sprite_state <= 2;
         end else begin
             // we are done, go idle.  
             copy_sprite_state <= 0; 
         end
     // don't try to draw sprites while copying the buffer.
-    end else if ( draw_sprite_state == 0 && hc >= 320 ) begin // off by one
+    end else if ( draw_sprite_state == 0 && hc >= 336 ) begin // off by one
     
         curr_line <= vc[0];
         // clear sprite buffer
@@ -1195,7 +1787,7 @@ always @ (posedge clk_sys) begin
 
         sprite_fb_addr_w <= { ~vc[0], sprite_x_ofs }; 
 
-        if ( sprite_x_ofs < 320 ) begin
+        if ( sprite_x_ofs < 336 ) begin
             sprite_x_ofs <= sprite_x_ofs + 1;
         end else begin
             // done writing.  wait for start of next line
@@ -1212,7 +1804,7 @@ always @ (posedge clk_sys) begin
         sprite_x_ofs <= 0;
     end else if (draw_sprite_state == 3) begin  
         sprite_fb_w <= 0;
-        if ( sprite_pri != 3 && vc >= sprite_y_pos && vc < ( sprite_y_pos + 16 ) && sprite_x_pos < 320 ) begin
+        if ( sprite_pri != 3 && vc >= sprite_y_pos && vc < ( sprite_y_pos + 16 ) ) begin
             if ( sprite_x_ofs[2:0] == 0 ) begin  
                 // fetch sprite bitmap 
                 sprite_rom_addr <= { sprite_tile, flipped_y[3:0], flipped_x[3] };  
@@ -1242,11 +1834,11 @@ always @ (posedge clk_sys) begin
         draw_sprite_state <= 3; 
         sprite_fb_w <= 0;
 
-        if ( spr_pal_dout[3:0] != 15 ) begin // spr_pix
+        if ( spr_pal_dout[3:0] != 15 && sprite_x_pos[8:0] < 336 ) begin // spr_pix
 
             sprite_fb_w <= 1;
             // 0-511 = even line / 512-1023 = odd line
-            sprite_fb_addr_w <= { vc[0], sprite_x_pos[8:0] };
+            sprite_fb_addr_w <= { vc[0], sprite_x_pos[8:0] } ;
             sprite_fb_din    <= { sprite_colour[4:0],spr_pal_dout[3:0],sprite_pri[1:0] }; 
 
         end
@@ -1259,7 +1851,7 @@ always @ (posedge clk_sys) begin
         end
     end else if (draw_sprite_state == 7) begin                        
         // done. next sprite
-        if ( sprite_buffer_addr < 127 ) begin
+        if ( sprite_buffer_addr < sprite_count ) begin
             sprite_buffer_addr <= sprite_buffer_addr + 1;
             draw_sprite_state <= 2;
         end else begin
@@ -1298,7 +1890,7 @@ wire  [3:0] sprite_y_ofs = vc - sprite_y_pos ;
 wire  [3:0] flipped_x = ( sprite_flip_x == 0 ) ? sprite_x_ofs : 15 - sprite_x_ofs;
 wire  [3:0] flipped_y = ( sprite_flip_y == 0 ) ? sprite_y_ofs : 15 - sprite_y_ofs;
 
-reg   [9:0] sprite_shared_addr;
+reg  [10:0] sprite_shared_addr;
 wire [15:0] sprite_shared_ram_dout;
 
 reg   [3:0] copy_sprite_state;
@@ -1357,7 +1949,7 @@ fx68k fx68k (
     .BGACKn(1'b1),
     
     .IPL0n(m68k_ipl0_n),
-    .IPL1n(1'b1),
+    .IPL1n(m68k_ipl1_n),
     .IPL2n(1'b1),
 
     // busses
@@ -1433,7 +2025,7 @@ reg [9:0] fg_scroll_x;
 reg [9:0] fg_scroll_y;
 
 T80pa z80_b (
-    .RESET_n    ( ~reset & (pcb == 0) ),  // don't run if no bootleg cpu
+    .RESET_n    ( ~reset & (pcb == 8) ),  // don't run if no bootleg cpu
     .CLK        ( clk_sys ),
     .CEN_p      ( clk_4M ),
     .CEN_n      ( ~clk_4M ),
@@ -1474,6 +2066,64 @@ wire z80_b_fg_scroll_x_cs   = ( IORQ_b_n == 0 && z80_b_addr[7:0] == 8'h00 );
 wire z80_b_fg_scroll_y_cs   = ( IORQ_b_n == 0 && z80_b_addr[7:0] == 8'h01 );
 wire z80_b_fg_scroll_msb_cs = ( IORQ_b_n == 0 && z80_b_addr[7:0] == 8'h02 );
 
+reg p0_o,p1_o,p2_o,p3_o;
+
+wire [15:0] i8751_addr;
+wire        i8751_rd; // read req
+wire [15:0] i8751_ram_addr;
+wire        i8751_ram_wr;
+wire [7:0]  i8751_ram_dout;
+wire [7:0]  i8751_rom_data;
+wire [7:0]  i8751_shared_ram_data ;
+
+assign i8751_shared_ram_data = i8751_ram_addr[0] ? i8751_shared_ram_data_h : i8751_shared_ram_data_l ;
+
+wire [7:0]  i8751_shared_ram_data_l;
+wire [7:0]  i8751_shared_ram_data_h;
+
+wire i8751_int0_n = ~irq_i8751_cs;
+/*
+jtframe_8751mcu #(.SYNC_INT(1)) i8751 (
+    .rst( reset ),
+    .clk( clk_sys ),
+    .cen( clk_8M ),
+
+    .int0n( i8751_int0_n ),
+    .int1n( 1'b1 ),
+
+    .p0_i( 0 ),
+    .p0_o( p0_o ),
+
+    .p1_i( 0 ),
+    .p1_o( p1_o ),
+
+    .p2_i( 0 ),
+    .p2_o( p2_o ),
+
+    .p3_i( 0 ),
+    .p3_o( p3_o ),
+
+//    input      [ 7:0] x_din,
+//    output reg [ 7:0] x_dout,
+//    output reg [15:0] x_addr,
+//    output reg        x_wr,
+//    output reg        x_acc,
+
+    // shared ram
+    .x_din( i8751_shared_ram_data ),
+    .x_dout( i8751_ram_dout ),
+    .x_addr( i8751_ram_addr ),
+    .x_wr( i8751_ram_wr ),
+    .x_acc( i8751_rd ),
+
+    // ROM programming
+    .clk_rom( clk_sys ),
+    .prog_addr( ioctl_addr[13:0] ),
+    .prom_din( ioctl_dout ),
+    .prom_we( i8751_ioctl_wr )
+);
+*/
+   
 reg sound_addr ;
 reg  [7:0] sound_data ;
 
@@ -1518,7 +2168,7 @@ wire [7:0] z80_b_ram_1_dout;
 wire [7:0] z80_b_ram_2_dout;
 
 reg [16:0] gfx1_addr;
-reg [16:0] gfx2_addr;
+reg [17:0] gfx2_addr;
 reg [16:0] gfx3_addr;
 reg [16:0] gfx4_addr;
 
@@ -1528,40 +2178,72 @@ reg [7:0] gfx3_dout;
 reg [7:0] gfx4_dout;
 
 wire [15:0] ram68k_dout;
+wire [15:0] ram68k_sprite_dout;
+wire [15:0] m68k_tile_pal_dout;
+
 //wire [15:0] prog_rom_data;
 
 // ioctl download addressing    
 wire rom_download = ioctl_download && (ioctl_index==0);
 
-wire m68k_rom_h_ioctl_wr = rom_download & ioctl_wr & (ioctl_addr  < 24'h060000) & (ioctl_addr[0] == 1);
-wire m68k_rom_l_ioctl_wr = rom_download & ioctl_wr & (ioctl_addr  < 24'h060000) & (ioctl_addr[0] == 0);
+// fg len 0x30000 192k
+wire gfx2_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h080000) & (ioctl_addr < 24'h0b0000) ;
 
-// fg
-wire gfx2_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h060000) & (ioctl_addr < 24'h080000) ;
-
-// bg
-wire gfx3_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h080000) & (ioctl_addr < 24'h0a0000) ;
+// bg len 0x20000 128k
+wire gfx3_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h0c0000) & (ioctl_addr < 24'h0e0000) ;
 
 // sprites
-wire gfx4_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h0c0000) & (ioctl_addr < 24'h100000) ;
+//wire gfx4_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h100000) & (ioctl_addr < 24'h140000) ;
 
 // text
-wire gfx1_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h100000) & (ioctl_addr < 24'h108000) ;
+wire gfx1_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h140000) & (ioctl_addr < 24'h148000) ;
 
-wire z80_a_rom_ioctl_wr  = rom_download & ioctl_wr & (ioctl_addr >= 24'h110000) & (ioctl_addr < 24'h120000) ;
-wire z80_b_rom_ioctl_wr  = rom_download & ioctl_wr & (ioctl_addr >= 24'h120000) & (ioctl_addr < 24'h124000) ;
+//wire z80_a_rom_ioctl_wr  = rom_download & ioctl_wr & (ioctl_addr >= 24'h150000) & (ioctl_addr < 24'h160000) ;
+wire z80_b_rom_ioctl_wr  = rom_download & ioctl_wr & (ioctl_addr >= 24'h160000) & (ioctl_addr < 24'h164000) ;
 
-//wire nb1414m4_ioctl_wr   = rom_download & ioctl_wr & (ioctl_addr >= 24'h120000) & (ioctl_addr < 24'h124000) ;
 //wire prom_ioctl_wr       = rom_download & ioctl_wr & (ioctl_addr >= 24'h104000) & (ioctl_addr < 24'h0f4100) ;
 
+wire i8751_ioctl_wr      = rom_download & ioctl_wr & (ioctl_addr >= 24'h170000) & (ioctl_addr < 24'h171000) ;
+wire nb1414m4_ioctl_wr   = rom_download & ioctl_wr & (ioctl_addr >= 24'h180000) & (ioctl_addr < 24'h184000) ;
+
 // main 68k ram high    
-ram8kx8dp ram8kx8_H (
+dual_port_ram #(.LEN(16384)) ram8kx8_H (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
-    .address_a ( m68k_a[13:1] ),
+    .address_a ( m68k_a[14:1] ),
     .wren_a ( !m68k_rw & m68k_ram_cs & !m68k_uds_n ),
     .data_a ( m68k_dout[15:8]  ),
-    .q_a (  ram68k_dout[15:8] ),
+    .q_a (  ram68k_dout[15:8] ) //,
+    
+//    .clock_b ( clk_8M ),
+//    .address_b ( { i8751_ram_addr[13:1], 1'b1 } ),
+//    .wren_b ( i8751_ram_wr & i8751_ram_addr[0] ),
+//    .data_b ( i8751_ram_dout ),
+//    .q_b ( i8751_shared_ram_data_h )
+    );
+
+// main 68k ram low     
+dual_port_ram #(.LEN(16384)) ram8kx8_L (
+    .clock_a ( clk_16M ),
+    .address_a ( m68k_a[14:1] ),
+    .wren_a ( !m68k_rw & m68k_ram_cs & !m68k_lds_n ),
+    .data_a ( m68k_dout[7:0]  ),
+    .q_a ( ram68k_dout[7:0] ) //,
+    
+//    .clock_b ( clk_8M ),
+//    .address_b ( { i8751_ram_addr[13:1], 1'b0 } ),
+//    .wren_b ( i8751_ram_wr & ~i8751_ram_addr[0]),
+//    .data_b ( i8751_ram_dout ),
+//    .q_b ( i8751_shared_ram_data_l )
+    );
+    
+// main 68k sprite ram high  
+// 2kx16
+dual_port_ram #(.LEN(2048)) sprite_ram_H (
+    .clock_a ( clk_16M ),
+    .address_a ( m68k_a[11:1] ),
+    .wren_a ( !m68k_rw & m68k_spr_cs & !m68k_uds_n ),
+    .data_a ( m68k_dout[15:8]  ),
+    .q_a (  ram68k_sprite_dout[15:8] ),
 
     .clock_b ( clk_sys ),
     .address_b ( sprite_shared_addr ),  
@@ -1571,14 +2253,13 @@ ram8kx8dp ram8kx8_H (
     
     );
 
-// main 68k ram low     
-ram8kx8dp ram8kx8_L (
+// main 68k sprite ram low     
+dual_port_ram #(.LEN(2048)) sprite_ram_L (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
-    .address_a ( m68k_a[13:1] ),
-    .wren_a ( !m68k_rw & m68k_ram_cs & !m68k_lds_n ),
+    .address_a ( m68k_a[11:1] ),
+    .wren_a ( !m68k_rw & m68k_spr_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
-    .q_a ( ram68k_dout[7:0] ),
+    .q_a ( ram68k_sprite_dout[7:0] ),
      
     .clock_b ( clk_sys ),
     .address_b ( sprite_shared_addr ),  
@@ -1586,6 +2267,12 @@ ram8kx8dp ram8kx8_L (
     .data_b ( ),
     .q_b( sprite_shared_ram_dout[7:0] )
     );
+
+//    .clock_a ( clk_8M ),
+//    .address_a ( i8751_ram_addr[13:0] ),
+//    .wren_a ( i8751_ram_wr ),
+//    .data_a ( i8751_ram_dout ),
+//    .q_a ( i8751_shared_ram_data ),
     
 reg  [10:0] fg_ram_addr;
 wire [15:0] fg_ram_dout;
@@ -1597,9 +2284,8 @@ wire [15:0] bg_ram_dout;
 wire [15:0] m68k_fg_ram_dout;
 
 // foreground high   
-ram2kx8dp ram_fg_h (
+dual_port_ram #(.LEN(2048)) ram_fg_h (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_fg_ram_cs & !m68k_uds_n ),
     .data_a ( m68k_dout[15:8]  ),
@@ -1614,9 +2300,8 @@ ram2kx8dp ram_fg_h (
     );
 
 // foreground low
-ram2kx8dp ram_fg_l (
+dual_port_ram #(.LEN(2048)) ram_fg_l (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_fg_ram_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
@@ -1632,9 +2317,8 @@ ram2kx8dp ram_fg_l (
 wire [15:0] m68k_bg_ram_dout;
     
 // background high
-ram2kx8dp ram_bg_h (
+dual_port_ram #(.LEN(2048)) ram_bg_h (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_bg_ram_cs & !m68k_uds_n ),
     .data_a ( m68k_dout[15:8]  ),
@@ -1649,9 +2333,8 @@ ram2kx8dp ram_bg_h (
     );
 
 // background low    
-ram2kx8dp ram_fg_L (
+dual_port_ram #(.LEN(2048)) ram_fg_L (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_bg_ram_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
@@ -1668,30 +2351,27 @@ reg [15:0] tile_pal_dout;
 reg [10:0] tile_pal_addr;
     
 // tile palette high   
-ram2kx8dp tile_pal_h (
+dual_port_ram #(.LEN(2048)) tile_pal_h (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_tile_pal_cs & !m68k_uds_n ),
     .data_a ( m68k_dout[15:8]  ),
-    .q_a (  ),
+    .q_a ( m68k_tile_pal_dout[15:8]  ),
 
     .clock_b ( clk_sys ),
     .address_b ( tile_pal_addr ),  
     .wren_b ( 1'b0 ),
     .data_b ( ),
     .q_b( tile_pal_dout[15:8] )
-    
     );
 
 //  tile palette low
-ram2kx8dp tile_pal_l (
+dual_port_ram #(.LEN(2048)) tile_pal_l (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_tile_pal_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
-    .q_a ( ),
+    .q_a ( m68k_tile_pal_dout[7:0] ),
      
     .clock_b ( clk_sys ),
     .address_b ( tile_pal_addr ),  
@@ -1705,9 +2385,8 @@ wire [15:0] m68k_spr_pal_dout ;
 
 
 // sprite pal lut high
-ram2kx8dp spr_pal_h (
+dual_port_ram #(.LEN(2048)) spr_pal_h (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_spr_pal_cs & !m68k_uds_n ),
     .data_a ( m68k_dout[15:8]  ),
@@ -1722,9 +2401,8 @@ ram2kx8dp spr_pal_h (
     );
 
 // sprite pal lut high
-ram2kx8dp spr_pal_L (
+dual_port_ram #(.LEN(2048)) spr_pal_L (
     .clock_a ( clk_16M ),
-//    .clock_a ( clk_8M ),
     .address_a ( m68k_a[11:1] ),
     .wren_a ( !m68k_rw & m68k_spr_pal_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
@@ -1737,12 +2415,12 @@ ram2kx8dp spr_pal_L (
     .q_b( spr_pal_dout[7:0] )
     ); 
 
-reg  [6:0]  sprite_buffer_addr;  // 128 sprites
+reg  [8:0]  sprite_buffer_addr;  // 128 sprites
 reg  [63:0] sprite_buffer_din;
 wire [63:0] sprite_buffer_dout;
 reg  sprite_buffer_w;
 
-ram512bx64dp sprite_buffer (
+dual_port_ram #(.LEN(512), .DATA_WIDTH(64)) sprite_buffer (
     .clock_a ( clk_sys ),
     .address_a ( sprite_buffer_addr ),
     .wren_a ( 1'b0 ),
@@ -1764,7 +2442,7 @@ wire [15:0]  sprite_fb_out;
 reg   [9:0]  sprite_fb_addr_r ; 
     
 // two line buffer for sprite rendering
-ram1kx16dp sprite_line_buffer_ram (
+dual_port_ram #(.LEN(1024), .DATA_WIDTH(16)) sprite_line_buffer_ram (
     .clock_a ( clk_sys ),
     .address_a ( sprite_fb_addr_w ),
     .wren_a ( sprite_fb_w ),
@@ -1784,7 +2462,7 @@ wire [15:0] m68k_ram_2_dout ;
 wire [15:0] m68k_ram_3_dout ;
 
 // 68k ram 2
-ram4kx8dp ram_2_h (
+dual_port_ram #(.LEN(4096)) ram_2_h (
     .clock_a ( clk_16M ),
     .address_a ( m68k_a[12:1] ),
     .wren_a ( !m68k_rw & m68k_ram_2_cs & !m68k_uds_n ),
@@ -1794,7 +2472,7 @@ ram4kx8dp ram_2_h (
     );
 
 // 68k ram 2
-ram4kx8dp ram_2_L (
+dual_port_ram #(.LEN(4096)) ram_2_L (
     .clock_a ( clk_16M ),
     .address_a ( m68k_a[12:1] ),
     .wren_a ( !m68k_rw & m68k_ram_2_cs & !m68k_lds_n ),
@@ -1804,7 +2482,7 @@ ram4kx8dp ram_2_L (
     ); 
 
 // 68k ram 3
-ram4kx8dp ram_3_h (
+dual_port_ram #(.LEN(4096)) ram_3_h (
     .clock_a ( clk_16M ),
     .address_a ( m68k_a[12:1] ),
     .wren_a ( !m68k_rw & m68k_ram_3_cs & !m68k_uds_n ),
@@ -1814,7 +2492,7 @@ ram4kx8dp ram_3_h (
     );
 
 // 68k ram 3
-ram4kx8dp ram_3_L (
+dual_port_ram #(.LEN(4096)) ram_3_L (
     .clock_a ( clk_16M ),
     .address_a ( m68k_a[12:1] ),
     .wren_a ( !m68k_rw & m68k_ram_3_cs & !m68k_lds_n ),
@@ -1827,21 +2505,16 @@ wire [7:0] txt_ram_dout ;
 wire [15:0] m68k_txt_ram_dout ;
 reg  [12:0] txt_ram_addr ;
 
-ram2kx8dp z80_a_ram (
+dual_port_ram #(.LEN(2048)) z80_a_ram (
     .clock_a ( clk_4M ),
-    .address_a ( z80_a_addr[13:0] ),
+    .address_a ( z80_a_addr[10:0] ),
     .wren_a ( z80_a_ram_cs & ~z80_a_wr_n ),
     .data_a ( z80_a_dout ),
     .q_a ( z80_a_ram_data ),
 
-//    .clock_b ( clk_sys ),
-//    .address_b ( ioctl_addr[13:0] ),
-//    .wren_b ( z80_b_rom_ioctl_wr ),
-//    .data_b ( ioctl_dout ),
-//    .q_b(  )
     );
     
-ram16kx8dp z80_b_rom (
+dual_port_ram #(.LEN(16384)) z80_b_rom (
     .clock_a ( clk_4M ),
     .address_a ( z80_b_addr[13:0] ),
     .wren_a ( z80_b_rom_cs & ~z80_b_wr_n ),
@@ -1865,7 +2538,7 @@ wire [15:0] m68k_txt_attr_ram_dout;
 
 
 // 4 port ram - should figure out real abritration method
-ram4kx8dp txt_ram_0 (
+dual_port_ram #(.LEN(4096)) txt_ram_0 (
     // 68k read and write txt ram
     .clock_a ( clk_sys ),
     .address_a ( shared_addr ),
@@ -1882,7 +2555,7 @@ ram4kx8dp txt_ram_0 (
     );
     
 // shadow to allow z80 to read
-ram4kx8dp txt_ram_1 (
+dual_port_ram #(.LEN(4096)) txt_ram_1 (
     .clock_a ( clk_sys ),
     .address_a ( shared_addr ),
     .wren_a ( shared_w ),
@@ -1898,7 +2571,7 @@ ram4kx8dp txt_ram_1 (
     );
     
 // shadow for text attribute    
-ram4kx8dp txt_ram_2 (
+dual_port_ram #(.LEN(4096)) txt_ram_2 (
     .clock_a ( clk_sys ),
     .address_a ( shared_addr ),
     .wren_a ( shared_w ),
@@ -1914,7 +2587,7 @@ ram4kx8dp txt_ram_2 (
     );
     
 // z80 protection ram 1  
-ram4kx8dp z80_b_ram_1 (
+dual_port_ram #(.LEN(4096)) z80_b_ram_1 (
     .clock_b ( clk_4M ), 
     .address_b ( z80_b_addr[11:0] ),
     .wren_b ( z80_b_ram_1_cs & ~z80_b_wr_n ),
@@ -1923,9 +2596,9 @@ ram4kx8dp z80_b_ram_1 (
     );
 
 // z80 protection ram 1  
-ram2kx8dp z80_b_ram_2 (
+dual_port_ram #(.LEN(2048)) z80_b_ram_2 (
     .clock_b ( clk_4M ), 
-    .address_b ( z80_b_addr[11:0] ),
+    .address_b ( z80_b_addr[10:0] ),
     .wren_b ( z80_b_ram_2_cs & ~z80_b_wr_n ),
     .data_b ( z80_b_dout ),
     .q_b ( z80_b_ram_2_dout )
@@ -1933,35 +2606,35 @@ ram2kx8dp z80_b_ram_2 (
 
     
 //  <!-- gfx1       0x020000-0x021fff 8K -->
-ram32kx8dp gfx1 (
+dual_port_ram #(.LEN(32768)) gfx1 (
     .clock_a ( clk_6M ),
-    .address_a ( gfx1_addr[16:0] ),
+    .address_a ( gfx1_addr[14:0] ),
     .wren_a ( 1'b0 ),
     .data_a ( ),
     .q_a ( gfx1_dout[7:0] ),
     
     .clock_b ( clk_sys ),
-    .address_b ( ioctl_addr[16:0] ),
+    .address_b ( ioctl_addr[14:0] ),
     .wren_b ( gfx1_ioctl_wr ),
-    .data_b ( ioctl_dout  ),
+    .data_b ( ioctl_dout ),
     .q_b( )
     );
 
-ram128kx8dp gfx2 (
+dual_port_ram #(.LEN(196608)) gfx2 (
     .clock_a ( clk_6M ),
-    .address_a ( gfx2_addr[16:0] ),
+    .address_a ( gfx2_addr[17:0] ),
     .wren_a ( 1'b0 ),
     .data_a ( ),
     .q_a ( gfx2_dout[7:0] ),
     
     .clock_b ( clk_sys ),
-    .address_b ( ioctl_addr[16:0] ),
+    .address_b ( ioctl_addr[17:0] ),
     .wren_b ( gfx2_ioctl_wr ),
-    .data_b ( ioctl_dout  ),
+    .data_b ( ioctl_dout ),
     .q_b( )
     );
 
-ram128kx8dp gfx3 (
+dual_port_ram #(.LEN(131072)) gfx3 (
     .clock_a ( clk_6M ),
     .address_a ( gfx3_addr[16:0] ),
     .wren_a ( 1'b0 ),
@@ -1971,7 +2644,7 @@ ram128kx8dp gfx3 (
     .clock_b ( clk_sys ),
     .address_b ( ioctl_addr[16:0] ),
     .wren_b ( gfx3_ioctl_wr ),
-    .data_b ( ioctl_dout  ),
+    .data_b ( ioctl_dout ),
     .q_b( )
     );
    

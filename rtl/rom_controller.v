@@ -126,7 +126,7 @@ segment
 #(
     .ROM_ADDR_WIDTH(18), // 256 k
     .ROM_DATA_WIDTH(32),
-    .ROM_OFFSET(24'h0c0000)
+    .ROM_OFFSET(24'h100000)
 ) sprite_rom_segment
 (
     .reset(reset),
@@ -147,7 +147,7 @@ segment
 #(
     .ROM_ADDR_WIDTH(16),
     .ROM_DATA_WIDTH(8),
-    .ROM_OFFSET(24'h110000)
+    .ROM_OFFSET(24'h150000)
 ) sound_rom_segment
 (
     .reset(reset),
