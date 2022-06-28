@@ -49,7 +49,7 @@ module emu
     output        VGA_VS,
     output        VGA_DE,    // = ~(VBlank | HBlank)
     output        VGA_F1,
-    output [1:0]  VGA_SL,
+    output [2:0]  VGA_SL,
     output        VGA_SCALER, // Force VGA scaler
 
     input  [11:0] HDMI_WIDTH,
@@ -187,7 +187,6 @@ assign {SD_SCK, SD_MOSI, SD_CS} = 'Z;
 //assign {SDRAM_DQ, SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
 //assign {DDRAM_CLK, DDRAM_BURSTCNT, DDRAM_ADDR, DDRAM_DIN, DDRAM_BE, DDRAM_RD, DDRAM_WE} = '0;  
 
-//assign VGA_SL = 0;
 assign VGA_F1 = 0;
 assign VGA_SCALER = 0;
 assign HDMI_FREEZE = 0;
@@ -231,7 +230,9 @@ localparam CONF_STR = {
     "P1-;",
     "P1O89,Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
     "P1O3,Orientation,Horz,Vert;",
-    "P1O46,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
+    "P1-;",    
+    "P1O46,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%,CRT 100%;",
+    "P1OA,Force Scandoubler,Off,On;",
     "P1-;",
     "P1O7,Video Mode,NTSC,PAL;",
     "P1OM,Video Signal,RGBS/YPbPr,Y/C;",
@@ -262,7 +263,10 @@ localparam CONF_STR = {
     "V,v",`BUILD_DATE
 };
 
-wire forced_scandoubler;
+
+wire hps_forced_scandoubler;
+wire forced_scandoubler = hps_forced_scandoubler | status[10];
+
 wire  [1:0] buttons;
 wire [63:0] status;
 wire [10:0] ps2_key;
@@ -277,7 +281,7 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
     .ps2_key(ps2_key),
     .status(status),
     .status_menumask(direct_video),
-    .forced_scandoubler(forced_scandoubler),
+    .forced_scandoubler(hps_forced_scandoubler),
     .gamma_bus(gamma_bus),
     .direct_video(direct_video),
     .video_rotated(video_rotated),
