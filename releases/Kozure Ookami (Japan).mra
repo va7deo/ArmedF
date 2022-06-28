@@ -7,7 +7,7 @@
   <category>Beat 'em up</category>
   <rbf>armedf</rbf>
 
-  <switches default="ff,ff">
+  <switches default="fb,ff">
     <!-- DSW1 -->
     <dip name="Lives" bits="0,1" ids="6,5,4,3"/>
     <dip name="Bonus Life" bits="2,3" ids="50/90k(E),90k(E),50/60k(E),60k(E)"/>

@@ -3,7 +3,7 @@
 
 FPGA compatible core of Nichibutsu M68000 (Terra Force Based) arcade hardware for [**MiSTerFPGA**](https://github.com/MiSTer-devel/Main_MiSTer/wiki) written by [**Darren Olafson**](https://twitter.com/Darren__O). Terra Force PCB (different board revisions) donated by [**@atrac17**](https://twitter.com/_atrac17) / [**@djhardrich**](https://twitter.com/djhardrich).
 
-The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra Force based) 68000 hardware. Currently in an alpha state, this core is in active development with assistance from [**atrac17**](https://github.com/atrac17).
+The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra Force based) 68000 hardware. Currently in an beta state, this core is in active development with assistance from [**atrac17**](https://github.com/atrac17).
 
 <br>
 <img width="" height="" src="https://user-images.githubusercontent.com/32810066/170655863-5b1418f1-1020-46f6-9e72-6ad08ec96b49.png">
@@ -13,12 +13,12 @@ The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra 
 
 | Title | Status | Released | Protection | Unprotected Sets |
 |------|---------|----------|------------|------------------|
-[**Terra Force**](https://en.wikipedia.org/wiki/Nihon_Bussan)           | **W.I.P**   | N         | NB1414M4 | **terrafjb**            |
-[**Kozure Ōkami**](https://en.wikipedia.org/wiki/Nihon_Bussan)          | **W.I.P**   | N         | NB1414M4 | N/A                     |
-[**Chouji Meikyuu Legion**](https://en.wikipedia.org/wiki/Nihon_Bussan) | **W.I.P**   | N         | NB1414M4 | **legionjb, legionjb2** |
-[**Crazy Climber 2**](https://en.wikipedia.org/wiki/Nihon_Bussan)       | **W.I.P**   | N         | NB1414M4 | N/A                     |
-[**Armed F**](https://en.wikipedia.org/wiki/Formation_Armed_F)          | Implemented | **Y**     | None     | N/A                     |
-[**Tatakae! Big Fighter**](https://en.wikipedia.org/wiki/Nihon_Bussan)  | Pending     | N         | i8751    | N/A                     |
+[**Terra Force**](https://en.wikipedia.org/wiki/Nihon_Bussan)           | Implemented   | **terraf, terrfj, terrafu**         | NB1414M4 | **terrafjb, terrafb**   |
+[**Kozure Ōkami**](https://en.wikipedia.org/wiki/Nihon_Bussan)          | Implemented   | **kozure**                          | NB1414M4 | N/A                     |
+[**Chouji Meikyuu Legion**](https://en.wikipedia.org/wiki/Nihon_Bussan) | Implemented   | **legion, legionj2**                | NB1414M4 | **legionjb, legionjb2** |
+[**Crazy Climber 2**](https://en.wikipedia.org/wiki/Nihon_Bussan)       | Implemented   | **cclimbr2, cclimbr2a**             | NB1414M4 | N/A                     |
+[**Armed F**](https://en.wikipedia.org/wiki/Formation_Armed_F)          | Implemented   | **armedf, armedff**                 | None     | N/A                     |
+[**Tatakae! Big Fighter**](https://en.wikipedia.org/wiki/Nihon_Bussan)  | Pending       | N                                   | i8751    | N/A                     |
 
 ## External Modules
 
@@ -35,20 +35,22 @@ The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra 
 - ~~Sprite Handling for 6MHz pxl clk and sdram memory controller~~  
 - ~~Player 2 controls tied to screen flip/table mode~~  
 - ~~Implement keyboard handler / service menu~~  
+- ~~Dot Crawl on Y/C video output~~  
 - ~~Y/C video output~~  
-- ~~Scroll handling done by **NB1414M4**~~  
 - ~~Sprite size adjusted per PCB~~  
+- ~~Scroll implementation - **Terra Force (Japan, bootleg set 2)**~~  
+- ~~Layer alignment per PCB~~  
+- ~~Sprite alignment per PCB~~  
+- ~~Individual Text Layer **NB1414M4** implementation~~  
+- ~~Text Layer **NB1414M4** implementation~~  
+- ~~Scroll handling done by **NB1414M4**~~  
+- Protection MCU i8571 implementation (**Tatakae! Big Fighter**)    
+- Protection Chip **NB1414M4** reverse engineer  
+- Service Menu Text Layer **NB1414M4**  
+- Layer priority - **Chouji Meikyuu Legion (Japan ver 1.05) [legionj, legionjb]**  
+- Add turbo OSD toggle for overclocking **Chouji Meikyuu Legion**  
 - H/V clock timings for CRT need to be verified  
 - Screen Flip implementation  
-- Dot Crawl on Y/C video output  
-- Protection MCU i8571 implementation (**Tatakae! Big Fighter**)    
-- Protection Chip **NB1414M4** implementation / reverse engineer  
-- Text Layer **NB1414M4** implementation  
-- Individual Text Layer **NB1414M4** implementation  
-- Scroll implementation - **Terra Force (Japan, bootleg set 2)**  
-- Layer priority - **Chouji Meikyuu Legion (Japan ver 1.05, bootleg set 1)**  
-- Layer alignment per PCB  
-- Sprite alignment per PCB  
 - Shared memory between fx68k and jt8751  
 - Reverse engineer Terra Force and provide schematics  
 - Audio issues known, may be an issue with the jtopl2 core or the current usage<br>(No need to report further audio issues)
@@ -103,17 +105,15 @@ D1  (Daughter Board) | [**Intel 8751**](https://en.wikipedia.org/wiki/Intel_8051
 |----------|-----|------|-----|---------|
 A9  (Top Board) | [**NB1414M4**](https://raw.githubusercontent.com/va7deo/TerraForce/main/doc/Terra%20Force%2026494/Terra%20Force%2026494%20Front.jpg?token=GHSAT0AAAAAABKJR6W6CVBT5FROK2UKF75KYTXT2BA) | Protection IC | <u>**Chouji Meikyuu Legion**</u> <br><br> <u>**Terra Force**</u> <br><br> <u>**Kozure Ōkami**</u> <br><br> <u>**Crazy Climber 2**</u> | **legion, legionj, legionj2** <br><br> **terraf, terrafu, terrafj** <br><br> **kozure** <br><br> **cclimbr2, cclimbr2a** |
 
-# Debugging Features
-
-### GFX Layer Toggle
-
-The four graphics layers can be toggled in the OSD under the Debug options or by pressing F7-F10 on the keyboard.
-<br>
-|Layer Debug|
-|:--:|
-|<table><tr><th>Text Layer</th><th>Background Layer</th><th>Foreground Layer</th><th>Sprite Layer</th><th>All Layers</th></tr><tr><td><img width="" height="" src="https://user-images.githubusercontent.com/32810066/170846019-e70e74b9-1e88-4991-b8c3-3b9b52935ad8.png"></p></td><td><img width="" height="" src="https://user-images.githubusercontent.com/32810066/170846020-8459d346-0a97-41ff-ae5f-f7793a4c7bcb.png"></p></td><td><img width="" height="" src="https://user-images.githubusercontent.com/32810066/170846021-08f8506d-e764-42b6-8c4a-ea19b059060b.png"></td><td><img width="" height="" src="https://user-images.githubusercontent.com/32810066/170846022-5237caf6-bf3a-4461-b324-5e44733310ff.png"></td><td><img width="" height="" src="https://user-images.githubusercontent.com/32810066/170846026-eefddb1b-6a81-4c20-9a99-509dcb888735.png"></td></tr></table>
+# PCB Features
 
 ### Debugging Menu
+
+|<p align="center">Game Debugging|
+|:---:|
+|<table><tr><th>Chouji Meikyuu<br>Legion</th><th>Debugging Features [legion, legionj, legionjb]</th></tr><tr><td><img src="https://user-images.githubusercontent.com/32810066/173247174-3ff281fe-89b1-4bae-8340-8e482c5d92b8.png"></img></td><td><p align="left">Chouji Meikyuu Legion has hidden debug dipswitches by enabling offsets at<br>0x000488 and 0x0001d6.<br><br>This enables P1 and P2 Invunerability and the ability to overclock the games<br>framerate by holding the 2P Start Bttn.<br><br>The dipswitch information was taken from mame, the overclocked framerate<br>was discovered during core development.<br><br>These features are enabled in the MRA's for the corresponding sets.</p></td></table>
+
+<br>
 
 A hidden debug menu can be accessed for **Terra Force, Kozure Ōkami, Chouji Meikyuu Legion, Crazy Climber 2 and Armed F**.  For more information on each debugging menu per game visit "[**The Cutting Room Floor**](https://tcrf.net/Category:Games_developed_by_Nichibutsu)".<br><br>**Tatakae! Big Fighter** has debug options set via dipswitches. Each debug menu has different features to display Character, Object, Scoll, Foreground, Background, or Priority tests.
 
@@ -127,9 +127,33 @@ A hidden debug menu can be accessed for **Terra Force, Kozure Ōkami, Chouji Mei
 
 | **Armed F Debugging Menu** |
 |:--:|
-|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th></tr><tr><td>![1](https://tcrf.net/images/4/46/FormationArmedFArcDebug1.png)</td><td> ![2](https://tcrf.net/images/9/9d/FormationArmedFArcDebug2.png)</td><td>![3](https://tcrf.net/images/a/a8/FormationArmedFArcDebug3.png)</td></tr></table> |
+|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th></tr><tr><td>![1](https://user-images.githubusercontent.com/32810066/173248139-b60228f0-c0c0-4768-bf28-b26bbc9271c9.png)</td><td> ![2](https://user-images.githubusercontent.com/32810066/173248152-41b9cffb-4221-42cd-9bc5-dff1472d97ea.png)</td><td>![3](https://user-images.githubusercontent.com/32810066/173248161-5b8db7e2-efbd-4f8d-8075-5ef066c49e2c.png)</td></tr></table> |
+
 | **Chouji Meikyuu Legion Debugging Menu** |
-|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th><th>Foreground /<br> Background Bank Test</th></tr><tr><td>![1](https://tcrf.net/images/8/80/LegionSpinner87Debug1.png)</td><td>![2](https://tcrf.net/images/8/81/LegionSpinner87Debug2.png)</td><td>![3](https://tcrf.net/images/2/2b/LegionSpinner87Debug3.png)</td><td>![4](https://tcrf.net/images/2/22/LegionSpinner87Debug4.png)</td></tr></table> |
+|:--:|
+|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th><th>Foreground /<br> Background Bank Test</th></tr><tr><td>![1](https://user-images.githubusercontent.com/32810066/173248203-f99d7ff8-7389-40c3-a0c4-10ee5f9d6b1f.png)</td><td>![2](https://user-images.githubusercontent.com/32810066/173248211-7d8140a0-9e0e-464c-a009-c0256f89866a.png)</td><td>![3](https://user-images.githubusercontent.com/32810066/173248215-70b78879-2097-495b-8c4c-f22967f69a09.png)</td><td>![4](https://user-images.githubusercontent.com/32810066/173248218-66228428-41ef-461c-b37b-22c8a0bfd0d1.png)</td></tr></table> |
+
+| **Crazy Climber 2 Debugging Menu** |
+|:--:|
+|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th></tr><tr><td>![1](https://user-images.githubusercontent.com/32810066/173248250-d7e25b6b-7859-4a03-a3ee-a934dfd12cec.png)</td><td> ![2](https://user-images.githubusercontent.com/32810066/173248252-99b5a7a7-a3e7-4216-9657-12f8b3db58bb.png)</td><td>![3](https://user-images.githubusercontent.com/32810066/173248253-1d69d607-7058-49bc-a399-4508d461e543.png)</td></tr></table> |
+
+| **Kozure Ōkami Debugging Menu** |
+|:--:|
+|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Basic Stage Viewer</th><th>Sprite Priority Test</th></tr><tr><td>![1](https://user-images.githubusercontent.com/32810066/173248334-143ce6d1-0d43-40bf-acfe-333f32bb0059.png)</td><td>![2](https://user-images.githubusercontent.com/32810066/173248338-578e49ec-1836-4752-9dea-04aef77b6ecc.png)</td><td>![3](https://user-images.githubusercontent.com/32810066/173248342-f01e2f65-2c6d-4a09-953f-55899a51bb25.png)</td><td>![4](https://user-images.githubusercontent.com/32810066/173248343-1e6e2017-2117-4abd-bf2e-98cf3f9efb07.png)</td></tr></table> |
+
+| **Terra Force Debugging Menu** |
+|:--:|
+|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th></tr><tr><td>![1](https://user-images.githubusercontent.com/32810066/173248409-739f7414-1fad-43f1-9b66-21c0a6d5ec81.png)</td><td> ![2](https://user-images.githubusercontent.com/32810066/173248419-2a24c5ad-5935-4fa4-b8b6-773e2ec8be8e.png)</td><td>![3](https://user-images.githubusercontent.com/32810066/173248424-2f6e6ff2-976c-4f30-98fb-ae5fe2493e11.png)</td></tr></table> |
+
+<br>
+
+### GFX Layer Toggle
+
+The four graphical layers can be toggled in the OSD under the Debug options or by pressing F7-F10 on the keyboard.
+<br>
+|Layer Debug|
+|:--:|
+|<table><tr><th>Text Layer</th><th>Background Layer</th><th>Foreground Layer</th><th>Sprite Layer</th><th>All Layers</th></tr><tr><td><img width="120" height="160" src="https://user-images.githubusercontent.com/32810066/170846019-e70e74b9-1e88-4991-b8c3-3b9b52935ad8.png"></p></td><td><img width="120" height="160" src="https://user-images.githubusercontent.com/32810066/170846020-8459d346-0a97-41ff-ae5f-f7793a4c7bcb.png"></p></td><td><img width="120" height="160" src="https://user-images.githubusercontent.com/32810066/170846021-08f8506d-e764-42b6-8c4a-ea19b059060b.png"></td><td><img width="120" height="160" src="https://user-images.githubusercontent.com/32810066/170846022-5237caf6-bf3a-4461-b324-5e44733310ff.png"></td><td><img width="120" height="160" src="https://user-images.githubusercontent.com/32810066/170846026-eefddb1b-6a81-4c20-9a99-509dcb888735.png"></td></tr></table>
 
 # Control Layout
 
@@ -138,6 +162,8 @@ Game | Joystick | Service Menu | Shared Controls | Dip Default |
 Armed F                   | 8-Way | <img width="" height="" src="https://user-images.githubusercontent.com/32810066/170657740-f1781b3a-f50b-41eb-aff3-63d8b891ccf6.png"> | Upright | **Upright** |
 Chouji Meikyuu<br> Legion | 8-Way | <img width="" height="" src="https://user-images.githubusercontent.com/32810066/170711151-9d7e8a34-b715-48a5-b89f-9b8004cb04f0.png"> | Co-Op   | **Upright** |
 Crazy Climber 2           | 4-Way | <img width="" height="" src="https://user-images.githubusercontent.com/32810066/170847086-105099f0-2e8a-4bdb-af1a-b8fa5a9c5f6d.png"> | Upright | **Upright** |
+Kozure Ōkami              | 8-Way | <img width="" height="" src="https://user-images.githubusercontent.com/32810066/173246143-91d3441b-6993-4860-b739-73ac920bfd9c.png"> | Upright | **Upright** |
+Terra Force               | 8-Way | <img width="" height="" src="https://user-images.githubusercontent.com/32810066/173246181-54916a4f-bf6a-47fb-ae93-b40db12cfab8.png"> | Upright | **Upright** |
 
 <br>
 
