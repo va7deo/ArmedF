@@ -44,6 +44,8 @@ The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra 
 - ~~Individual Text Layer **NB1414M4** implementation~~  
 - ~~Text Layer **NB1414M4** implementation~~  
 - ~~Scroll handling done by **NB1414M4**~~  
+- Pause module is unstable **multiple presses will initiate an address error**  
+- CRT output will vary due to sync / clock timings **Please do not report if your CRT does not sync**  
 - Protection MCU i8571 implementation (**Tatakae! Big Fighter**)    
 - Protection Chip **NB1414M4** reverse engineer  
 - Service Menu Text Layer **NB1414M4**  
@@ -115,7 +117,7 @@ A9  (Top Board) | [**NB1414M4**](https://raw.githubusercontent.com/va7deo/TerraF
 
 <br>
 
-A hidden debug menu can be accessed for **Terra Force, Kozure Ōkami, Chouji Meikyuu Legion, Crazy Climber 2 and Armed F**.  For more information on each debugging menu per game visit "[**The Cutting Room Floor**](https://tcrf.net/Category:Games_developed_by_Nichibutsu)".<br><br>**Tatakae! Big Fighter** has debug options set via dipswitches. Each debug menu has different features to display Character, Object, Scoll, Foreground, Background, or Priority tests.
+A hidden debug menu can be accessed for **Terra Force, Kozure Ōkami, Chouji Meikyuu Legion, Crazy Climber 2 and Armed F**.  For more information on each debugging menu per game click [**here**](https://tcrf.net/Category:Games_developed_by_Nichibutsu).<br><br>**Tatakae! Big Fighter** has debug options set via dipswitches. Each debug menu has different features to display Character, Object, Scoll, Foreground, Background, or Priority tests.
 
 **Follow these steps to access the debug menu (OSD or Keyboard):** 
 
@@ -143,7 +145,7 @@ A hidden debug menu can be accessed for **Terra Force, Kozure Ōkami, Chouji Mei
 
 | **Terra Force Debugging Menu** |
 |:--:|
-|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Vertical Scroll Test</th></tr><tr><td>![1](https://user-images.githubusercontent.com/32810066/173248409-739f7414-1fad-43f1-9b66-21c0a6d5ec81.png)</td><td> ![2](https://user-images.githubusercontent.com/32810066/173248419-2a24c5ad-5935-4fa4-b8b6-773e2ec8be8e.png)</td><td>![3](https://user-images.githubusercontent.com/32810066/173248424-2f6e6ff2-976c-4f30-98fb-ae5fe2493e11.png)</td></tr></table> |
+|<table> <tr><th>Character Graphics ROM</th><th>Object Graphics ROM</th><th>Horizontal / Vertical<br>Scroll Test</th></tr><tr><td>![1](https://user-images.githubusercontent.com/32810066/173248409-739f7414-1fad-43f1-9b66-21c0a6d5ec81.png)</td><td> ![2](https://user-images.githubusercontent.com/32810066/173248419-2a24c5ad-5935-4fa4-b8b6-773e2ec8be8e.png)</td><td>![3](https://user-images.githubusercontent.com/32810066/173248424-2f6e6ff2-976c-4f30-98fb-ae5fe2493e11.png)</td></tr></table> |
 
 <br>
 
@@ -187,7 +189,7 @@ Terra Force               | 8-Way | <img width="" height="" src="https://user-im
 
 |Debug|
 |--|
-|<table> <tr><th>Functions</th><th>Keymap</th></tr><tr><td>Layer (Txt)</td><td>F7</td><tr><td>Layer (FG)</td><td>F8</td></tr><tr><td>Layer (BG)</td><td>F9</td><tr><td>Layer (SP)</td><td>F10</td></tr> </table>|
+|<table> <tr><th>Functions</th><th>Keymap</th></tr><tr><td>Layer (TXT)</td><td>F7</td><tr><td>Layer (FG)</td><td>F8</td></tr><tr><td>Layer (BG)</td><td>F9</td><tr><td>Layer (SP)</td><td>F10</td></tr> </table>|
 
 # Support
 
