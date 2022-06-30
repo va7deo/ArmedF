@@ -181,7 +181,7 @@ module emu
 ///////// Default values for ports not used in this core /////////
 
 assign ADC_BUS  = 'Z;
-assign USER_OUT = ^ticks;
+assign USER_OUT = 0;
 assign {UART_RTS, UART_TXD, UART_DTR} = 0;
 assign {SD_SCK, SD_MOSI, SD_CS} = 'Z;
 //assign {SDRAM_DQ, SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
@@ -192,12 +192,12 @@ assign VGA_SCALER = 0;
 assign HDMI_FREEZE = 0;
 
 assign AUDIO_MIX = 0;
-assign LED_USER = m68k_a[0] & ^m68k_fc & m68k_lds_n & m68k_uds_n ;// & ^status & ^joy0 & ^joy1;
+assign LED_USER = 0 ;
 assign LED_DISK = 0;
 assign LED_POWER = 0;
 assign BUTTONS = 0;
 
-assign m68k_a[0] = reset;
+assign m68k_a[0] = 0;
 
 // Status Bit Map:
 //              Upper Case                     Lower Case           
@@ -206,13 +206,11 @@ assign m68k_a[0] = reset;
 // 0123456789ABCDEFGHIJKLMNOPQRSTUV 0123456789ABCDEFGHIJKLMNOPQRSTUV
 // X  XXXXXXX XXXX     XXX XXXXXXXX    XXXXXX                       
 
-wire [1:0] aspect_ratio = status[9:8];
-wire orientation = ~status[3];
-wire [2:0] scan_lines = status[6:4];
-wire [3:0] hs_offset = status[27:24];
-wire [3:0] vs_offset = status[31:28];
-wire [1:0] select = status[12:11];
-wire [1:0] offset = status[14:13];
+wire [1:0]  aspect_ratio = status[9:8];
+wire        orientation = ~status[3];
+wire [2:0]  scan_lines = status[6:4];
+wire [3:0]  hs_offset = status[27:24];
+wire [3:0]  vs_offset = status[31:28];
 
 wire gfx1_en = ~(status[37] | key_txt_enable);
 wire gfx2_en = ~(status[38] | key_fg_enable );
@@ -247,6 +245,7 @@ localparam CONF_STR = {
     "-;",
     "P3,PCB & Debug Settings;",
     "P3-;",
+    "P3oB,Turbo (Legion Sets),Off,On;",    
     "P3o3,Service Menu,Off,On;",
     "P3o4,Debug Menu,Off,On;",
     "P3-;",
@@ -371,7 +370,7 @@ wire        p2_up      = joy1[3] | key_p2_up | status[36];
 wire [3:0]  p2_buttons = joy1[7:4] | {key_p2_d, key_p2_c, key_p2_b | status[36], key_p2_a | status[36]};
 
 wire        start1  = joy0[8]  | joy1[8]  | key_start_1p;
-wire        start2  = joy0[9]  | joy1[9]  | key_start_2p;
+wire        start2  = joy0[9]  | joy1[9]  | key_start_2p | status[11];
 wire        coin_a  = joy0[10] | joy1[10] | key_coin_a;
 wire        coin_b  = joy0[11] | joy1[11] | key_coin_b;
 wire        b_pause = joy0[12] | key_pause ;
@@ -435,7 +434,7 @@ reg user_flip;
 wire pll_locked;
 
 wire clk_sys;
-reg  clk_4M,clk_8M,clk_16M,clk_ym; // clk_16M,
+reg  clk_4M,clk_8M,clk_16M,clk_ym;
 reg  clk_6M;
 
 wire clk_72M;
@@ -446,7 +445,6 @@ pll pll
     .rst(0),
     .outclk_0(clk_sys),     // 72
     .outclk_1(clk_72M),
-//    .outclk_2(clk_6M),
     .locked(pll_locked)
 );
 
@@ -510,7 +508,7 @@ always @ (posedge clk_sys) begin
 end
 
 wire    reset;
-assign  reset = RESET | ioctl_download |  status[0] | key_reset;
+assign  reset = RESET | ioctl_download | key_reset | status[0] ; 
 
 //////////////////////////////////////////////////////////////////
 wire rotate_ccw = 1;
@@ -533,9 +531,6 @@ wire hbl_delay, vbl_delay;
 
 assign hbl_delay = hbl ;
 assign vbl_delay = vbl ;
-
-//delay delay_hbl( .clk(clk_6M), .i( hbl ), .o(hbl_delay) ) ;
-//delay delay_vbl( .clk(clk_6M), .i( vbl ), .o(vbl_delay) ) ;
 
 video_timing video_timing (
     .clk(clk_6M),
@@ -613,8 +608,6 @@ arcade_video #(256,24) arcade_video
 
 screen_rotate screen_rotate (.*);
 
-reg [31:0] ticks /* synthesis keep */;
-
 wire [9:0] tx_x ; 
 wire [9:0] tx_y ; 
 
@@ -622,7 +615,7 @@ wire [9:0] tile_x_ofs = 10'd85;
 wire [9:0] y_adj = ( pcb > 3 && pcb < 8 ) ? 0 : 8 ;
 
 always @ (*) begin
-    if ( pcb == 2 ) begin
+    if ( pcb == 2 || pcb == 3 ) begin
         tx_x <= hc + tile_x_ofs;
         tx_y <= vc - y_adj ;
     end else begin
@@ -717,11 +710,11 @@ always @ (posedge clk_6M) begin
             // terra force and crazy climber 2
             gfx_txt_addr      <= { tx_x[8], 1'b0, ~tx_y[7:3], tx_x[7:3] } ;//{ 1'b0, t1[9:0] };
             gfx_txt_attr_addr <= { tx_x[8], 1'b1, ~tx_y[7:3], tx_x[7:3] } ; //{ 1'b1, t1[9:0] } ;
-        end else if ( pcb == 2 ) begin
+        end else if ( pcb == 2 || pcb == 3 ) begin
             // armed f
             gfx_txt_addr      <= { 1'b0, tx_x[8:3], tx_y[7:3] } ; 
             gfx_txt_attr_addr <= { 1'b1, tx_x[8:3], tx_y[7:3] } ;
-        end else if ( pcb == 3 || pcb == 5 || pcb == 6 || pcb == 7  ) begin
+        end else if ( pcb == 5 || pcb == 6 || pcb == 7  ) begin
             // legion / big fighter
             gfx_txt_addr      <= { tx_x[8], 1'b0, tx_x[7:3], tx_y[7:3] } ;
             gfx_txt_attr_addr <= { tx_x[8], 1'b1, tx_x[7:3], tx_y[7:3] } ;
@@ -1267,9 +1260,6 @@ always @ (posedge clk_sys) begin
     end
 end
 
-//        end else if ( has_nb1414m4 == 1 && nb1414m4_wr == 1 ) begin
-//            shared_addr <= nb1414m4_dst;
-//            shared_data <= nb1414m4_data;
             
 dual_port_ram #(.LEN(16384)) nb1414m4_rom (
     .clock_a ( clk_sys ),
@@ -1345,9 +1335,6 @@ always @ (posedge clk_sys) begin
 
     end
      
-//    if ( reset == 1 ) begin
-//        z80_b_wait_n <= 0;
-//    end
     z80_b_wait_n <= 1;
     
     if ( z80_b_rd_n == 0 ) begin 
@@ -1365,7 +1352,6 @@ always @ (posedge clk_sys) begin
     end
 
     // both the 68k and the bootleg z80 write to the scroll registers
-//    if ( clk_8M == 1 ) begin
     if ( clk_16M == 1 ) begin
         // 68k writes
         if ( !m68k_rw ) begin
@@ -1374,7 +1360,7 @@ always @ (posedge clk_sys) begin
             end else if ( bg_scroll_y_cs == 1) begin
               bg_scroll_y <= m68k_dout[15:0];
             end else if ( fg_scroll_y_cs == 1 ) begin 
-                if ( pcb == 2 ) begin
+                if ( pcb == 2 || pcb == 3 ) begin
                     fg_scroll_y[9:0] <= m68k_dout[9:0];
                 end else if ( pcb == 6 || pcb == 7 ) begin
                     // legion bootlegs
@@ -1389,7 +1375,7 @@ always @ (posedge clk_sys) begin
                     // terrafb
                 end
             end else if ( fg_scroll_x_cs == 1 ) begin  // && m68k_rw == 0
-                if ( pcb == 2 ) begin
+                if ( pcb == 2 || pcb == 3) begin
                     fg_scroll_x[9:0] <= m68k_dout[9:0];
                 end else if ( pcb == 6 || pcb == 7 ) begin
                     // legion bootlegs
@@ -1659,7 +1645,6 @@ chip_select cs (
     .z80_latch_r_cs(z80_a_latch_r_cs)
 );
  
-//	map(0x0c0000, 0x0c0000).w(FUNC(armedf_state::terrafb_fg_scroll_msb_arm_w)); 
 wire terrafb_fg_scroll_msb_w = ( pcb == 9 && m68k_a[23:0] >= 24'h0c0000 && m68k_a[23:0] <= 24'h0c0001) & !m68k_as_n;
  
 reg [15:0] bg_scroll_x;
@@ -2070,24 +2055,22 @@ wire z80_b_fg_scroll_x_cs   = ( IORQ_b_n == 0 && z80_b_addr[7:0] == 8'h00 );
 wire z80_b_fg_scroll_y_cs   = ( IORQ_b_n == 0 && z80_b_addr[7:0] == 8'h01 );
 wire z80_b_fg_scroll_msb_cs = ( IORQ_b_n == 0 && z80_b_addr[7:0] == 8'h02 );
 
-reg p0_o,p1_o,p2_o,p3_o;
-
+/// I8751 MCU
 wire [15:0] i8751_addr;
-wire        i8751_rd; // read req
+wire        i8751_ram_acc;
 wire [15:0] i8751_ram_addr;
 wire        i8751_ram_wr;
 wire [7:0]  i8751_ram_dout;
 wire [7:0]  i8751_rom_data;
-wire [7:0]  i8751_shared_ram_data ;
-
-assign i8751_shared_ram_data = i8751_ram_addr[0] ? i8751_shared_ram_data_h : i8751_shared_ram_data_l ;
-
-wire [7:0]  i8751_shared_ram_data_l;
-wire [7:0]  i8751_shared_ram_data_h;
+reg  [7:0]  i8751_shared_ram_data_h ;
+reg  [7:0]  i8751_shared_ram_data_l ;
 
 wire i8751_int0_n = ~irq_i8751_cs;
-/*
-jtframe_8751mcu #(.SYNC_INT(1)) i8751 (
+
+reg p0_o,p1_o,p2_o,p3_o;
+
+jtframe_8751mcu #(.SYNC_INT(1), .DIVCEN(1), .SYNC_XDATA(1)) i8751 
+(
     .rst( reset ),
     .clk( clk_sys ),
     .cen( clk_8M ),
@@ -2095,10 +2078,10 @@ jtframe_8751mcu #(.SYNC_INT(1)) i8751 (
     .int0n( i8751_int0_n ),
     .int1n( 1'b1 ),
 
-    .p0_i( 0 ),
+    .p0_i( 8'hdf ),
     .p0_o( p0_o ),
 
-    .p1_i( 0 ),
+    .p1_i( 8'hdf ),
     .p1_o( p1_o ),
 
     .p2_i( 0 ),
@@ -2107,26 +2090,19 @@ jtframe_8751mcu #(.SYNC_INT(1)) i8751 (
     .p3_i( 0 ),
     .p3_o( p3_o ),
 
-//    input      [ 7:0] x_din,
-//    output reg [ 7:0] x_dout,
-//    output reg [15:0] x_addr,
-//    output reg        x_wr,
-//    output reg        x_acc,
-
     // shared ram
-    .x_din( i8751_shared_ram_data ),
+    .x_din( ( i8751_ram_addr[0] == 0 ) ? i8751_shared_ram_data_h : i8751_shared_ram_data_l ),
     .x_dout( i8751_ram_dout ),
     .x_addr( i8751_ram_addr ),
     .x_wr( i8751_ram_wr ),
-    .x_acc( i8751_rd ),
+    .x_acc( i8751_ram_acc ),
 
     // ROM programming
     .clk_rom( clk_sys ),
-    .prog_addr( ioctl_addr[13:0] ),
+    .prog_addr( ioctl_addr[11:0] ),
     .prom_din( ioctl_dout ),
     .prom_we( i8751_ioctl_wr )
 );
-*/
    
 reg sound_addr ;
 reg  [7:0] sound_data ;
@@ -2213,33 +2189,33 @@ wire nb1414m4_ioctl_wr   = rom_download & ioctl_wr & (ioctl_addr >= 24'h180000) 
 // main 68k ram high    
 dual_port_ram #(.LEN(16384)) ram8kx8_H (
     .clock_a ( clk_16M ),
-    .address_a ( m68k_a[14:1] ),
+    .address_a ( m68k_a[13:1] ),
     .wren_a ( !m68k_rw & m68k_ram_cs & !m68k_uds_n ),
     .data_a ( m68k_dout[15:8]  ),
-    .q_a (  ram68k_dout[15:8] ) //,
+    .q_a (  ram68k_dout[15:8] ) ,
     
-//    .clock_b ( clk_8M ),
-//    .address_b ( { i8751_ram_addr[13:1], 1'b1 } ),
-//    .wren_b ( i8751_ram_wr & i8751_ram_addr[0] ),
-//    .data_b ( i8751_ram_dout ),
-//    .q_b ( i8751_shared_ram_data_h )
+    .clock_b ( clk_8M ),
+    .address_b ( i8751_ram_addr[13:1] ),
+    .wren_b ( i8751_ram_wr & ~i8751_ram_addr[0] & ( i8751_ram_addr >= 12'h600) ),
+    .data_b ( i8751_ram_dout ),
+    .q_b ( i8751_shared_ram_data_h )
     );
 
 // main 68k ram low     
 dual_port_ram #(.LEN(16384)) ram8kx8_L (
     .clock_a ( clk_16M ),
-    .address_a ( m68k_a[14:1] ),
+    .address_a ( m68k_a[13:1] ),
     .wren_a ( !m68k_rw & m68k_ram_cs & !m68k_lds_n ),
     .data_a ( m68k_dout[7:0]  ),
-    .q_a ( ram68k_dout[7:0] ) //,
+    .q_a ( ram68k_dout[7:0] ) ,
     
-//    .clock_b ( clk_8M ),
-//    .address_b ( { i8751_ram_addr[13:1], 1'b0 } ),
-//    .wren_b ( i8751_ram_wr & ~i8751_ram_addr[0]),
-//    .data_b ( i8751_ram_dout ),
-//    .q_b ( i8751_shared_ram_data_l )
+    .clock_b ( clk_8M ),
+    .address_b ( i8751_ram_addr[13:1] ),
+    .wren_b ( i8751_ram_wr & i8751_ram_addr[0] & ( i8751_ram_addr >= 12'h600) ),
+    .data_b ( i8751_ram_dout ),
+    .q_b ( i8751_shared_ram_data_l )
     );
-    
+//        .x_din( ( i8751_ram_addr[0] == 0 ) ? i8751_shared_ram_data_h : i8751_shared_ram_data_l ),
 // main 68k sprite ram high  
 // 2kx16
 dual_port_ram #(.LEN(2048)) sprite_ram_H (

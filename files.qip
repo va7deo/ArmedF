@@ -12,17 +12,66 @@ set_global_assignment -name CDF_FILE jtag.cdf
 set_global_assignment -name QIP_FILE sys/sys.qip
 set_global_assignment -name VERILOG_FILE rtl/pause.v
 set_global_assignment -name VERILOG_FILE rtl/chip_select.v
-set_global_assignment -name VERILOG_FILE rtl/mem/cache.v
+#set_global_assignment -name VERILOG_FILE rtl/mem/cache.v
 set_global_assignment -name VERILOG_FILE rtl/rom_controller.v
 set_global_assignment -name VHDL_FILE rtl/mem/math.vhd
 set_global_assignment -name VHDL_FILE rtl/mem/segment.vhd
 set_global_assignment -name VHDL_FILE rtl/mem/download_buffer.vhd
 set_global_assignment -name VHDL_FILE rtl/mem/sdram.vhd
 set_global_assignment -name VHDL_FILE rtl/mem/dual_port_ram.vhd
-# set_global_assignment -name VERILOG_FILE rtl/jtframe/jtframe_8751mcu.v
-# set_global_assignment -name VERILOG_FILE rtl/jtframe/jtframe_sync.v
-# set_global_assignment -name VERILOG_FILE rtl/jtframe/jtframe_dual_ram.v
-# set_global_assignment -name VERILOG_FILE rtl/jtframe/jtframe_ram.v
-# set_global_assignment -name QIP_FILE rtl/8051/mc8051.qip
+
+set_global_assignment -name VERILOG_FILE rtl/jtframe/jtframe_8751mcu.v
+set_global_assignment -name VERILOG_FILE rtl/jtframe/jtframe_sync.v
+set_global_assignment -name VERILOG_FILE rtl/jtframe/jtframe_dual_ram.v
+set_global_assignment -name VERILOG_FILE rtl/jtframe/jtframe_ram.v
+
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_p.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/control_fsm_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/control_fsm_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/control_fsm_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/control_mem_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/control_mem_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/control_mem_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/alumux_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/alumux_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/alumux_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/alucore_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/alucore_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/alucore_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/addsub_cy_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/addsub_cy_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/addsub_cy_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/addsub_ovcy_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/addsub_ovcy_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/addsub_ovcy_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/addsub_core_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/addsub_core_struc.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/addsub_core_struc_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/comb_divider_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/comb_divider_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/comb_divider_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/comb_mltplr_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/comb_mltplr_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/comb_mltplr_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/dcml_adjust_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/dcml_adjust_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/dcml_adjust_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_siu_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_siu_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_siu_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_tmrctr_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_tmrctr_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_tmrctr_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_alu_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_alu_struc.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_alu_struc_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_control_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_control_struc.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_control_struc_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_core_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_core_struc.vhd
+
+
+
 
 
