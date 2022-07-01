@@ -245,8 +245,8 @@ localparam CONF_STR = {
     "-;",
     "P3,PCB & Debug Settings;",
     "P3-;",
-    "P3oB,Turbo (Legion Sets),Off,On;",    
-    "P3O3,Service Menu,Off,On;",
+    "P3OB,Turbo (Legion Sets),Off,On;",    
+    "P3o3,Service Menu,Off,On;",
     "P3o4,Debug Menu,Off,On;",
     "P3-;",
     "P3o5,Text Layer,On,Off;",
@@ -351,7 +351,7 @@ always @ (posedge clk_sys ) begin
     p1[11] <= ~coin_b ;
     
     p2[8] <= ~key_service; 
-    p2[9] <= ~(key_test | status[35]);     
+    p2[9] <= ~(key_test | status[35]);
     
     dsw1 <=  { 8'b0, sw[0] };
     dsw2 <=  { 8'b0, sw[1] };
