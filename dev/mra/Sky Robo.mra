@@ -17,12 +17,11 @@
     <!-- DSW1 -->
     <dip name="Coin A" bits="8,9" ids="Free Play,2/1,1/2,1/1"/>
     <dip name="Coin B" bits="10,11" ids="2/3,2/1,1/2,1/1"/>
-    <dip name="Unknown" bits="12" ids="On,Off"/>
-    <!-- Debug 2 (requires Debug On) (P2 Start skip stage, Invulnerability) -->
-    <dip name="Debug 2" bits="13" ids="On,Off"/>
-    <dip name="Flip Screen" bits="14" ids="On,Off"/>
     <!-- Debug 1 (P1 Start to pause) -->
-    <dip name="Debug 1" bits="15" ids="On,Off"/>
+    <dip name="Pause" bits="15" ids="On,Off"/>
+    <!-- Debug 2 (requires Debug On) (P2 Start skip stage, Invulnerability) -->
+    <dip name="Invul. & Level Select" bits="13" ids="On,Off"/>
+    <dip name="Flip Screen" bits="14" ids="On,Off"/>
   </switches>
 
   <buttons names="Weapon,Transform,-,-,Start (1p),Start (2p),Coin (A),Coin (B),Pause" default="A,B,X,Y,R,L,Start,Select"/>

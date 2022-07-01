@@ -25,15 +25,15 @@ wire h288 = ( pcb == 4 || pcb == 5 || pcb == 6 || pcb == 7 );
 wire [8:0] h_ofs = 0;
 wire [8:0] HBL_START  = h288 ? 288+32    : 320 + 16;
 wire [8:0] HBL_END    = h288 ? 32        : 16;
-wire [8:0] HS_START   = h288 ? 348 -1    : 348 -1;
-wire [8:0] HS_END     = h288 ? 364 -1    : 364 -1;
+wire [8:0] HS_START   = HBL_START + 8 ;
+wire [8:0] HS_END     = HBL_START + 40 ;
 wire [8:0] HTOTAL     = 387 -1;
 
 wire [8:0] v_ofs = 0;
 wire [8:0] VBL_START  = h288 ? 240  : 256 ;
 wire [8:0] VBL_END    = h288 ? 16   : 16  ;
-wire [8:0] VS_START   = 0 ;
-wire [8:0] VS_END     = 8 ;
+wire [8:0] VS_START   = h288 ? 244  : 0 ;
+wire [8:0] VS_END     = h288 ? 248  : 8 ;
 wire [8:0] VTOTAL     = 262 ;
 
 reg [8:0] v;
