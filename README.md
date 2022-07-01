@@ -33,11 +33,10 @@ The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra 
 
 - Screen Flip implementation  
 - Layer priority - **Chouji Meikyuu Legion (Japan ver 1.05) [legionj, legionjb]**  
-- Service Menu Text Layer **NB1414M4**  
-- H/V clock timings for CRT need to be verified   **Please do not report if your CRT does not sync**  
+- Service Menu text layer **NB1414M4**  
+- H/V clock timings for CRT need to be verified - **Please do not report if your CRT does not sync**  
 - Protection Chip **NB1414M4** reverse engineer  
 - Reverse engineer Terra Force and provide schematics  
-- Pause module is unstable  
 - Audio issues known, may be an issue with the jtopl2 core or the current usage<br>(No need to report further audio issues)  
 
 # PCB Check List
