@@ -28,20 +28,17 @@ The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra 
 | [**t80**](https://opencores.org/projects/t80)                                                | [**Zilog Z80 CPU**](https://en.wikipedia.org/wiki/Zilog_Z80)           | Daniel Wallner                |
 | [**jtopl2**](https://github.com/jotego/jtopl)                                                | [**Yamaha OPL 2**](https://en.wikipedia.org/wiki/Yamaha_OPL#OPL2)      | Jose Tejada                   |
 | [**jt8751**](https://github.com/jotego/jtframe/blob/master/hdl/cpu/jtframe_8751mcu.v)        | [**Intel 8751**](https://en.wikipedia.org/wiki/Intel_8051)             | Oregano Systems / Jose Tejada |
+| [**yc_out**](https://github.com/MikeS11/MiSTerFPGA_YC_Encoder)  | [**Y/C Video Module**](https://en.wikipedia.org/wiki/S-Video)          | Mike Simone    |
 
 # Known Issues / Tasks
 
 - Screen Flip implementation  
 - Layer priority - **Chouji Meikyuu Legion (Japan ver 1.05) [legionj, legionjb]**  
 - Service Menu text layer **NB1414M4**  
-- H/V clock timings for CRT need to be verified - **Please do not report if your CRT does not sync**  
-- Protection Chip **NB1414M4** reverse engineer  
-- Reverse engineer Terra Force and provide schematics  
-- Audio issues known, may be an issue with the jtopl2 core or the current usage<br>(No need to report further audio issues)  
 
 # PCB Check List
 
-FPGA implementation is based on Terra Force and will be verified against an authentic Nichibutsu U.S.A Terra Force PCB and bootleg PCB.
+FPGA implementation is based on Terra Force and verified against an authentic Nichibutsu U.S.A Terra Force PCB and bootleg PCB.
 
 Reverse engineering of an authentic Terra Force PCB will be done by [**Darren Olafson**](https://twitter.com/Darren__O) and schematics will be included in the repository.
 
@@ -112,16 +109,27 @@ A hidden debug menu can be accessed for all Nichibutsu 68000 (Armed F Based) tit
 
 <table><tr><th>Chouji Meikyuu Legion </th><th>Debugging Features [legion, legionj, legionjb]</th></tr><tr><td><p align="center"><img src="https://user-images.githubusercontent.com/32810066/173247174-3ff281fe-89b1-4bae-8340-8e482c5d92b8.png"></img></p></td><td><p align="left">Chouji Meikyuu Legion has hidden debug dipswitches by enabling offsets at<br>0x000488 and 0x0001d6. Bank 1, switch 8 enables these options on bank 2,<br>switch 7 and 8. <br><br>This enables P1 and P2 Invunerability and the ability to overclock the games<br>framerate by holding the 2P Start Bttn.<br><br>The dipswitch information was taken from mame, the overclocked framerate<br>was discovered during core development.<br><br>These features are enabled in the MRA's for the corresponding sets.</p></td><tr><th>Tatakae! Big Fighter</th><th>Debugging Features [skyrobo, bigfghtr]</th></tr><tr><td><p align="center"><img src="https://user-images.githubusercontent.com/32810066/176574476-6852cfd5-7129-4147-b8d3-0e9f835633dd.png"></img></p></td><td><p align="left">There are two dipswitches labeled unused in the in the Tatakae! Big Fighter manual.<br><br>The dipswitch location for bank 2, switch 6 enables invulnerability and the ability to <br>skip the level by pressing P2 Start Bttn. <br><br>The dipswitch location on bank 2, switch 8 enables pause in game, this was used for<br>development debugging.</p></td></table>
 
-<br>
+# Core Features
+
+### Native Y/C Output
+
+- Native Y/C ouput is possible with the [**analog I/O rev 6.1 pcb**](https://github.com/MiSTer-devel/Main_MiSTer/wiki/IO-Board). Using the following cables, [**HD-15 to BNC cable**](https://www.amazon.com/StarTech-com-Coax-RGBHV-Monitor-Cable/dp/B0033AF5Y0/) will transmit Y/C over the green and red lines. Choose an appropriate adapter to feed [**Y/C (S-Video)**](https://www.amazon.com/MEIRIYFA-Splitter-Extension-Monitors-Transmission/dp/B09N19XZJQ) to your display.
+
+### H/V Adjustments
+
+- There are two H/V toggles, H/V-sync positioning adjust and H/V-sync width adjust. Positioning will move the display for centering on CRT display. The sync width adjust can be used to for sync issues (rolling) without modifying the video timings.
+
+### Scandoubler Options
+
+- Additional toggle to enable the scandoubler without changing ini settings and new scanline option for 100% is available, this draws a black line every other frame. Below is an example.
+
+<table><tr><th>Scandoubler Fx</th><th>Scanlines 25%</th><th>Scanlines 50%</th><th>Scanlines 75%</th><th>Scanlines 100%</th><tr><td><br> <p align="center"><img width="160" height="120" src="https://user-images.githubusercontent.com/32810066/195706756-30bf8961-ade1-4789-b79c-544c2772d97f.png"></td><td><br> <p align="center"><img width="160" height="120" src="https://user-images.githubusercontent.com/32810066/195706760-3b1e5d99-9e85-4e3e-893d-c556f77b74ba.png"></td><td><br> <p align="center"><img width="160" height="120" src="https://user-images.githubusercontent.com/32810066/195706763-e52061fc-c092-4ae4-a8c6-4cc2ffc97ac3.png"></td><td><br> <p align="center"><img width="160" height="120" src="https://user-images.githubusercontent.com/32810066/195706764-7484cca4-f304-431e-8bf3-987c0e358f19.png"></td><td><br> <p align="center"><img width="160" height="120" src="https://user-images.githubusercontent.com/32810066/195706768-96d2ea94-54f5-48ed-9f71-c4fd826897b9.png"></td></tr></table>
 
 ### GFX Layer Toggle
 
-The four graphical layers can be toggled in the OSD under the Debug options or by pressing F7-F10 on the keyboard.
-<br>
+- The four graphical layers can be toggled in the OSD under the Debug options or by pressing F7-F10 on the keyboard.
 
 <table><tr><th>Text Layer</th><th>Background Layer</th><th>Foreground Layer</th><th>Sprite Layer</th><th>All Layers</th></tr><tr><td><p align="center"><img width="120" height="160" src="https://user-images.githubusercontent.com/32810066/170846019-e70e74b9-1e88-4991-b8c3-3b9b52935ad8.png"></p></td><td><p align="center"><img width="120" height="160" src="https://user-images.githubusercontent.com/32810066/170846020-8459d346-0a97-41ff-ae5f-f7793a4c7bcb.png"></p></td><td><p align="center"><img width="120" height="160" src="https://user-images.githubusercontent.com/32810066/170846021-08f8506d-e764-42b6-8c4a-ea19b059060b.png"></td><td><img width="120" height="160" src="https://user-images.githubusercontent.com/32810066/170846022-5237caf6-bf3a-4461-b324-5e44733310ff.png"></td><td><p align="center"><img width="120" height="160" src="https://user-images.githubusercontent.com/32810066/170846026-eefddb1b-6a81-4c20-9a99-509dcb888735.png"></td></tr></table>
-
-<br>
 
 # Controls
 
@@ -155,7 +163,7 @@ The four graphical layers can be toggled in the OSD under the Debug options or b
 
 # Support
 
-Please consider showing support for this and future projects via [**Ko-fi**](https://ko-fi.com/darreno). While it isn't necessary, it's greatly appreciated.
+Please consider showing support for this and future projects via [**Darren's Ko-fi**](https://ko-fi.com/darreno) and [**atrac17's Patreon**](https://www.patreon.com/atrac17). While it isn't necessary, it's greatly appreciated.
 
 # Licensing
 
