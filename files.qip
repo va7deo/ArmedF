@@ -5,6 +5,7 @@ set_global_assignment -name QIP_FILE rtl/fx86k/fx68k.qip
 set_global_assignment -name QIP_FILE rtl/jtopl/hdl/jt26.qip
 set_global_assignment -name VERILOG_FILE rtl/video_timing.v
 set_global_assignment -name QIP_FILE sys/pll_q17.qip
+set_global_assignment -name QIP_FILE sys/pll_q20.qip
 set_global_assignment -name QIP_FILE sys/pll_hdmi.qip
 set_global_assignment -name QIP_FILE sys/pll_cfg.qip
 set_global_assignment -name QIP_FILE sys/pll_audio.qip

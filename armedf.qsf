@@ -292,6 +292,51 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED_*
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to BTN_*
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to BTN_*
 source files.qip
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_p.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/control_fsm_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/control_fsm_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/control_fsm_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/control_mem_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/control_mem_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/control_mem_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/alumux_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/alumux_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/alumux_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/alucore_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/alucore_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/alucore_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/addsub_cy_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/addsub_cy_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/addsub_cy_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/addsub_ovcy_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/addsub_ovcy_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/addsub_ovcy_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/addsub_core_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/addsub_core_struc.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/addsub_core_struc_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/comb_divider_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/comb_divider_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/comb_divider_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/comb_mltplr_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/comb_mltplr_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/comb_mltplr_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/dcml_adjust_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/dcml_adjust_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/dcml_adjust_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_siu_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_siu_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_siu_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_tmrctr_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_tmrctr_rtl.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_tmrctr_rtl_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_alu_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_alu_struc.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_alu_struc_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_control_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_control_struc.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_control_struc_cfg.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_core_.vhd
+set_global_assignment -name VHDL_FILE rtl/8051/mc8051_core_struc.vhd
 set_global_assignment -name SDC_FILE armedf.sdc
 set_global_assignment -name SYSTEMVERILOG_FILE armedf.sv
 set_global_assignment -name QIP_FILE rtl/t80/T80.qip
@@ -322,4 +367,10 @@ set_global_assignment -name ENABLE_SIGNALTAP OFF
 set_global_assignment -name VERILOG_FILE rtl/mem/cache.v
 set_global_assignment -name USE_SIGNALTAP_FILE output_files/i8751.stp
 set_global_assignment -name SIGNALTAP_FILE output_files/i8751.stp
+set_global_assignment -name ALM_REGISTER_PACKING_EFFORT HIGH
+set_global_assignment -name FITTER_AGGRESSIVE_ROUTABILITY_OPTIMIZATION AUTOMATICALLY
+set_global_assignment -name FORCE_FITTER_TO_AVOID_PERIPHERY_PLACEMENT_WARNINGS ON
+set_global_assignment -name OPTIMIZE_IOC_REGISTER_PLACEMENT_FOR_TIMING "PACK ALL IO REGISTERS"
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
+set_global_assignment -name TOP_LEVEL_ENTITY sys_top
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
