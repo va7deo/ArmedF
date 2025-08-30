@@ -49,7 +49,7 @@ module emu
     output        VGA_VS,
     output        VGA_DE,    // = ~(VBlank | HBlank)
     output        VGA_F1,
-    output [1:0]  VGA_SL,
+    output [2:0]  VGA_SL,
     output        VGA_SCALER, // Force VGA scaler
     output        VGA_DISABLE, // analog out is off
 
