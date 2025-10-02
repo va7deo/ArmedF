@@ -1,7 +1,7 @@
 
 # Nichibutsu M68000 (Armed F) FPGA Implementation
 
-FPGA compatible core of Nichibutsu M68000 (Terra Force Based) arcade hardware for [**MiSTerFPGA**](https://github.com/MiSTer-devel/Main_MiSTer/wiki) written by [**Darren Olafson**](https://twitter.com/Darren__O). Terra Force PCB (different board revisions) donated by [**@atrac17**](https://twitter.com/_atrac17) / [**@djhardrich**](https://twitter.com/djhardrich).
+FPGA compatible core of Nichibutsu M68000 (Terra Force Based) arcade hardware for [**MiSTerFPGA**](https://github.com/MiSTer-devel/Main_MiSTer/wiki) written by **Erin Olafson**. Terra Force PCB (different board revisions) donated by [**@atrac17**](https://twitter.com/_atrac17) / [**@djhardrich**](https://twitter.com/djhardrich).
 
 The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra Force based) 68000 hardware. Currently in an beta state, this core is in active development with assistance from [**atrac17**](https://github.com/atrac17).
 
@@ -40,7 +40,7 @@ The intent is for this core to be a 1:1 implementation of the Nichibutsu (Terra 
 
 FPGA implementation is based on Terra Force and verified against an authentic Nichibutsu U.S.A Terra Force PCB and bootleg PCB.
 
-Reverse engineering of an authentic Terra Force PCB will be done by [**Darren Olafson**](https://twitter.com/Darren__O) and schematics will be included in the repository.
+Reverse engineering of an authentic Terra Force PCB will be done by **Erin Olafson** and schematics will be included in the repository.
 
 ### Clock Information
 
@@ -163,7 +163,7 @@ A hidden debug menu can be accessed for all Nichibutsu 68000 (Armed F Based) tit
 
 # Support
 
-Please consider showing support for this and future projects via [**Darren's Ko-fi**](https://ko-fi.com/darreno) and [**atrac17's Patreon**](https://www.patreon.com/atrac17). While it isn't necessary, it's greatly appreciated.
+Please consider showing support for this and future projects via [**Erin's Ko-fi**](https://ko-fi.com/Erino) and [**atrac17's Patreon**](https://www.patreon.com/atrac17). While it isn't necessary, it's greatly appreciated.
 
 # Licensing
 
