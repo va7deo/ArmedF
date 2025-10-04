@@ -19,17 +19,11 @@ always @(posedge clk) begin
 	old_hs <= hs_in;
 	old_vs <= vs_in;
 	
-	if (old_hs && ~hs_in) begin
-//		if (v2) begin
-//			scanline <= scanline + 1'd1;
-//			if (scanline == scanlines) begin
-//                scanline <= 0;
-//            end
-//		end else begin
-            scanline <= scanline ^ scanlines;
-//        end
-	end
-	if (old_vs && ~vs_in) scanline <= 0;
+	if(old_hs && ~hs_in) begin
+		scanline <= scanline ^ scanlines;
+    end
+
+	if(old_vs && ~vs_in) scanline <= 0;
 end
 
 wire [7:0] r,g,b;
@@ -52,9 +46,9 @@ always @(*) begin
 			d = {{2'b00, r[7:2]},
 			     {2'b00, g[7:2]},
 				  {2'b00, b[7:2]}};
-
         4: // black
             d = 0;
+
 		default: d = {r,g,b};
 	endcase
 end

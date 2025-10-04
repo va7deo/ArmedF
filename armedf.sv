@@ -51,10 +51,13 @@ module emu
     output        VGA_F1,
     output [2:0]  VGA_SL,
     output        VGA_SCALER, // Force VGA scaler
+    output        VGA_DISABLE, // analog out is off
 
     input  [11:0] HDMI_WIDTH,
     input  [11:0] HDMI_HEIGHT,
     output        HDMI_FREEZE,
+    output        HDMI_BLACKOUT,
+    output        HDMI_BOB_DEINT,
 
 `ifdef MISTER_FB
     // Use framebuffer in DDRAM (USE_FB=1 in qsf)
